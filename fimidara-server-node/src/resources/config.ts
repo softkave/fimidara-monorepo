@@ -146,6 +146,12 @@ export type FimidaraSuppliedConfig = Partial<{
   // Redis
   redisURL: string;
   redisDatabase: number;
+  redisPassword: string;
+  redisRequireTLS: boolean;
+  redisCertFilepath: string;
+  redisKeyFilepath: string;
+  redisCaFilepath: string;
+  redisTLSRejectUnauthorized: boolean;
 
   // Queues
   queueProvider: FimidaraConfigQueueProvider;
