@@ -104,11 +104,13 @@ export const wrapEndpointREST = <EndpointType extends Endpoint>(
         }
       } catch (error: unknown) {
         try {
-          kIjxUtils
-            .logger()
-            .log(`error with ${endpoint.name}, URL: ${req.url}`);
+          kIjxUtils.logger().error({
+            message: 'Error in endpoint',
+            reason: error,
+            endpointName: endpoint.name,
+            url: req.url,
+          });
 
-          kIjxUtils.logger().error(error);
           const {statusCode, preppedErrors} = prepareResponseError(error);
           if (handleError) {
             const deferHandling = handleError(res, preppedErrors, error);
@@ -125,8 +127,13 @@ export const wrapEndpointREST = <EndpointType extends Endpoint>(
               res.end(JSON.stringify(result));
             }
           }
-        } catch (serverError) {
-          kIjxUtils.logger().error(serverError);
+        } catch (handlerError) {
+          kIjxUtils.logger().error({
+            message: 'Error handling endpoint error',
+            reason: handlerError,
+            endpointName: endpoint.name,
+            url: req.url,
+          });
           res.end();
         }
       } finally {

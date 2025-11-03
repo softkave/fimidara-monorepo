@@ -50,7 +50,14 @@ export function handleErrors(
     return;
   }
 
-  kIjxUtils.logger().error(err);
+  kIjxUtils.logger().error({
+    message: 'Request error',
+    reason: err,
+    req: {
+      url: req.url,
+      method: req.method,
+    },
+  });
   const JWTError = resolveJWTError(err);
   if (JWTError) {
     res.status(kEndpointConstants.httpStatusCode.unauthorized).json({

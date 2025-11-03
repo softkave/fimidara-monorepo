@@ -60,7 +60,12 @@ export class RedisQueueContext implements IQueueContext {
     const p = this.redis.xRead({key, id: '0-0'}, {COUNT: 1, BLOCK: timeout});
     p.catch(reason => {
       fn(false);
-      kIjxUtils.logger().error(reason);
+      kIjxUtils.logger().error({
+        message: 'Error waiting on Redis queue stream',
+        reason,
+        key,
+        timeout,
+      });
     });
     p.then(data => {
       const hasData = data?.length && data[0]?.messages?.length;

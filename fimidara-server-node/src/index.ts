@@ -54,7 +54,10 @@ async function setupHttpServer() {
     artifacts.httpServer = httpServer;
     httpServerPromise = new Promise(resolve => {
       httpServer.listen(conf.httpPort, () => {
-        kIjxUtils.logger().log(`HTTP port: ${conf.httpPort}`);
+        kIjxUtils.logger().log({
+          message: 'Listening on HTTP port',
+          port: conf.httpPort,
+        });
         resolve();
       });
     });
@@ -82,7 +85,10 @@ async function setupHttpServer() {
     artifacts.httpsServer = httpsServer;
     httpsServerPromise = new Promise(resolve => {
       httpsServer.listen(conf.httpsPort, () => {
-        kIjxUtils.logger().log(`HTTPS port: ${conf.httpsPort}`);
+        kIjxUtils.logger().log({
+          message: 'Listening on HTTPS port',
+          port: conf.httpsPort,
+        });
         resolve();
       });
     });
@@ -121,7 +127,10 @@ async function setup() {
   // End of scripts
 
   const defaultWorkspace = await initFimidara();
-  kIjxUtils.logger().log(`Workspace ID: ${defaultWorkspace.resourceId}`);
+  kIjxUtils.logger().log({
+    message: 'Workspace ID',
+    workspaceId: defaultWorkspace.resourceId,
+  });
 
   setupJWT();
   setupFimidaraHttpEndpoints(app);
@@ -140,10 +149,16 @@ async function closeHttpServer(server: http.Server): Promise<void> {
   return new Promise(resolve => {
     server.close(error => {
       if (error) {
-        kIjxUtils.logger().error(error);
+        kIjxUtils.logger().error({
+          message: 'Error closing HTTP server',
+          reason: error,
+        });
       }
 
-      kIjxUtils.logger().log(`Closed ${format(addr)}`);
+      kIjxUtils.logger().log({
+        message: 'Closed server',
+        address: format(addr),
+      });
       resolve();
     });
 
@@ -151,9 +166,12 @@ async function closeHttpServer(server: http.Server): Promise<void> {
   });
 }
 
-async function endServer() {
+async function endServer(signal: string) {
   kIjxUtils.runtimeState().setIsEnded(true);
-  kIjxUtils.logger().log('Started graceful shutdown');
+  kIjxUtils.logger().log({
+    message: 'Started graceful shutdown',
+    signal,
+  });
   await Promise.allSettled([
     artifacts.httpServer && closeHttpServer(artifacts.httpServer),
     artifacts.httpsServer && closeHttpServer(artifacts.httpsServer),
@@ -167,16 +185,12 @@ async function endServer() {
 }
 
 process.on('uncaughtException', (exp, origin) => {
-  kIjxUtils.logger().log('uncaughtException');
-  kIjxUtils.logger().error(exp);
-  kIjxUtils.logger().log(origin);
+  kIjxUtils.logger().error({message: 'uncaughtException', exp, origin});
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  kIjxUtils.logger().log('unhandledRejection');
-  kIjxUtils.logger().log(promise);
-  kIjxUtils.logger().log(reason);
+process.on('unhandledRejection', reason => {
+  kIjxUtils.logger().error({message: 'unhandledRejection', reason});
 });
 
-process.on('SIGINT', endServer);
-process.on('SIGTERM', endServer);
+process.on('SIGINT', () => endServer('SIGINT'));
+process.on('SIGTERM', () => endServer('SIGTERM'));

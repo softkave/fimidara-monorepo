@@ -62,7 +62,10 @@ export abstract class FWorkerMainBase extends FWorkerMessager {
     return new Promise<ReadonlyDeep<FWorkerMainWorkerEntry>>(resolve => {
       const {port1: parentPort, port2: workerPort} = new MessageChannel();
       parentPort.on('messageerror', (...args) =>
-        kIjxUtils.logger().error(...args)
+        kIjxUtils.logger().error({
+          message: 'FWorkerMain messageerror',
+          reason: args,
+        })
       );
 
       const wData: FWorkerData = {workerId, port: workerPort};
@@ -102,11 +105,17 @@ export abstract class FWorkerMainBase extends FWorkerMessager {
         }
       });
       worker.on('error', (error: unknown) => {
-        kIjxUtils.logger().error(error);
+        kIjxUtils.logger().error({
+          message: 'FWorkerMain error',
+          reason: error,
+        });
         delete this.workers[workerId];
       });
       worker.on('messageerror', (error: unknown) => {
-        kIjxUtils.logger().error(error);
+        kIjxUtils.logger().error({
+          message: 'FWorkerMain messageerror',
+          reason: error,
+        });
       });
       worker.on('exit', () => {
         delete this.workers[workerId];

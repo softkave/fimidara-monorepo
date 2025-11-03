@@ -21,6 +21,7 @@ import {
   kJobType,
 } from '../../definitions/job.js';
 import {FimidaraExternalError} from '../../utils/OperationError.js';
+import {appAssert} from '../../utils/assertion.js';
 import {ServerError} from '../../utils/errors.js';
 import {loopAndCollateAsync} from '../../utils/fns.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
@@ -32,7 +33,6 @@ import {
   kEndpointResultNotesToMessageMap,
 } from '../types.js';
 import {getBackendConfigsWithIdList} from './configUtils.js';
-import {appAssert} from '../../utils/assertion.js';
 
 export type FileBackendMountWeights = Record<string, number>;
 
@@ -123,11 +123,10 @@ export async function initBackendProvidersForMounts(
     const {providerParams, config} = configsMap[mount.configId ?? ''] ?? {};
 
     if (mount.backend !== kFileBackendType.fimidara && !providerParams) {
-      kIjxUtils
-        .logger()
-        .log(
-          `mount ${mount.resourceId} is not fimidara, and is without config`
-        );
+      kIjxUtils.logger().log({
+        message: 'Mount is not fimidara, and is without config',
+        mountId: mount.resourceId,
+      });
       throw new ServerError();
     }
 

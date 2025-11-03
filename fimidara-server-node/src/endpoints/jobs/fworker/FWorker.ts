@@ -38,7 +38,10 @@ export class FWorker extends FWorkerMessager implements DisposableResource {
     super();
     this.port = this.getWorkerData().port;
     this.port.on('messageerror', (...args) =>
-      kIjxUtils.logger().error(...args)
+      kIjxUtils.logger().error({
+        message: 'FWorker messageerror',
+        reason: args,
+      })
     );
   }
 

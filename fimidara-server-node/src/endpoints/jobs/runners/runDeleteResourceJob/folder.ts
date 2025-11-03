@@ -72,7 +72,10 @@ const deleteResourceFn: DeleteResourceFn<
           })),
         });
       } catch (error) {
-        kIjxUtils.logger().error(error);
+        kIjxUtils.logger().error({
+          message: 'Error deleting mount folder artifacts',
+          reason: error,
+        });
       }
     })
   );

@@ -191,7 +191,11 @@ async function deleteMountFileArtifacts(params: {
             }),
         ]);
       } catch (error) {
-        kIjxUtils.logger().error(error);
+        kIjxUtils.logger().error({
+          message: 'Error deleting mount file artifacts',
+          reason: error,
+          params,
+        });
       }
     })
   );

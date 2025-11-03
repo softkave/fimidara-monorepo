@@ -45,9 +45,13 @@ export async function getRedis() {
   });
 
   await redis
-    .on('error', err => kIjxUtils.logger().error('Redis error', err))
+    .on('error', err =>
+      kIjxUtils.logger().error({
+        message: 'Error on Redis client connection',
+        reason: err,
+      })
+    )
     .connect();
-
   return redis;
 }
 
@@ -79,8 +83,12 @@ export async function getIoRedis() {
   });
 
   await redis
-    .on('error', err => kIjxUtils.logger().error('Redis error', err))
+    .on('error', err =>
+      kIjxUtils.logger().error({
+        message: 'Error on IoRedis client connection',
+        reason: err,
+      })
+    )
     .connect();
-
   return redis;
 }

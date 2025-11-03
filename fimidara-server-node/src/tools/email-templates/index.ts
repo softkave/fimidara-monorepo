@@ -27,7 +27,7 @@ async function main() {
     redisURL: '',
   });
 
-  kIjxUtils.logger().log('Writing templates');
+  kIjxUtils.logger().log({message: 'Writing templates'});
 
   await Promise.all([
     renderConfirmEmailAddressMedia(),
@@ -40,7 +40,7 @@ async function main() {
     renderNewSignupsOnWaitlistMedia(),
   ]);
 
-  kIjxUtils.logger().log('Completed writing templates');
+  kIjxUtils.logger().log({message: 'Completed writing templates'});
   await globalDispose();
 }
 

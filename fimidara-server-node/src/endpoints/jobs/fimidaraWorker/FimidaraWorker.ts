@@ -29,7 +29,10 @@ export class FimidaraWorker extends FWorker {
     );
     this.getPort().on('message', this.handleMessage);
     this.informMainThreadWorkerIsReady();
-    kIjxUtils.logger().log('Started worker ', this.getWorkerData().workerId);
+    kIjxUtils.logger().log({
+      message: 'Started worker',
+      workerId: this.getWorkerData().workerId,
+    });
     kIjxUtils.promises().callAndForget(() => this.run());
   }
 
@@ -88,7 +91,10 @@ export class FimidaraWorker extends FWorker {
         return response.value.job;
       }
     } catch (error) {
-      kIjxUtils.logger().error(error);
+      kIjxUtils.logger().error({
+        message: 'FimidaraWorker error getting next job',
+        reason: error,
+      });
     }
 
     return undefined;

@@ -3,6 +3,7 @@ import fse from 'fs-extra';
 import {compact, first, isNumber} from 'lodash-es';
 import path from 'path';
 import {FimidaraSuppliedConfig} from '../../resources/config.js';
+import {appAssert} from '../../utils/assertion.js';
 import {noopAsync, pathJoin} from '../../utils/fns.js';
 import {AnyFn} from '../../utils/types.js';
 import {kIjxUtils} from '../ijx/injectables.js';
@@ -34,7 +35,6 @@ import {
   PersistedFolderDescription,
 } from './types.js';
 import {defaultToFimidaraPath, defaultToNativePath} from './utils.js';
-import {appAssert} from '../../utils/assertion.js';
 
 export interface LocalFsFilePersistenceProviderParams {
   dir: string;
@@ -240,7 +240,7 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
     const {mount, max} = params;
     const files: PersistedFileDescription<undefined>[] = [];
     const folders: PersistedFolderDescription<undefined>[] = [];
-    const {continuationToken} = await this.produceFromChildren(
+    const {continuationToken} = await this.produceArtifactsFromFolderChildren(
       params,
       (stat, nativePath) => {
         if (stat.isFile()) {
@@ -294,7 +294,7 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
     return {fimidaraPath};
   };
 
-  protected produceFromChildren = async <
+  protected produceArtifactsFromFolderChildren = async <
     TFn extends AnyFn<
       [fse.Stats, string, number],
       /** stop if `true`, continue if `false` or `undefined` */ boolean
@@ -341,7 +341,14 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
         stopIndex < children.length - 1 ? stopIndex : undefined;
       return {continuationToken: nextContinuationToken};
     } catch (error) {
-      kIjxUtils.logger().error(error);
+      kIjxUtils.logger().error({
+        message: 'Error producing artifacts from folder children',
+        reason: error,
+        nativePath,
+        folderpath,
+        continuationToken,
+        max,
+      });
       return {};
     }
   };
@@ -356,7 +363,12 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
           const stat = await fse.promises.stat(nextPath);
           return process(stat, nextPath, index);
         } catch (error) {
-          kIjxUtils.logger().error(error);
+          kIjxUtils.logger().error({
+            message: 'Error getting local stats',
+            reason: error,
+            nextPath,
+            index,
+          });
           return undefined;
         }
       })

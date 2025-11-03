@@ -33,8 +33,11 @@ export async function runJob(job: Job) {
     await handler(job);
     return await completeJob(job.resourceId);
   } catch (error: unknown) {
-    kIjxUtils.logger().log(`Job ${job.resourceId} failed with error`);
-    kIjxUtils.logger().error(error);
+    kIjxUtils.logger().error({
+      message: 'Error running job',
+      reason: error,
+      jobId: job.resourceId,
+    });
     return await completeJob(
       job.resourceId,
       kJobStatus.failed,

@@ -1,19 +1,18 @@
 import {Resend} from 'resend';
 import {kFimidaraConfigEmailProvider} from '../../resources/config.js';
+import {appAssert} from '../../utils/assertion.js';
 import {kIjxUtils} from '../ijx/injectables.js';
 import {
   EmailProviderSendEmailResult,
   IEmailProviderContext,
   SendEmailParams,
 } from './types.js';
-import {appAssert} from '../../utils/assertion.js';
 
 export class ResendEmailProviderContext implements IEmailProviderContext {
   protected resend: Resend;
 
   constructor(apiKey: string) {
     appAssert(apiKey, 'Resend API key is required');
-
     this.resend = new Resend(apiKey);
   }
 
@@ -35,24 +34,27 @@ export class ResendEmailProviderContext implements IEmailProviderContext {
 
       return undefined;
     } catch (error) {
-      kIjxUtils.logger().error('Failed to send email via Resend:', error);
+      kIjxUtils.logger().error({
+        message: 'Failed to send email with Resend',
+        reason: error,
+      });
       throw error;
     }
   };
 
   dispose = async () => {
-    // Resend client doesn't require explicit disposal
-    // but we can clean up any resources if needed
+    // Resend client doesn't require explicit disposal but we can clean up any
+    // resources if needed
   };
 
   protected async tryGetEmailInsights(
     emailId: string
   ): Promise<EmailProviderSendEmailResult> {
     try {
-      // Note: Resend doesn't provide real-time bounce/complaint insights
-      // like AWS SES. The insights are typically available through webhooks
-      // or by checking the email status via their API.
-      // For now, we'll return basic metadata.
+      // Note: Resend doesn't provide real-time bounce/complaint insights like
+      // AWS SES. The insights are typically available through webhooks or by
+      // checking the email status via their API. For now, we'll return basic
+      // metadata.
 
       return {
         meta: {
@@ -64,9 +66,10 @@ export class ResendEmailProviderContext implements IEmailProviderContext {
         },
       };
     } catch (error) {
-      kIjxUtils
-        .logger()
-        .error('Failed to get email insights from Resend:', error);
+      kIjxUtils.logger().error({
+        message: 'Failed to get email insights from Resend',
+        reason: error,
+      });
       return {
         meta: {
           emailProvider: kFimidaraConfigEmailProvider.resend,

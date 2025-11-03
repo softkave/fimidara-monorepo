@@ -204,7 +204,10 @@ export class UsageProvider implements IUsageContext {
 
       this.committingUsageL1BatchedUpdated = [];
     } catch (error) {
-      kIjxUtils.logger().error(error);
+      kIjxUtils.logger().error({
+        message: 'Error committing batched usage L1 updates',
+        reason: error,
+      });
     } finally {
       this.isCommittingBatchedUsageL1Updates = false;
     }
@@ -239,7 +242,10 @@ export class UsageProvider implements IUsageContext {
 
       this.committingUsageL2BatchedUpdated = {};
     } catch (error) {
-      kIjxUtils.logger().error(error);
+      kIjxUtils.logger().error({
+        message: 'Error committing batched usage L2 updates',
+        reason: error,
+      });
     } finally {
       this.isCommittingBatchedUsageL2Updates = false;
     }

@@ -115,7 +115,11 @@ export class FimidaraWorkerPool implements DisposableResource {
         /** pick from shards */ [this.server.getShard()]
       );
     } catch (error: unknown) {
-      kIjxUtils.logger().error(error);
+      kIjxUtils.logger().error({
+        message: 'FimidaraWorkerPool error getting next job',
+        reason: error,
+        workerId,
+      });
       return undefined;
     }
   }

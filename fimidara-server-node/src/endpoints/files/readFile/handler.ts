@@ -76,11 +76,9 @@ const readFile: ReadFileEndpoint = async reqData => {
 
   const persistedFile = await readPersistedFile(file);
   const isImageResizeEmpty = isObjectFieldsEmpty(data.imageResize ?? {});
-
   if (persistedFile.body && (!isImageResizeEmpty || data.imageFormat)) {
     const outputStream = new PassThrough();
     const transformer = sharp();
-
     if (data.imageResize && !isImageResizeEmpty) {
       transformer.resize({
         withoutEnlargement: data.imageResize.withoutEnlargement,
@@ -127,16 +125,13 @@ async function readPersistedFile(file: File): Promise<PersistedFile> {
   );
   const providersMap = await initBackendProvidersForMounts(mounts, configs);
   const resolvedEntries = await getResolvedMountEntries(file.resourceId);
-
   for (const entry of resolvedEntries) {
     const mount = mountsMap[entry.mountId];
-
     if (!mount) {
       continue;
     }
 
     const backend = providersMap[mount.resourceId];
-
     if (!backend) {
       continue;
     }
@@ -156,7 +151,13 @@ async function readPersistedFile(file: File): Promise<PersistedFile> {
         return persistedFile;
       }
     } catch (error) {
-      kIjxUtils.logger().error(error);
+      kIjxUtils.logger().error({
+        message: 'Error reading persisted file',
+        reason: error,
+        fileId: file.resourceId,
+        mountId: entry.mountId,
+        resolvedEntryId: entry.resourceId,
+      });
     }
   }
 

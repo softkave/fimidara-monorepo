@@ -11,7 +11,10 @@ export function appAssert(
 ): asserts value {
   if (!value) {
     if (logMessage) {
-      kIjxUtils.logger().error(logMessage);
+      kIjxUtils.logger().error({
+        message: logMessage,
+        reason: response,
+      });
     }
 
     if (isString(response)) {

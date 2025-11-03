@@ -39,14 +39,14 @@ export async function globalSetup(
   const logger = kIjxUtils.logger();
 
   if (suppliedConfig.useFimidaraApp) {
-    logger.log('starting server app');
+    logger.log({message: 'Starting server app'});
     await kIjxUtils.serverApp().startApp();
-    logger.log('started server app');
+    logger.log({message: 'Started server app'});
 
     if (suppliedConfig.useFimidaraWorkerPool) {
-      logger.log('starting worker pool');
+      logger.log({message: 'Starting worker pool'});
       await kIjxUtils.workerPool().startPool();
-      logger.log('started worker pool');
+      logger.log({message: 'Started worker pool'});
     }
   }
 

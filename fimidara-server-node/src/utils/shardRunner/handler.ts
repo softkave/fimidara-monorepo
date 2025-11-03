@@ -36,8 +36,9 @@ function ackItems(params: {items: IShardRunnerEntry<unknown>[]}) {
   const {items} = params;
 
   if (kIjxUtils.runtimeState().getIsEnded()) {
-    kIjxUtils.logger().log('dropping ack items because server is ending');
-    kIjxUtils.logger().log(JSON.stringify(items, null, 2));
+    kIjxUtils
+      .logger()
+      .log({message: 'Dropping ack items because server is ending'});
     return;
   }
 
@@ -59,9 +60,9 @@ function outputItems(params: {
   const {items, resultsMap} = params;
 
   if (kIjxUtils.runtimeState().getIsEnded()) {
-    kIjxUtils.logger().log('dropping output items because server is ending');
-    kIjxUtils.logger().log(JSON.stringify(items, null, 2));
-    kIjxUtils.logger().log(JSON.stringify(resultsMap, null, 2));
+    kIjxUtils.logger().log({
+      message: 'Dropping output items because server is ending',
+    });
     return;
   }
 
@@ -140,13 +141,10 @@ export async function multiItemsHandleShardQueue(params: {
         kIjxUtils.logger().error(error);
         outputItems({
           items,
-          resultsMap: items.reduce(
-            (acc, item) => {
-              acc[item.id] = {type: kShardRunnerOutputType.error, error};
-              return acc;
-            },
-            {} as Record<string, ShardRunnerProvidedHandlerResult<unknown>>
-          ),
+          resultsMap: items.reduce((acc, item) => {
+            acc[item.id] = {type: kShardRunnerOutputType.error, error};
+            return acc;
+          }, {} as Record<string, ShardRunnerProvidedHandlerResult<unknown>>),
         });
       }
     },

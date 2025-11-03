@@ -79,14 +79,28 @@ FIMIDARA_TEST_FILEPATH="/src/testutils/testdata/testdata.txt"
 FIMIDARA_TEST_FOLDER_PATH="/src/testutils/testdata"
 FIMIDARA_SERVER_URL="http://localhost:${kIjxUtils.suppliedConfig().httpPort}"`;
     await fspromises.writeFile(jsSdkTestEnvFilepath, envText, 'utf-8');
-    kIjxUtils.logger().log('Wrote to js sdk .env.test file');
+    kIjxUtils.logger().log({message: 'Wrote to js sdk .env.test file'});
   } catch (error: unknown) {
-    kIjxUtils.logger().log('Error writing .env.test file');
-    kIjxUtils.logger().error(error);
+    kIjxUtils.logger().error({
+      message: 'Error writing to js sdk .env.test file',
+      reason: error,
+    });
   }
 
-  kIjxUtils.logger().log(`Workspace ID: ${workspace.resourceId}`);
-  kIjxUtils.logger().log(`Workspace rootname: ${workspace.rootname}`);
-  kIjxUtils.logger().log(`Agent token ID: ${token.resourceId}`);
-  kIjxUtils.logger().log(`Agent token token: ${tokenStr}`);
+  kIjxUtils.logger().log({
+    message: 'Workspace ID',
+    workspaceId: workspace.resourceId,
+  });
+  kIjxUtils.logger().log({
+    message: 'Workspace rootname',
+    workspaceRootname: workspace.rootname,
+  });
+  kIjxUtils.logger().log({
+    message: 'Agent token ID',
+    agentTokenId: token.resourceId,
+  });
+  kIjxUtils.logger().log({
+    message: 'Agent token token',
+    agentTokenToken: tokenStr,
+  });
 }

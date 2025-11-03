@@ -30,20 +30,21 @@ export default async function SCRIPT_moveFromS3ToLocalFS() {
   };
 
   const stats = await moveFromS3ToFS(options);
-
-  kIjxUtils.logger().log('Move from S3 completed!');
-  kIjxUtils.logger().log('Stats:', {
+  kIjxUtils.logger().log({
+    message: 'Move from S3 completed',
     totalFiles: stats.totalFiles,
     filesProcessed: stats.filesProcessed,
     skippedFiles: stats.skippedFiles,
-    errors: stats.errors.length,
+    errorsCount: stats.errors.length,
   });
 
   if (stats.errors.length > 0) {
-    kIjxUtils.logger().log('\nErrors encountered:');
     stats.errors.forEach(({key, error}) => {
-      kIjxUtils.logger().error(`- File: ${key}`);
-      kIjxUtils.logger().error(`  Error: ${error.message}`);
+      kIjxUtils.logger().error({
+        message: 'Error moving file from S3 to local FS',
+        reason: error,
+        key,
+      });
     });
   }
 }

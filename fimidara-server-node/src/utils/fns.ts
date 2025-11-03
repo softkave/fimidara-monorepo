@@ -131,7 +131,7 @@ export function defaultArrayTo<T>(array: T[], data: NonNullable<T | T[]>) {
 
 export function loop<
   TOtherParams extends unknown[],
-  TFn extends AnyFn<[number, ...TOtherParams]>,
+  TFn extends AnyFn<[number, ...TOtherParams]>
 >(
   fn: TFn,
   /** counting is `0`-index based, so last iteration would be `6` if count is
@@ -162,7 +162,7 @@ export type LoopAsyncSettlementType = ValueOf<typeof kLoopAsyncSettlementType>;
 /** See {@link loop} */
 export async function loopAsync<
   TOtherParams extends unknown[],
-  TFn extends AnyFn<[number, ...TOtherParams]>,
+  TFn extends AnyFn<[number, ...TOtherParams]>
 >(
   fn: TFn,
   max: number,
@@ -200,7 +200,7 @@ export async function loopAsync<
  */
 export function loopAndCollate<
   TOtherParams extends unknown[],
-  TFn extends AnyFn<[number, ...TOtherParams]>,
+  TFn extends AnyFn<[number, ...TOtherParams]>
 >(fn: TFn, max: number, ...otherParams: TOtherParams): Array<ReturnType<TFn>> {
   appAssert(
     max >= 0,
@@ -225,7 +225,7 @@ export async function loopAndCollateAsync<
   TSettlementType extends LoopAsyncSettlementType,
   TResult = TSettlementType extends 'allSettled'
     ? PromiseSettledResult<Awaited<ReturnType<TFn>>>[]
-    : Awaited<ReturnType<TFn>>[],
+    : Awaited<ReturnType<TFn>>[]
 >(
   fn: TFn,
   max: number,
@@ -325,9 +325,9 @@ export function overArgsAsync<
     [
       TUsePromiseSettled extends true
         ? Array<PromiseSettledResult<Awaited<ReturnType<TFn>>>>
-        : Array<Awaited<ReturnType<TFn>>>,
+        : Array<Awaited<ReturnType<TFn>>>
     ]
-  >,
+  >
 >(
   fns: TFn[],
   /** Whether to use `Promise.allSettled()` or `Promise.all()` */
@@ -386,7 +386,7 @@ export const mergeData = <T1 = unknown, T2 = unknown>(
  * `fn`. */
 export function callAfterAsync<
   TFn extends AnyFn,
-  TAfterFn extends AnyFn<[Awaited<ReturnType<TFn>>, ...Parameters<TFn>]>,
+  TAfterFn extends AnyFn<[Awaited<ReturnType<TFn>>, ...Parameters<TFn>]>
 >(fn: TFn, afterFn: TAfterFn) {
   return async (...args: Parameters<TFn>) => {
     const result = await fn(...args);

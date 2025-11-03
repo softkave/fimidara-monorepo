@@ -98,11 +98,12 @@ export class BasePubSubContext implements IPubSubContext {
         : message;
       return JSON.parse(strMessage) as AnyObject;
     } catch (error) {
-      kIjxUtils
-        .logger()
-        .log('Error processing json response from channel', {channel});
-      kIjxUtils.logger().error(error);
-
+      kIjxUtils.logger().error({
+        message: 'Error parsing message for Redis pubsub listener',
+        reason: error,
+        invalidMessage: message,
+        channel,
+      });
       return undefined;
     }
   }

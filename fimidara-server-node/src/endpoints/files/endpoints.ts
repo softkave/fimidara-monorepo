@@ -170,7 +170,10 @@ async function extractUploadFileParamsFromReq(
     }, kFileStreamWaitTimeoutMS);
 
     bb.on('error', (error): void => {
-      kIjxUtils.logger().error('uploadFile req busboy error', error);
+      kIjxUtils.logger().error({
+        message: 'Error on upload file busboy',
+        reason: error,
+      });
     });
 
     bb.on('file', (filename, stream, info) => {
@@ -247,9 +250,10 @@ function cleanupUploadFileReq(req: Request) {
       ((req as ReqWithBusboy).busboy as ActiveBusboy)?._fileStream?.on(
         'error',
         error => {
-          kIjxUtils
-            .logger()
-            .error('uploadFile req busboy _fileStream error', error);
+          kIjxUtils.logger().error({
+            message: 'uploadFile req busboy _fileStream error',
+            reason: error,
+          });
         }
       );
     }

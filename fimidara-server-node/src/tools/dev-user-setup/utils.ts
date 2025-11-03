@@ -128,7 +128,7 @@ async function makeUserAdmin(
   });
 
   if (!isAdmin) {
-    kIjxUtils.logger().log('Making user admin');
+    kIjxUtils.logger().log({message: 'Making user admin'});
     await addAssignedPermissionGroupList(
       kSystemSessionAgent,
       workspace.resourceId,
@@ -213,8 +213,13 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
         .getOneByEmail(user.email, opts);
 
       if (request) {
-        kIjxUtils.logger().log('Existing collaboration request found');
-        kIjxUtils.logger().log(`Accepting request ${request.resourceId}`);
+        kIjxUtils
+          .logger()
+          .log({message: 'Existing collaboration request found'});
+        kIjxUtils.logger().log({
+          message: 'Accepting request',
+          requestId: request.resourceId,
+        });
         const agentToken = await kIjxSemantic
           .agentToken()
           .getUserAgentToken(user.resourceId, kTokenAccessScope.login, opts);
@@ -229,7 +234,7 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
           opts
         );
       } else {
-        kIjxUtils.logger().log('Adding user to workspace');
+        kIjxUtils.logger().log({message: 'Adding user to workspace'});
         await assignWorkspaceToUser(
           kSystemSessionAgent,
           workspace.resourceId,
@@ -246,13 +251,18 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
       );
     }
 
-    kIjxUtils
-      .logger()
-      .log(`User ${user.email} is now an admin of workspace ${workspace.name}`);
+    kIjxUtils.logger().log({
+      message: 'User is now an admin of workspace',
+      workspaceName: workspace.name,
+      userId: user.resourceId,
+    });
   });
 
   if (!user.isEmailVerified) {
-    kIjxUtils.logger().log(`Verifying email address for user ${user.email}`);
+    kIjxUtils.logger().log({
+      message: 'Verifying email address for user',
+      userId: user.resourceId,
+    });
     await INTERNAL_confirmEmailAddress(user.resourceId, user);
   }
 }
