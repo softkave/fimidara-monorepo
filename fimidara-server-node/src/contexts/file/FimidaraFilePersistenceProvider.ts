@@ -14,6 +14,7 @@ import {
   stringifyFolderpath,
 } from '../../endpoints/folders/utils.js';
 import {kFimidaraConfigFilePersistenceProvider} from '../../resources/config.js';
+import {appAssert} from '../../utils/assertion.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {kIjxSemantic, kIjxUtils} from '../ijx/injectables.js';
 import {LocalFsFilePersistenceProvider} from './LocalFsFilePersistenceProvider.js';
@@ -49,7 +50,6 @@ import {
   PersistedFileDescription,
   PersistedFolderDescription,
 } from './types.js';
-import {appAssert} from '../../utils/assertion.js';
 
 /** Seeing the root folder is mounted on fimidara, when we ingest new files or
  * folders from other mounts, there's a possiblity they'll be re-fetched in

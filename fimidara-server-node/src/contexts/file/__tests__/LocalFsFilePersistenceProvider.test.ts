@@ -20,7 +20,7 @@ import {
 import {expectFileBodyEqual} from '../../../endpoints/testHelpers/helpers/file.js';
 import {completeTests} from '../../../endpoints/testHelpers/helpers/testFns.js';
 import {initTests} from '../../../endpoints/testHelpers/utils.js';
-import {loopAndCollate, pathJoin, pathSplit} from '../../../utils/fns.js';
+import {loopAndCollate, pathJoin, pathSplit, streamToBuffer} from '../../../utils/fns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
 import {kIjxUtils} from '../../ijx/injectables.js';
 import {LocalFsFilePersistenceProvider} from '../LocalFsFilePersistenceProvider.js';
@@ -438,6 +438,146 @@ describe('LocalFsFilePersistenceProvider', () => {
 
     assert.ok(result.body);
     await expectFileBodyEqual(buffer, result.body);
+  });
+
+  test('readFile with range', async () => {
+    assert.ok(testDir);
+    assert.ok(testPartsDir);
+    const buffer = Buffer.from('Hello world!');
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
+    const filepath = generateTestFilepathString({
+      length: mount.namepath.length + 2,
+      parentNamepath: mount.namepath,
+    });
+    const backend = new LocalFsFilePersistenceProvider({
+      dir: testDir,
+      partsDir: testPartsDir,
+    });
+    const {nativePath} = backend.toNativePath({mount, fimidaraPath: filepath});
+    await fse.outputFile(nativePath, buffer);
+
+    // Test reading a range from the middle of the file
+    const rangeStart = 0;
+    const rangeEnd = 4; // Should read "Hello"
+    const result = await backend.readFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId: getNewIdForResource(kFimidaraResourceType.File),
+      rangeStart,
+      rangeEnd,
+    });
+
+    assert.ok(result.body);
+    const resultBuffer = await streamToBuffer(result.body);
+    const expectedBuffer = buffer.subarray(rangeStart, rangeEnd + 1);
+    expect(resultBuffer.equals(expectedBuffer)).toBe(true);
+    expect(result.size).toBe(buffer.length);
+  });
+
+  test('readFile with range at end of file', async () => {
+    assert.ok(testDir);
+    assert.ok(testPartsDir);
+    const buffer = Buffer.from('Hello world!');
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
+    const filepath = generateTestFilepathString({
+      length: mount.namepath.length + 2,
+      parentNamepath: mount.namepath,
+    });
+    const backend = new LocalFsFilePersistenceProvider({
+      dir: testDir,
+      partsDir: testPartsDir,
+    });
+    const {nativePath} = backend.toNativePath({mount, fimidaraPath: filepath});
+    await fse.outputFile(nativePath, buffer);
+
+    // Test reading a range from the end of the file
+    const rangeStart = 6;
+    const rangeEnd = 11; // Should read "world!"
+    const result = await backend.readFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId: getNewIdForResource(kFimidaraResourceType.File),
+      rangeStart,
+      rangeEnd,
+    });
+
+    assert.ok(result.body);
+    const resultBuffer = await streamToBuffer(result.body);
+    const expectedBuffer = buffer.subarray(rangeStart, rangeEnd + 1);
+    expect(resultBuffer.equals(expectedBuffer)).toBe(true);
+    expect(result.size).toBe(buffer.length);
+  });
+
+  test('readFile with rangeStart only throws error', async () => {
+    assert.ok(testDir);
+    assert.ok(testPartsDir);
+    const buffer = Buffer.from('Hello world!');
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
+    const filepath = generateTestFilepathString({
+      length: mount.namepath.length + 2,
+      parentNamepath: mount.namepath,
+    });
+    const backend = new LocalFsFilePersistenceProvider({
+      dir: testDir,
+      partsDir: testPartsDir,
+    });
+    const {nativePath} = backend.toNativePath({mount, fimidaraPath: filepath});
+    await fse.outputFile(nativePath, buffer);
+
+    await expect(
+      backend.readFile({
+        mount,
+        workspaceId,
+        filepath,
+        fileId: getNewIdForResource(kFimidaraResourceType.File),
+        rangeStart: 0,
+      })
+    ).rejects.toThrow(
+      'Both rangeStart and rangeEnd must be provided for range requests'
+    );
+  });
+
+  test('readFile with rangeEnd only throws error', async () => {
+    assert.ok(testDir);
+    assert.ok(testPartsDir);
+    const buffer = Buffer.from('Hello world!');
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
+    const filepath = generateTestFilepathString({
+      length: mount.namepath.length + 2,
+      parentNamepath: mount.namepath,
+    });
+    const backend = new LocalFsFilePersistenceProvider({
+      dir: testDir,
+      partsDir: testPartsDir,
+    });
+    const {nativePath} = backend.toNativePath({mount, fimidaraPath: filepath});
+    await fse.outputFile(nativePath, buffer);
+
+    await expect(
+      backend.readFile({
+        mount,
+        workspaceId,
+        filepath,
+        fileId: getNewIdForResource(kFimidaraResourceType.File),
+        rangeEnd: 4,
+      })
+    ).rejects.toThrow(
+      'Both rangeStart and rangeEnd must be provided for range requests'
+    );
   });
 
   test('deleteFiles', async () => {
