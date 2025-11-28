@@ -19,6 +19,7 @@ import {AnyObject} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {kFolderConstants} from '../../endpoints/folders/constants.js';
 import {FimidaraSuppliedConfig} from '../../resources/config.js';
+import {appAssert} from '../../utils/assertion.js';
 import {streamToBuffer} from '../../utils/fns.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {kIjxUtils} from '../ijx/injectables.js';
@@ -49,7 +50,6 @@ import {
   PersistedFolderDescription,
 } from './types.js';
 import {defaultToFimidaraPath, defaultToNativePath} from './utils.js';
-import {appAssert} from '../../utils/assertion.js';
 
 export interface S3FilePersistenceProviderInitParams {
   accessKeyId: string;
@@ -159,10 +159,29 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       fimidaraPath: params.filepath,
       mount: params.mount,
     });
-    const command = new GetObjectCommand({
+
+    const commandInput: {
+      Bucket: string;
+      Key: string;
+      Range?: string;
+    } = {
       Bucket: bucket,
       Key: this.formatKey(nativePath, {removeStartingSeparator: true}),
-    });
+    };
+
+    // Add Range header if range parameters are provided
+    if (params.rangeStart !== undefined && params.rangeEnd !== undefined) {
+      commandInput.Range = `bytes=${params.rangeStart}-${params.rangeEnd}`;
+    } else if (
+      params.rangeStart !== undefined ||
+      params.rangeEnd !== undefined
+    ) {
+      throw new Error(
+        'Both rangeStart and rangeEnd must be provided for range requests'
+      );
+    }
+
+    const command = new GetObjectCommand(commandInput);
     const response = await this.s3.send(command);
 
     return {
