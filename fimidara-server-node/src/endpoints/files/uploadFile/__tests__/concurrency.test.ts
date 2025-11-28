@@ -349,7 +349,10 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         assertEndpointResultOk(result);
 
         assert.ok(dataBuffer);
-        await expectFileBodyEqual(dataBuffer, result.stream);
+        const stream = Array.isArray(result.stream)
+          ? result.stream[0]
+          : result.stream;
+        await expectFileBodyEqual(dataBuffer, stream);
       }
 
       const memUploadFile = mem.uploadFile.bind(mem);

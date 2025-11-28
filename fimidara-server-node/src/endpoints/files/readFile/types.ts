@@ -10,6 +10,7 @@ export const ImageResizeFitEnumMap = {
   inside: 'inside',
   outside: 'outside',
 } as const;
+
 export const ImageResizePositionEnumMap = {
   top: 'top',
   rightTop: 'right top',
@@ -36,6 +37,7 @@ export const ImageResizePositionEnumMap = {
    * saturation and presence of skin tones. */
   attention: 'attention',
 } as const;
+
 export type ImageResizeFitEnum = ValueOf<typeof ImageResizeFitEnumMap>;
 export type ImageResizePositionEnum = ValueOf<
   typeof ImageResizePositionEnumMap
@@ -78,14 +80,30 @@ export type ReadFileEndpointParams = {
   imageFormat?: ImageFormatEnum;
   /** Used by HTTP layer to add `"Content-Disposition: attachment"` if `true` */
   download?: boolean;
+  /** Array of byte ranges to request. For single range, array has one element.
+   * For multipart ranges, array has multiple elements. */
+  ranges?: Array<{start: number; end: number}>;
+  /** Raw Range header value extracted from HTTP request (for parsing after file
+   * size is known) */
+  rangeHeader?: string;
+  /** Raw If-Range header value extracted from HTTP request */
+  ifRangeHeader?: string;
 } & FileMatcher;
 
 export interface ReadFileEndpointResult {
   contentLength?: number;
   mimetype?: string;
-  stream: Readable;
+  stream: Readable | Readable[];
   name: string;
   ext?: string;
+  /** Last modified timestamp in milliseconds */
+  lastModified?: number;
+  /** ETag for cache validation */
+  etag?: string;
+  /** Array of ranges that were returned. Present when ranges were requested. */
+  ranges?: Array<{start: number; end: number}>;
+  /** True if this is a multipart response (multiple streams) */
+  isMultipart?: boolean;
 }
 
 export type ReadFileEndpoint = Endpoint<

@@ -15,3 +15,23 @@ export class FileNotWritableError extends OperationError {
     );
   }
 }
+
+export class RangeNotSatisfiableError extends OperationError {
+  name = 'RangeNotSatisfiableError';
+  statusCode = kEndpointConstants.httpStatusCode.rangeNotSatisfiable;
+  fileSize?: number;
+
+  constructor(
+    props?: (OperationErrorParameters & {fileSize?: number}) | string
+  ) {
+    super(props);
+    if (typeof props === 'object' && props !== null && 'fileSize' in props) {
+      this.fileSize = props.fileSize;
+      this.value = JSON.stringify({fileSize: props.fileSize});
+    }
+    this.message = getErrorMessageFromParams(
+      props,
+      'The requested range is not satisfiable.'
+    );
+  }
+}

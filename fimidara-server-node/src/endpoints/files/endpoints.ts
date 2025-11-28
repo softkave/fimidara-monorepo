@@ -22,11 +22,13 @@ import {
   getFileDetailsEndpointDefinition,
   listPartsEndpointDefinition,
   readFileGETEndpointDefinition,
+  readFileHEADEndpointDefinition,
   readFilePOSTEndpointDefinition,
   startMultipartUploadEndpointDefinition,
   updateFileDetailsEndpointDefinition,
   uploadFileEndpointDefinition,
 } from './endpoints.mfdoc.js';
+import {RangeNotSatisfiableError} from './errors.js';
 import getFileDetails from './getFileDetails/handler.js';
 import listParts from './listParts/handler.js';
 import readFile from './readFile/handler.js';
@@ -35,6 +37,11 @@ import {
   ReadFileEndpointHttpQuery,
   ReadFileEndpointParams,
 } from './readFile/types.js';
+import {
+  calculateMultipartContentLength,
+  formatMultipartBoundary,
+  formatMultipartResponse,
+} from './readFile/utils.js';
 import startMultipartUpload from './startMultipartUpload/handler.js';
 import {FilesExportedEndpoints} from './types.js';
 import updateFileDetails from './updateFileDetails/handler.js';
@@ -61,6 +68,72 @@ const handleNotFoundError: ExportedHttpEndpoint_HandleErrorFn = (
   return true;
 };
 
+const handleReadFileError: ExportedHttpEndpoint_HandleErrorFn = (
+  res,
+  processedErrors,
+  caughtErrors
+) => {
+  // Check if any error is RangeNotSatisfiableError
+  const rangeError = Array.isArray(caughtErrors)
+    ? (caughtErrors.find(err => err instanceof RangeNotSatisfiableError) as
+        | RangeNotSatisfiableError
+        | undefined)
+    : caughtErrors instanceof RangeNotSatisfiableError
+    ? caughtErrors
+    : undefined;
+
+  if (rangeError) {
+    // Handle Range Not Satisfiable (416)
+    const fileSize = rangeError.fileSize ?? 0;
+    res.setHeader('Content-Range', `bytes */${fileSize}`);
+    // Defer to default error handling which will use the status code from the error
+    return true;
+  }
+
+  // Handle not found errors
+  return handleNotFoundError(res, processedErrors, caughtErrors);
+};
+
+async function handleReadFileHEADResponse(
+  res: Response,
+  result: Awaited<ReturnType<ReadFileEndpoint>>,
+  req: Request,
+  input: ReadFileEndpointParams
+) {
+  // HEAD request - return headers only, no body
+  const responseHeaders: AnyObject = {};
+
+  // Set range-related headers
+  res.setHeader('Accept-Ranges', 'bytes');
+
+  if (result.lastModified) {
+    const lastModifiedDate = new Date(result.lastModified);
+    res.setHeader('Last-Modified', lastModifiedDate.toUTCString());
+  }
+
+  if (result.etag) {
+    res.setHeader('ETag', result.etag);
+  }
+
+  if (input.download) {
+    const filename =
+      result.name +
+      (result.ext ? `${kFileConstants.nameExtSeparator}${result.ext}` : '');
+
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  }
+
+  responseHeaders['Content-Length'] = result.contentLength;
+
+  if (result.mimetype) {
+    responseHeaders['Content-Type'] = result.mimetype;
+  }
+
+  res.set(responseHeaders).status(kEndpointConstants.httpStatusCode.ok);
+  res.end();
+}
+
 async function handleReadFileResponse(
   res: Response,
   result: Awaited<ReturnType<ReadFileEndpoint>>,
@@ -79,16 +152,83 @@ async function handleReadFileResponse(
     res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   }
 
-  const responseHeaders: AnyObject = {
-    'Content-Length': result.contentLength,
-  };
+  const responseHeaders: AnyObject = {};
+
+  // Set range-related headers
+  res.setHeader('Accept-Ranges', 'bytes');
+
+  if (result.lastModified) {
+    const lastModifiedDate = new Date(result.lastModified);
+    res.setHeader('Last-Modified', lastModifiedDate.toUTCString());
+  }
+
+  if (result.etag) {
+    res.setHeader('ETag', result.etag);
+  }
+
+  // Handle range responses
+  if (result.ranges && result.ranges.length > 0) {
+    const isMultipart = result.isMultipart && Array.isArray(result.stream);
+    const fileSize = result.contentLength ?? 0;
+    const streams = Array.isArray(result.stream)
+      ? result.stream
+      : [result.stream];
+
+    if (isMultipart && result.ranges.length > 1) {
+      // Multipart range response
+      const boundary = formatMultipartBoundary();
+      const contentType = result.mimetype ?? 'application/octet-stream';
+      const multipartContentType = `multipart/byteranges; boundary=${boundary}`;
+
+      responseHeaders['Content-Type'] = multipartContentType;
+      responseHeaders['Content-Length'] = calculateMultipartContentLength(
+        result.ranges,
+        fileSize,
+        contentType,
+        boundary
+      );
+
+      res.set(responseHeaders).status(206);
+      const multipartStream = formatMultipartResponse(
+        streams,
+        result.ranges,
+        fileSize,
+        contentType,
+        boundary
+      );
+      multipartStream.pipe(res, {end: true});
+      await finished(res, {cleanup: true});
+      return;
+    } else {
+      // Single range response
+      const range = result.ranges[0];
+      const rangeSize = range.end - range.start + 1;
+      responseHeaders[
+        'Content-Range'
+      ] = `bytes ${range.start}-${range.end}/${fileSize}`;
+      responseHeaders['Content-Length'] = rangeSize;
+      responseHeaders['Content-Type'] =
+        result.mimetype ?? 'application/octet-stream';
+
+      res.set(responseHeaders).status(206);
+      streams[0].pipe(res, {end: true});
+      await finished(res, {cleanup: true});
+      return;
+    }
+  }
+
+  // Full file response (no ranges)
+  responseHeaders['Content-Length'] = result.contentLength;
 
   if (result.mimetype) {
     responseHeaders['Content-Type'] = result.mimetype;
   }
 
   res.set(responseHeaders).status(kEndpointConstants.httpStatusCode.ok);
-  result.stream.pipe(res, {end: true});
+  const stream = Array.isArray(result.stream)
+    ? result.stream[0]
+    : result.stream;
+  stream.pipe(res, {end: true});
   await finished(res, {cleanup: true});
 }
 
@@ -100,6 +240,10 @@ async function handleReadFileResponse(
 function extractFilepathOrIdFromReqPath(req: Request, endpointPath: string) {
   const reqPath = req.path;
   let filepath = endpointDecodeURIComponent(last(reqPath.split(endpointPath)));
+  // Remove leading slashes from filepath
+  if (filepath) {
+    filepath = filepath.replace(/^\/+/, '');
+  }
   let fileId: string | undefined = undefined;
   const maybeFileId = filepath?.replace(kFolderConstants.separator, '');
 
@@ -117,6 +261,11 @@ function extractFilepathOrIdFromReqPath(req: Request, endpointPath: string) {
 
 function extractReadFileParamsFromReq(req: Request): ReadFileEndpointParams {
   const query = req.query as Partial<ReadFileEndpointHttpQuery>;
+
+  // Extract HTTP headers for range requests
+  const rangeHeader = req.headers.range as string | undefined;
+  const ifRangeHeader = req.headers['if-range'] as string | undefined;
+
   return {
     ...extractFilepathOrIdFromReqPath(req, kFileConstants.routes.readFile),
     imageResize: {
@@ -129,6 +278,8 @@ function extractReadFileParamsFromReq(req: Request): ReadFileEndpointParams {
     },
     imageFormat: endpointDecodeURIComponent(query.format),
     download: query.download,
+    rangeHeader,
+    ifRangeHeader,
     ...req.body,
   };
 }
@@ -290,7 +441,7 @@ export function getFilesHttpEndpoints() {
         mfdocHttpDefinition: readFilePOSTEndpointDefinition,
         getDataFromReq: extractReadFileParamsFromReq,
         handleResponse: handleReadFileResponse,
-        handleError: handleNotFoundError,
+        handleError: handleReadFileError,
         fn: readFile,
       },
       {
@@ -303,7 +454,17 @@ export function getFilesHttpEndpoints() {
         mfdocHttpDefinition: readFileGETEndpointDefinition,
         getDataFromReq: extractReadFileParamsFromReq,
         handleResponse: handleReadFileResponse,
-        handleError: handleNotFoundError,
+        handleError: handleReadFileError,
+        fn: readFile,
+      },
+      {
+        tag: [kEndpointTag.public],
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        mfdocHttpDefinition: readFileHEADEndpointDefinition,
+        getDataFromReq: extractReadFileParamsFromReq,
+        handleResponse: handleReadFileHEADResponse,
+        handleError: handleReadFileError,
         fn: readFile,
       },
     ],

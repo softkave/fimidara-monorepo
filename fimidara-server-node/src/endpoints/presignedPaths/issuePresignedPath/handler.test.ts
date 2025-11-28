@@ -51,7 +51,10 @@ describe('issuePresignedPath', () => {
     assertEndpointResultOk(result);
 
     const readFileResult = await tryReadFile(result.path);
-    await expectFileBodyEqualById(file.resourceId, readFileResult.stream);
+    const stream = Array.isArray(readFileResult.stream)
+      ? readFileResult.stream[0]
+      : readFileResult.stream;
+    await expectFileBodyEqualById(file.resourceId, stream);
   });
 
   test('issued with fileId', async () => {
@@ -68,7 +71,10 @@ describe('issuePresignedPath', () => {
     assertEndpointResultOk(result);
 
     const readFileResult = await tryReadFile(result.path);
-    await expectFileBodyEqualById(file.resourceId, readFileResult.stream);
+    const stream = Array.isArray(readFileResult.stream)
+      ? readFileResult.stream[0]
+      : readFileResult.stream;
+    await expectFileBodyEqualById(file.resourceId, stream);
   });
 
   test('file presigned path issued with duration', async () => {
