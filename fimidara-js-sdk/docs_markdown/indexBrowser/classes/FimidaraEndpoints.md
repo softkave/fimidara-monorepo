@@ -54,12 +54,6 @@
 
 ***
 
-### fileBackends
-
-> **fileBackends**: [`FileBackendsEndpoints`](FileBackendsEndpoints.md)
-
-***
-
 ### files
 
 > **files**: [`FilesEndpoints`](FilesEndpoints.md)

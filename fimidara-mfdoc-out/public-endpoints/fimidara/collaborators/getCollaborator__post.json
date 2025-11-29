@@ -1,79 +1,33 @@
 {
     "__id": "HttpEndpointDefinition",
-    "path": "/v1/fileBackends/updateConfig",
+    "path": "/v1/collaborators/getCollaborator",
     "method": "post",
     "requestBody": {
         "__id": "FieldObject",
-        "name": "UpdateFileBackendConfigEndpointParams",
-        "description": "Parameters for updating an existing file backend config",
+        "name": "GetCollaboratorEndpointParams",
+        "description": "Parameters for getting a specific collaborator by ID.",
         "fields": {
             "workspaceId": {
                 "__id": "FieldObjectField",
                 "required": false,
+                "description": "ID of the workspace containing the collaborator. If not provided, the user's default workspace is used.",
+                "example": "wrkspce_000000000000000000000",
                 "data": {
                     "__id": "FieldString",
                     "description": "Workspace ID",
                     "example": "wrkspce_000000000000000000000"
-                },
-                "description": "Workspace ID (optional if using workspace from auth context)"
+                }
             },
-            "configId": {
+            "collaboratorId": {
                 "__id": "FieldObjectField",
                 "required": true,
+                "description": "Unique ID of the collaborator to retrieve.",
+                "example": "user000_000000000000000000000",
                 "data": {
                     "__id": "FieldString",
                     "description": "Resource ID",
                     "example": "wrkspce_000000000000000000000"
-                },
-                "description": "ID of the config to update"
-            },
-            "config": {
-                "__id": "FieldObjectField",
-                "required": true,
-                "data": {
-                    "__id": "FieldObject",
-                    "name": "UpdateFileBackendConfigInput",
-                    "description": "Input fields for updating an existing file backend config. All fields are optional - only provide fields you want to change.",
-                    "fields": {
-                        "name": {
-                            "__id": "FieldObjectField",
-                            "required": false,
-                            "data": {
-                                "__id": "FieldString",
-                                "description": "Resource name",
-                                "example": "My resource name"
-                            },
-                            "description": "New display name for the config"
-                        },
-                        "description": {
-                            "__id": "FieldObjectField",
-                            "required": false,
-                            "data": {
-                                "__id": "FieldString",
-                                "description": "Resource description",
-                                "example": "This is a resource description."
-                            },
-                            "description": "New description for the config"
-                        },
-                        "credentials": {
-                            "__id": "FieldObjectField",
-                            "required": false,
-                            "data": {
-                                "__id": "FieldObject",
-                                "name": "FileBackendConfigCredentials",
-                                "fields": {},
-                                "description": "Authentication credentials and configuration for the backend provider. Structure varies by backend type: - AWS S3: accessKeyId, secretAccessKey, region, etc. - Google Cloud: service account key JSON - Azure: connection string or account keys Store sensitive values as environment variable references.",
-                                "example": {
-                                    "accessKeyId": "AKIA...",
-                                    "secretAccessKey": "NPox...",
-                                    "region": "us-east-1"
-                                }
-                            },
-                            "description": "New credentials and settings for the backend provider"
-                        }
-                    }
-                },
-                "description": "Config update data containing only the fields to change"
+                }
             }
         }
     },
@@ -127,16 +81,17 @@
     },
     "responseBody": {
         "__id": "FieldObject",
-        "name": "UpdateFileBackendConfigEndpointResult",
-        "description": "Response when successfully updating a file backend config",
+        "name": "GetCollaboratorEndpointResult",
+        "description": "Result containing the requested collaborator information.",
         "fields": {
-            "config": {
+            "collaborator": {
                 "__id": "FieldObjectField",
                 "required": true,
+                "description": "The collaborator information including personal details and workspace association.",
                 "data": {
                     "__id": "FieldObject",
-                    "name": "FileBackendConfig",
-                    "description": "A file backend config stores credentials and settings for connecting to external storage providers like AWS S3, Google Cloud Storage, etc.",
+                    "name": "Collaborator",
+                    "description": "Publicly visible information about a collaborator.",
                     "fields": {
                         "resourceId": {
                             "__id": "FieldObjectField",
@@ -292,48 +247,46 @@
                                 "example": "wrkspce_000000000000000000000"
                             }
                         },
-                        "name": {
+                        "firstName": {
                             "__id": "FieldObjectField",
                             "required": true,
+                            "description": "Collaborator's first name as provided during registration or invitation.",
+                            "example": "John",
                             "data": {
                                 "__id": "FieldString",
-                                "description": "Resource name",
-                                "example": "My resource name"
-                            },
-                            "description": "Display name for this backend config"
+                                "description": "First name",
+                                "example": "Jesus"
+                            }
                         },
-                        "description": {
-                            "__id": "FieldObjectField",
-                            "required": false,
-                            "data": {
-                                "__id": "FieldString",
-                                "description": "Resource description",
-                                "example": "This is a resource description."
-                            },
-                            "description": "Optional description explaining what this config is used for"
-                        },
-                        "backend": {
+                        "lastName": {
                             "__id": "FieldObjectField",
                             "required": true,
+                            "description": "Collaborator's last name as provided during registration or invitation.",
+                            "example": "Doe",
                             "data": {
                                 "__id": "FieldString",
-                                "description": "File backend type - determines which storage provider to use (AWS S3, Google Cloud Storage, etc.)",
-                                "example": "fimidara",
-                                "valid": [
-                                    "fimidara",
-                                    "aws-s3"
-                                ],
-                                "enumName": "FileBackendType"
-                            },
-                            "description": "The storage backend type this config is for"
+                                "description": "Last name",
+                                "example": "Christ"
+                            }
+                        },
+                        "email": {
+                            "__id": "FieldObjectField",
+                            "required": true,
+                            "description": "Collaborator's email address used for authentication and notifications.",
+                            "example": "johndoe@email.com",
+                            "data": {
+                                "__id": "FieldString",
+                                "description": "Email address, case insensitive",
+                                "example": "my-email-address@email-domain.com"
+                            }
                         }
                     }
-                },
-                "description": "The updated file backend config"
+                }
             }
         }
     },
-    "name": "fimidara/fileBackends/updateConfig",
+    "name": "fimidara/collaborators/getCollaborator",
+    "description": "Retrieve detailed information about a specific collaborator by their ID. Requires the collaborator to exist in the specified workspace and appropriate permissions to view collaborator details.",
     "tags": [
         "public"
     ],

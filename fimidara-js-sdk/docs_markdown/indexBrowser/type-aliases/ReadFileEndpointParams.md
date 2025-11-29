@@ -48,6 +48,20 @@ File path, with each folder name separated by a forward slash. The first item mu
 
 ***
 
+### ifRangeHeader?
+
+> `optional` **ifRangeHeader**: `string`
+
+Raw If-Range header value extracted from HTTP request
+
+#### Example
+
+```
+"etag-value"
+```
+
+***
+
 ### imageFormat?
 
 > `optional` **imageFormat**: [`ImageFormatEnum`](ImageFormatEnum.md)
@@ -67,3 +81,25 @@ webp
 > `optional` **imageResize**: [`ImageResizeParams`](ImageResizeParams.md)
 
 Parameters for resizing images on-the-fly during file retrieval
+
+***
+
+### rangeHeader?
+
+> `optional` **rangeHeader**: `string`
+
+Raw Range header value extracted from HTTP request (for parsing after file size is known)
+
+#### Example
+
+```
+bytes=0-499
+```
+
+***
+
+### ranges?
+
+> `optional` **ranges**: [`Range`](Range.md)[]
+
+Array of byte ranges to request. For single range, array has one element. For multipart ranges, array has multiple elements.

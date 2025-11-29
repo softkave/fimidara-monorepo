@@ -14,11 +14,7 @@ The actual resource data. The structure varies depending on the resource type (f
 
 ```json
 {
-  "resourceId": {
-    "__id": "FieldString",
-    "description": "file ID",
-    "example": "file000_000000000000000000000"
-  },
+  "resourceId": "file000_000000000000000000000",
   "name": "report.pdf",
   "workspaceId": {
     "__id": "FieldString",

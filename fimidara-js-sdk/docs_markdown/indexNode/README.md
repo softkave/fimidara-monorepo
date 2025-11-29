@@ -31,30 +31,6 @@ Re-exports [AddAgentTokenEndpointResult](../indexBrowser/type-aliases/AddAgentTo
 
 ***
 
-### AddFileBackendConfigEndpointParams
-
-Re-exports [AddFileBackendConfigEndpointParams](../indexBrowser/type-aliases/AddFileBackendConfigEndpointParams.md)
-
-***
-
-### AddFileBackendConfigEndpointResult
-
-Re-exports [AddFileBackendConfigEndpointResult](../indexBrowser/type-aliases/AddFileBackendConfigEndpointResult.md)
-
-***
-
-### AddFileBackendMountEndpointParams
-
-Re-exports [AddFileBackendMountEndpointParams](../indexBrowser/type-aliases/AddFileBackendMountEndpointParams.md)
-
-***
-
-### AddFileBackendMountEndpointResult
-
-Re-exports [AddFileBackendMountEndpointResult](../indexBrowser/type-aliases/AddFileBackendMountEndpointResult.md)
-
-***
-
 ### AddFolderEndpointParams
 
 Re-exports [AddFolderEndpointParams](../indexBrowser/type-aliases/AddFolderEndpointParams.md)
@@ -163,18 +139,6 @@ Re-exports [CompleteMultipartUploadInputPart](../indexBrowser/type-aliases/Compl
 
 ***
 
-### CountFileBackendConfigsEndpointParams
-
-Re-exports [CountFileBackendConfigsEndpointParams](../indexBrowser/type-aliases/CountFileBackendConfigsEndpointParams.md)
-
-***
-
-### CountFileBackendMountsEndpointParams
-
-Re-exports [CountFileBackendMountsEndpointParams](../indexBrowser/type-aliases/CountFileBackendMountsEndpointParams.md)
-
-***
-
 ### CountFolderContentEndpointParams
 
 Re-exports [CountFolderContentEndpointParams](../indexBrowser/type-aliases/CountFolderContentEndpointParams.md)
@@ -232,18 +196,6 @@ Re-exports [DeleteAgentTokenEndpointParams](../indexBrowser/type-aliases/DeleteA
 ### DeleteCollaborationRequestEndpointParams
 
 Re-exports [DeleteCollaborationRequestEndpointParams](../indexBrowser/type-aliases/DeleteCollaborationRequestEndpointParams.md)
-
-***
-
-### DeleteFileBackendConfigEndpointParams
-
-Re-exports [DeleteFileBackendConfigEndpointParams](../indexBrowser/type-aliases/DeleteFileBackendConfigEndpointParams.md)
-
-***
-
-### DeleteFileBackendMountEndpointParams
-
-Re-exports [DeleteFileBackendMountEndpointParams](../indexBrowser/type-aliases/DeleteFileBackendMountEndpointParams.md)
 
 ***
 
@@ -322,36 +274,6 @@ Re-exports [FetchResourceItem](../indexBrowser/type-aliases/FetchResourceItem.md
 ### File
 
 Re-exports [File](../indexBrowser/type-aliases/File.md)
-
-***
-
-### FileBackendConfig
-
-Re-exports [FileBackendConfig](../indexBrowser/type-aliases/FileBackendConfig.md)
-
-***
-
-### FileBackendConfigCredentials
-
-Re-exports [FileBackendConfigCredentials](../indexBrowser/type-aliases/FileBackendConfigCredentials.md)
-
-***
-
-### FileBackendMount
-
-Re-exports [FileBackendMount](../indexBrowser/type-aliases/FileBackendMount.md)
-
-***
-
-### FileBackendsEndpoints
-
-Re-exports [FileBackendsEndpoints](../indexBrowser/classes/FileBackendsEndpoints.md)
-
-***
-
-### FileBackendType
-
-Re-exports [FileBackendType](../indexBrowser/type-aliases/FileBackendType.md)
 
 ***
 
@@ -448,54 +370,6 @@ Re-exports [GetEntityAssignedPermissionGroupsEndpointResult](../indexBrowser/typ
 ### GetEntityAssignedPermissionGroupsParams
 
 Re-exports [GetEntityAssignedPermissionGroupsParams](../indexBrowser/type-aliases/GetEntityAssignedPermissionGroupsParams.md)
-
-***
-
-### GetFileBackendConfigEndpointParams
-
-Re-exports [GetFileBackendConfigEndpointParams](../indexBrowser/type-aliases/GetFileBackendConfigEndpointParams.md)
-
-***
-
-### GetFileBackendConfigEndpointResult
-
-Re-exports [GetFileBackendConfigEndpointResult](../indexBrowser/type-aliases/GetFileBackendConfigEndpointResult.md)
-
-***
-
-### GetFileBackendConfigsEndpointParams
-
-Re-exports [GetFileBackendConfigsEndpointParams](../indexBrowser/type-aliases/GetFileBackendConfigsEndpointParams.md)
-
-***
-
-### GetFileBackendConfigsEndpointResult
-
-Re-exports [GetFileBackendConfigsEndpointResult](../indexBrowser/type-aliases/GetFileBackendConfigsEndpointResult.md)
-
-***
-
-### GetFileBackendMountEndpointParams
-
-Re-exports [GetFileBackendMountEndpointParams](../indexBrowser/type-aliases/GetFileBackendMountEndpointParams.md)
-
-***
-
-### GetFileBackendMountEndpointResult
-
-Re-exports [GetFileBackendMountEndpointResult](../indexBrowser/type-aliases/GetFileBackendMountEndpointResult.md)
-
-***
-
-### GetFileBackendMountsEndpointParams
-
-Re-exports [GetFileBackendMountsEndpointParams](../indexBrowser/type-aliases/GetFileBackendMountsEndpointParams.md)
-
-***
-
-### GetFileBackendMountsEndpointResult
-
-Re-exports [GetFileBackendMountsEndpointResult](../indexBrowser/type-aliases/GetFileBackendMountsEndpointResult.md)
 
 ***
 
@@ -973,6 +847,12 @@ Re-exports [PublicAssignedPermissionGroupMeta](../indexBrowser/type-aliases/Publ
 
 ***
 
+### Range
+
+Re-exports [Range](../indexBrowser/type-aliases/Range.md)
+
+***
+
 ### ReadFileEndpointParams
 
 Re-exports [ReadFileEndpointParams](../indexBrowser/type-aliases/ReadFileEndpointParams.md)
@@ -1030,18 +910,6 @@ Re-exports [ResolveEntityPermissionsEndpointParams](../indexBrowser/type-aliases
 ### ResolveEntityPermissionsEndpointResult
 
 Re-exports [ResolveEntityPermissionsEndpointResult](../indexBrowser/type-aliases/ResolveEntityPermissionsEndpointResult.md)
-
-***
-
-### ResolveFileBackendMountsEndpointParams
-
-Re-exports [ResolveFileBackendMountsEndpointParams](../indexBrowser/type-aliases/ResolveFileBackendMountsEndpointParams.md)
-
-***
-
-### ResolveFileBackendMountsEndpointResult
-
-Re-exports [ResolveFileBackendMountsEndpointResult](../indexBrowser/type-aliases/ResolveFileBackendMountsEndpointResult.md)
 
 ***
 
@@ -1168,42 +1036,6 @@ Re-exports [UpdateCollaborationRequestEndpointResult](../indexBrowser/type-alias
 ### UpdateCollaborationRequestInput
 
 Re-exports [UpdateCollaborationRequestInput](../indexBrowser/type-aliases/UpdateCollaborationRequestInput.md)
-
-***
-
-### UpdateFileBackendConfigEndpointParams
-
-Re-exports [UpdateFileBackendConfigEndpointParams](../indexBrowser/type-aliases/UpdateFileBackendConfigEndpointParams.md)
-
-***
-
-### UpdateFileBackendConfigEndpointResult
-
-Re-exports [UpdateFileBackendConfigEndpointResult](../indexBrowser/type-aliases/UpdateFileBackendConfigEndpointResult.md)
-
-***
-
-### UpdateFileBackendConfigInput
-
-Re-exports [UpdateFileBackendConfigInput](../indexBrowser/type-aliases/UpdateFileBackendConfigInput.md)
-
-***
-
-### UpdateFileBackendMountEndpointParams
-
-Re-exports [UpdateFileBackendMountEndpointParams](../indexBrowser/type-aliases/UpdateFileBackendMountEndpointParams.md)
-
-***
-
-### UpdateFileBackendMountEndpointResult
-
-Re-exports [UpdateFileBackendMountEndpointResult](../indexBrowser/type-aliases/UpdateFileBackendMountEndpointResult.md)
-
-***
-
-### UpdateFileBackendMountInput
-
-Re-exports [UpdateFileBackendMountInput](../indexBrowser/type-aliases/UpdateFileBackendMountInput.md)
 
 ***
 

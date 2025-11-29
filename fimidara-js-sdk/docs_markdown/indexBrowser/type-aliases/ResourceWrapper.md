@@ -14,34 +14,18 @@ Wraps a resource with metadata about its type and ID. This provides context abou
 
 ```json
 {
-  "resourceId": {
-    "__id": "FieldString",
-    "description": "file ID",
-    "example": "file000_000000000000000000000"
-  },
+  "resourceId": "file000_000000000000000000000",
   "resourceType": "file",
   "resource": {
-    "resourceId": {
-      "__id": "FieldString",
-      "description": "file ID",
-      "example": "file000_000000000000000000000"
-    },
+    "resourceId": "file000_000000000000000000000",
     "createdAt": 1672531200000,
     "lastUpdatedAt": 1672531200000,
     "lastUpdatedBy": {
-      "agentId": {
-        "__id": "FieldString",
-        "description": "agentToken ID",
-        "example": "agtoken_000000000000000000000"
-      },
+      "agentId": "agtoken_000000000000000000000",
       "agentType": "agentToken"
     },
     "createdBy": {
-      "agentId": {
-        "__id": "FieldString",
-        "description": "agentToken ID",
-        "example": "agtoken_000000000000000000000"
-      },
+      "agentId": "agtoken_000000000000000000000",
       "agentType": "agentToken"
     }
   }
@@ -60,11 +44,7 @@ The resource data. Structure depends on the resource type specified in resourceT
 
 ```json
 {
-  "resourceId": {
-    "__id": "FieldString",
-    "description": "file ID",
-    "example": "file000_000000000000000000000"
-  },
+  "resourceId": "file000_000000000000000000000",
   "name": "report.pdf",
   "workspaceId": {
     "__id": "FieldString",

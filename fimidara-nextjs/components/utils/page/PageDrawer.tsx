@@ -77,9 +77,7 @@ const PageDrawer: ForwardRefRenderFunction<IPageDrawerRef, IPageDrawerProps> = (
       >
         <MaybeScroll>
           <SheetHeader className="p-6 space-y-2">
-            <SheetTitle className={cn("p-6", titleClassName)}>
-              {title}
-            </SheetTitle>
+            <SheetTitle className={titleClassName}>{title}</SheetTitle>
           </SheetHeader>
           <div className={cn("p-6 pt-0", contentClassName)}>{children}</div>
         </MaybeScroll>

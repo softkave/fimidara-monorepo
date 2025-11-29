@@ -1,56 +1,33 @@
 {
     "__id": "HttpEndpointDefinition",
-    "path": "/v1/fileBackends/countMounts",
+    "path": "/v1/collaborators/removeCollaborator",
     "method": "post",
     "requestBody": {
         "__id": "FieldObject",
-        "name": "CountFileBackendMountsEndpointParams",
-        "description": "Parameters for counting file backend mounts with optional filtering",
+        "name": "RevokeCollaboratorEndpointParams",
+        "description": "Parameters for removing a collaborator from a workspace.",
         "fields": {
             "workspaceId": {
                 "__id": "FieldObjectField",
                 "required": false,
+                "description": "ID of the workspace to remove the collaborator from. If not provided, the user's default workspace is used.",
+                "example": "wrkspce_000000000000000000000",
                 "data": {
                     "__id": "FieldString",
                     "description": "Workspace ID",
                     "example": "wrkspce_000000000000000000000"
-                },
-                "description": "Workspace ID to filter mounts (optional if using workspace from auth context)"
+                }
             },
-            "backend": {
+            "collaboratorId": {
                 "__id": "FieldObjectField",
-                "required": false,
-                "data": {
-                    "__id": "FieldString",
-                    "description": "File backend type - determines which storage provider to use (AWS S3, Google Cloud Storage, etc.)",
-                    "example": "fimidara",
-                    "valid": [
-                        "fimidara",
-                        "aws-s3"
-                    ],
-                    "enumName": "FileBackendType"
-                },
-                "description": "Filter mounts by backend type (optional)"
-            },
-            "folderpath": {
-                "__id": "FieldObjectField",
-                "required": false,
-                "data": {
-                    "__id": "FieldString",
-                    "description": "Folder path, with each folder name separated by a forward slash. The first item must be the workspace rootname. e.g /workspace-rootname/my-folder/my-sub-folder.",
-                    "example": "/workspace-rootname/my-folder/my-sub-folder"
-                },
-                "description": "Filter mounts by folder path (optional)"
-            },
-            "configId": {
-                "__id": "FieldObjectField",
-                "required": false,
+                "required": true,
+                "description": "ID of the collaborator to remove from the workspace.",
+                "example": "user000_000000000000000000000",
                 "data": {
                     "__id": "FieldString",
                     "description": "Resource ID",
                     "example": "wrkspce_000000000000000000000"
-                },
-                "description": "Filter mounts by backend config ID (optional)"
+                }
             }
         }
     },
@@ -104,21 +81,22 @@
     },
     "responseBody": {
         "__id": "FieldObject",
-        "name": "CountItemsResult",
-        "description": "Response containing the count of resources matching the query criteria",
+        "name": "LongRunningJobResult",
+        "description": "Response for operations that run asynchronously in the background",
         "fields": {
-            "count": {
+            "jobId": {
                 "__id": "FieldObjectField",
-                "required": true,
+                "required": false,
                 "data": {
-                    "__id": "FieldNumber",
-                    "description": "Total number of resources matching the query",
-                    "example": 42
+                    "__id": "FieldString",
+                    "description": "Long-running job ID",
+                    "example": "job0000_000000000000000000000"
                 }
             }
         }
     },
-    "name": "fimidara/fileBackends/countMounts",
+    "name": "fimidara/collaborators/removeCollaborator",
+    "description": "Remove a collaborator from a workspace. This revokes their access and removes all associated permissions. The operation runs as a background job and returns immediately with a job ID for tracking progress.",
     "tags": [
         "public"
     ],

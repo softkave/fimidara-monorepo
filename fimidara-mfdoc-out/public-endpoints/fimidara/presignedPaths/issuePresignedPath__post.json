@@ -21,7 +21,7 @@
                 "data": {
                     "__id": "FieldString",
                     "description": "Unique identifier for the file. Required if filepath is not provided",
-                    "example": "file_01h2x3y4z5a6b7c8d9e0f1g2h3"
+                    "example": "file000_000000000000000000000"
                 }
             },
             "action": {

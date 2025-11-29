@@ -3,12 +3,21 @@ import assert from 'assert';
 import {difference} from 'lodash-es';
 import {expectErrorThrownAsync, waitTimeout} from 'softkave-js-utils';
 import {Readable} from 'stream';
-import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+} from 'vitest';
 import {
   FilePersistenceProvider,
+  FileProviderResolver,
   PersistedFile,
 } from '../../../contexts/file/types.js';
-import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../contexts/ijx/register.js';
 import {getStringListQuery} from '../../../contexts/semantic/utils.js';
 import {ResolvedMountEntry} from '../../../definitions/fileBackend.js';
@@ -59,13 +68,17 @@ import {getCostForUsage} from '../../usageRecords/constants.js';
 import {UsageLimitExceededError} from '../../usageRecords/errors.js';
 import {getUsageRecordReportingPeriod} from '../../usageRecords/utils.js';
 import {PermissionDeniedError} from '../../users/errors.js';
+import {RangeNotSatisfiableError} from '../errors.js';
 import {stringifyFilenamepath} from '../utils.js';
 import readFile from './handler.js';
 import {ReadFileEndpointParams} from './types.js';
+import {generateETag} from './utils.js';
 import sharp = require('sharp');
 
 const kUsageRefreshWorkspaceIntervalMs = 100;
 const kUsageCommitIntervalMs = 50;
+
+let resolvedFileProvider: FileProviderResolver | undefined;
 
 beforeAll(async () => {
   await initTests({
@@ -74,8 +87,18 @@ beforeAll(async () => {
   });
 });
 
+beforeEach(async () => {
+  resolvedFileProvider = kIjxUtils.fileProviderResolver();
+});
+
 afterAll(async () => {
   await completeTests();
+});
+
+afterEach(async () => {
+  if (resolvedFileProvider) {
+    kRegisterIjxUtils.fileProviderResolver(resolvedFileProvider);
+  }
 });
 
 async function getUsageL2(workspaceId: string, category: UsageRecordCategory) {
@@ -136,7 +159,8 @@ describe('readFile', () => {
       const result = await readFile(reqData);
       assertEndpointResultOk(result);
 
-      await expectFileBodyEqualById(file.resourceId, result.stream);
+      assert.ok(!Array.isArray(result.stream));
+      await expectFileBodyEqualById(file.resourceId, result.stream as Readable);
     }
   );
 
@@ -170,7 +194,8 @@ describe('readFile', () => {
     const result = await readFile(reqData);
     assertEndpointResultOk(result);
 
-    const resultBuffer = await streamToBuffer(result.stream);
+    assert.ok(!Array.isArray(result.stream));
+    const resultBuffer = await streamToBuffer(result.stream as Readable);
     assert.ok(resultBuffer);
     const fileMetadata = await sharp(resultBuffer).metadata();
     expect(fileMetadata.width).toEqual(expectedWidth);
@@ -284,7 +309,7 @@ describe('readFile', () => {
         workspace.resourceId,
         /** seed */ {
           mountId: mount.resourceId,
-          forType: kFimidaraResourceType.Folder,
+          forType: kFimidaraResourceType.File,
           forId: file.resourceId,
           backendNamepath: file.namepath,
           backendExt: file.ext,
@@ -332,7 +357,8 @@ describe('readFile', () => {
     const result = await readFile(reqData);
     assertEndpointResultOk(result);
 
-    await expectFileBodyEqual(testBuffer, result.stream);
+    assert.ok(!Array.isArray(result.stream));
+    await expectFileBodyEqual(testBuffer, result.stream as Readable);
   });
 
   test('returns an empty stream if file exists and backends do not have file', async () => {
@@ -354,7 +380,8 @@ describe('readFile', () => {
     assertEndpointResultOk(result);
 
     const testBuffer = Buffer.from([]);
-    await expectFileBodyEqual(testBuffer, result.stream);
+    assert.ok(!Array.isArray(result.stream));
+    await expectFileBodyEqual(testBuffer, result.stream as Readable);
   });
 
   test('increments usage', async () => {
@@ -551,5 +578,525 @@ describe('readFile', () => {
     );
     const result = await readFile(reqData);
     assertEndpointResultOk(result);
+  });
+
+  describe('range requests', () => {
+    test('reads file with single range request', async () => {
+      const {
+        sessionAgent,
+        workspace,
+        adminUserToken: userToken,
+      } = await getTestSessionAgent(kFimidaraResourceType.User, {
+        permissions: {
+          actions: [kFimidaraPermissionActions.readFile],
+        },
+      });
+
+      // Create a file with known content
+      const fileContent = Buffer.from('0123456789ABCDEFGHIJ');
+      const fileStream = Readable.from([fileContent]);
+      const {file} = await insertFileForTest(userToken, workspace, {
+        data: fileStream,
+        size: fileContent.byteLength,
+      });
+
+      const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+        mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+        {
+          filepath: stringifyFilenamepath(file, workspace.rootname),
+          ranges: [{start: 5, end: 9}],
+        }
+      );
+      const result = await readFile(reqData);
+      assertEndpointResultOk(result);
+
+      const expectedContent = fileContent.slice(5, 10);
+      assert.ok(!Array.isArray(result.stream));
+      await expectFileBodyEqual(expectedContent, result.stream as Readable);
+      expect(result.ranges).toEqual([{start: 5, end: 9}]);
+      expect(result.isMultipart).toBe(false);
+    });
+
+    test('reads file with multiple range requests (multipart)', async () => {
+      const {
+        sessionAgent,
+        workspace,
+        adminUserToken: userToken,
+      } = await getTestSessionAgent(kFimidaraResourceType.User, {
+        permissions: {
+          actions: [kFimidaraPermissionActions.readFile],
+        },
+      });
+
+      const fileContent = Buffer.from('0123456789ABCDEFGHIJ');
+      const fileStream = Readable.from([fileContent]);
+      const {file} = await insertFileForTest(userToken, workspace, {
+        data: fileStream,
+        size: fileContent.byteLength,
+      });
+
+      const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+        mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+        {
+          filepath: stringifyFilenamepath(file, workspace.rootname),
+          ranges: [
+            {start: 0, end: 4},
+            {start: 10, end: 14},
+          ],
+        }
+      );
+      const result = await readFile(reqData);
+      assertEndpointResultOk(result);
+
+      expect(result.isMultipart).toBe(true);
+      expect(Array.isArray(result.stream)).toBe(true);
+      expect(result.ranges).toEqual([
+        {start: 0, end: 4},
+        {start: 10, end: 14},
+      ]);
+
+      // Verify multipart streams
+      const streams = result.stream as Readable[];
+      expect(streams.length).toBe(2);
+
+      const firstRangeContent = await streamToBuffer(streams[0]);
+      const secondRangeContent = await streamToBuffer(streams[1]);
+
+      expect(firstRangeContent).toEqual(fileContent.slice(0, 5));
+      expect(secondRangeContent).toEqual(fileContent.slice(10, 15));
+    });
+
+    test('parses Range header and reads file', async () => {
+      const {
+        sessionAgent,
+        workspace,
+        adminUserToken: userToken,
+      } = await getTestSessionAgent(kFimidaraResourceType.User, {
+        permissions: {
+          actions: [kFimidaraPermissionActions.readFile],
+        },
+      });
+
+      const fileContent = Buffer.from('0123456789ABCDEFGHIJ');
+      const fileStream = Readable.from([fileContent]);
+      const {file} = await insertFileForTest(userToken, workspace, {
+        data: fileStream,
+        size: fileContent.byteLength,
+      });
+
+      const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+        mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+        {
+          filepath: stringifyFilenamepath(file, workspace.rootname),
+          rangeHeader: 'bytes=5-9',
+        }
+      );
+      const result = await readFile(reqData);
+      assertEndpointResultOk(result);
+
+      const expectedContent = fileContent.slice(5, 10);
+      assert.ok(!Array.isArray(result.stream));
+      await expectFileBodyEqual(expectedContent, result.stream as Readable);
+      expect(result.ranges).toEqual([{start: 5, end: 9}]);
+    });
+
+    test('parses multiple ranges from Range header', async () => {
+      const {
+        sessionAgent,
+        workspace,
+        adminUserToken: userToken,
+      } = await getTestSessionAgent(kFimidaraResourceType.User, {
+        permissions: {
+          actions: [kFimidaraPermissionActions.readFile],
+        },
+      });
+
+      const fileContent = Buffer.from('0123456789ABCDEFGHIJ');
+      const fileStream = Readable.from([fileContent]);
+      const {file} = await insertFileForTest(userToken, workspace, {
+        data: fileStream,
+        size: fileContent.byteLength,
+      });
+
+      const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+        mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+        {
+          filepath: stringifyFilenamepath(file, workspace.rootname),
+          rangeHeader: 'bytes=0-4,10-14',
+        }
+      );
+      const result = await readFile(reqData);
+      assertEndpointResultOk(result);
+
+      expect(result.isMultipart).toBe(true);
+      expect(Array.isArray(result.stream)).toBe(true);
+      expect(result.ranges).toEqual([
+        {start: 0, end: 4},
+        {start: 10, end: 14},
+      ]);
+    });
+
+    test('validates If-Range header with ETag and honors range when valid', async () => {
+      const {
+        sessionAgent,
+        workspace,
+        adminUserToken: userToken,
+      } = await getTestSessionAgent(kFimidaraResourceType.User, {
+        permissions: {
+          actions: [kFimidaraPermissionActions.readFile],
+        },
+      });
+
+      const fileContent = Buffer.from('0123456789ABCDEFGHIJ');
+      const fileStream = Readable.from([fileContent]);
+      const {file} = await insertFileForTest(userToken, workspace, {
+        data: fileStream,
+        size: fileContent.byteLength,
+      });
+
+      // Get the expected ETag
+      const etag = generateETag(file.lastUpdatedAt, file.size);
+
+      const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+        mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+        {
+          filepath: stringifyFilenamepath(file, workspace.rootname),
+          rangeHeader: 'bytes=5-9',
+          ifRangeHeader: etag,
+        }
+      );
+      const result = await readFile(reqData);
+      assertEndpointResultOk(result);
+
+      const expectedContent = fileContent.slice(5, 10);
+      assert.ok(!Array.isArray(result.stream));
+      await expectFileBodyEqual(expectedContent, result.stream as Readable);
+      expect(result.ranges).toEqual([{start: 5, end: 9}]);
+    });
+
+    test('ignores range when If-Range header does not match', async () => {
+      const {
+        sessionAgent,
+        workspace,
+        adminUserToken: userToken,
+      } = await getTestSessionAgent(kFimidaraResourceType.User, {
+        permissions: {
+          actions: [kFimidaraPermissionActions.readFile],
+        },
+      });
+
+      const fileContent = Buffer.from('0123456789ABCDEFGHIJ');
+      const fileStream = Readable.from([fileContent]);
+      const {file} = await insertFileForTest(userToken, workspace, {
+        data: fileStream,
+        size: fileContent.byteLength,
+      });
+
+      const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+        mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+        {
+          filepath: stringifyFilenamepath(file, workspace.rootname),
+          rangeHeader: 'bytes=5-9',
+          ifRangeHeader: '"invalid-etag"',
+        }
+      );
+      const result = await readFile(reqData);
+      assertEndpointResultOk(result);
+
+      // Should return full file when If-Range doesn't match
+      assert.ok(!Array.isArray(result.stream));
+      await expectFileBodyEqual(fileContent, result.stream as Readable);
+      expect(result.ranges).toBeUndefined();
+    });
+
+    test('validates If-Range header with Last-Modified date', async () => {
+      const {
+        sessionAgent,
+        workspace,
+        adminUserToken: userToken,
+      } = await getTestSessionAgent(kFimidaraResourceType.User, {
+        permissions: {
+          actions: [kFimidaraPermissionActions.readFile],
+        },
+      });
+
+      const fileContent = Buffer.from('0123456789ABCDEFGHIJ');
+      const fileStream = Readable.from([fileContent]);
+      const {file} = await insertFileForTest(userToken, workspace, {
+        data: fileStream,
+        size: fileContent.byteLength,
+      });
+
+      // Use Last-Modified date in If-Range header
+      const lastModifiedDate = new Date(file.lastUpdatedAt!).toUTCString();
+
+      const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+        mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+        {
+          filepath: stringifyFilenamepath(file, workspace.rootname),
+          rangeHeader: 'bytes=5-9',
+          ifRangeHeader: lastModifiedDate,
+        }
+      );
+      const result = await readFile(reqData);
+      assertEndpointResultOk(result);
+
+      const expectedContent = fileContent.slice(5, 10);
+      assert.ok(!Array.isArray(result.stream));
+      await expectFileBodyEqual(expectedContent, result.stream as Readable);
+      expect(result.ranges).toEqual([{start: 5, end: 9}]);
+    });
+
+    test('disables ranges when image transforms are requested', async () => {
+      const {
+        sessionAgent,
+        workspace,
+        adminUserToken: userToken,
+      } = await getTestSessionAgent(kFimidaraResourceType.User, {
+        permissions: {
+          actions: [kFimidaraPermissionActions.readFile],
+        },
+      });
+
+      const {file} = await insertFileForTest(
+        userToken,
+        workspace,
+        /** file input */ {},
+        /** file type */ 'png',
+        /** image props */ {width: 500, height: 500}
+      );
+
+      const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+        mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+        {
+          filepath: stringifyFilenamepath(file, workspace.rootname),
+          rangeHeader: 'bytes=0-99',
+          imageResize: {width: 300, height: 300},
+        }
+      );
+      const result = await readFile(reqData);
+      assertEndpointResultOk(result);
+
+      // Ranges should be disabled
+      expect(result.ranges).toBeUndefined();
+      expect(result.isMultipart).toBeUndefined();
+    });
+
+    test('disables ranges when imageFormat is requested', async () => {
+      const {
+        sessionAgent,
+        workspace,
+        adminUserToken: userToken,
+      } = await getTestSessionAgent(kFimidaraResourceType.User, {
+        permissions: {
+          actions: [kFimidaraPermissionActions.readFile],
+        },
+      });
+
+      const {file} = await insertFileForTest(
+        userToken,
+        workspace,
+        /** file input */ {},
+        /** file type */ 'png',
+        /** image props */ {width: 500, height: 500}
+      );
+
+      const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+        mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+        {
+          filepath: stringifyFilenamepath(file, workspace.rootname),
+          rangeHeader: 'bytes=0-99',
+          imageFormat: 'jpeg',
+        }
+      );
+      const result = await readFile(reqData);
+      assertEndpointResultOk(result);
+
+      expect(result.ranges).toBeUndefined();
+      expect(result.isMultipart).toBeUndefined();
+    });
+
+    test('throws RangeNotSatisfiableError for invalid range header', async () => {
+      const {
+        sessionAgent,
+        workspace,
+        adminUserToken: userToken,
+      } = await getTestSessionAgent(kFimidaraResourceType.User, {
+        permissions: {
+          actions: [kFimidaraPermissionActions.readFile],
+        },
+      });
+
+      const fileContent = Buffer.from('0123456789');
+      const fileStream = Readable.from([fileContent]);
+      const {file} = await insertFileForTest(userToken, workspace, {
+        data: fileStream,
+        size: fileContent.byteLength,
+      });
+
+      await expectErrorThrownAsync(
+        async () => {
+          const reqData =
+            RequestData.fromExpressRequest<ReadFileEndpointParams>(
+              mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+              {
+                filepath: stringifyFilenamepath(file, workspace.rootname),
+                rangeHeader: 'bytes=100-200', // Out of range
+              }
+            );
+          await readFile(reqData);
+        },
+        {
+          expectFn: error => {
+            console.error(error);
+            expect(error).toBeInstanceOf(RangeNotSatisfiableError);
+            assert.ok(error instanceof RangeNotSatisfiableError);
+            expect(error.fileSize).toBe(fileContent.byteLength);
+          },
+        }
+      );
+    });
+
+    test('throws RangeNotSatisfiableError for empty file with range request', async () => {
+      const {
+        sessionAgent,
+        workspace,
+        adminUserToken: userToken,
+      } = await getTestSessionAgent(kFimidaraResourceType.User, {
+        permissions: {
+          actions: [kFimidaraPermissionActions.readFile],
+        },
+      });
+
+      const emptyContent = Buffer.from('');
+      const fileStream = Readable.from([emptyContent]);
+      const {file} = await insertFileForTest(userToken, workspace, {
+        data: fileStream,
+        size: 0,
+      });
+
+      await expectErrorThrownAsync(
+        async () => {
+          const reqData =
+            RequestData.fromExpressRequest<ReadFileEndpointParams>(
+              mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+              {
+                filepath: stringifyFilenamepath(file, workspace.rootname),
+                rangeHeader: 'bytes=0-0',
+              }
+            );
+          await readFile(reqData);
+        },
+        {
+          expectFn: error => {
+            expect(error).toBeInstanceOf(RangeNotSatisfiableError);
+            assert.ok(error instanceof RangeNotSatisfiableError);
+            expect(error.fileSize).toBe(0);
+          },
+        }
+      );
+    });
+
+    test('handles suffix range request (-500)', async () => {
+      const {
+        sessionAgent,
+        workspace,
+        adminUserToken: userToken,
+      } = await getTestSessionAgent(kFimidaraResourceType.User, {
+        permissions: {
+          actions: [kFimidaraPermissionActions.readFile],
+        },
+      });
+
+      const fileContent = Buffer.from('0123456789ABCDEFGHIJ');
+      const fileStream = Readable.from([fileContent]);
+      const {file} = await insertFileForTest(userToken, workspace, {
+        data: fileStream,
+        size: fileContent.byteLength,
+      });
+
+      const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+        mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+        {
+          filepath: stringifyFilenamepath(file, workspace.rootname),
+          rangeHeader: 'bytes=-5', // Last 5 bytes
+        }
+      );
+      const result = await readFile(reqData);
+      assertEndpointResultOk(result);
+
+      // Last 5 bytes: 'FGHIJ' (indices 15-19)
+      const expectedContent = fileContent.slice(-5);
+      assert.ok(!Array.isArray(result.stream));
+      await expectFileBodyEqual(expectedContent, result.stream as Readable);
+      expect(result.ranges).toEqual([{start: 15, end: 19}]);
+    });
+
+    test('handles open-ended range request (9500-)', async () => {
+      const {
+        sessionAgent,
+        workspace,
+        adminUserToken: userToken,
+      } = await getTestSessionAgent(kFimidaraResourceType.User, {
+        permissions: {
+          actions: [kFimidaraPermissionActions.readFile],
+        },
+      });
+
+      const fileContent = Buffer.from('0123456789ABCDEFGHIJ');
+      const fileStream = Readable.from([fileContent]);
+      const {file} = await insertFileForTest(userToken, workspace, {
+        data: fileStream,
+        size: fileContent.byteLength,
+      });
+
+      const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+        mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+        {
+          filepath: stringifyFilenamepath(file, workspace.rootname),
+          rangeHeader: 'bytes=15-', // From byte 15 to end
+        }
+      );
+      const result = await readFile(reqData);
+      assertEndpointResultOk(result);
+
+      // From byte 15 to end: 'FGHIJ'
+      const expectedContent = fileContent.slice(15);
+      assert.ok(!Array.isArray(result.stream));
+      await expectFileBodyEqual(expectedContent, result.stream as Readable);
+      expect(result.ranges).toEqual([{start: 15, end: 19}]);
+    });
+
+    test('returns correct ETag and lastModified in range response', async () => {
+      const {
+        sessionAgent,
+        workspace,
+        adminUserToken: userToken,
+      } = await getTestSessionAgent(kFimidaraResourceType.User, {
+        permissions: {
+          actions: [kFimidaraPermissionActions.readFile],
+        },
+      });
+
+      const fileContent = Buffer.from('0123456789ABCDEFGHIJ');
+      const fileStream = Readable.from([fileContent]);
+      const {file} = await insertFileForTest(userToken, workspace, {
+        data: fileStream,
+        size: fileContent.byteLength,
+      });
+
+      const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+        mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+        {
+          filepath: stringifyFilenamepath(file, workspace.rootname),
+          ranges: [{start: 5, end: 9}],
+        }
+      );
+      const result = await readFile(reqData);
+      assertEndpointResultOk(result);
+
+      expect(result.lastModified).toBe(file.lastUpdatedAt);
+      expect(result.etag).toBe(generateETag(file.lastUpdatedAt, file.size));
+    });
   });
 });

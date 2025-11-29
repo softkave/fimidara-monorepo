@@ -62,6 +62,10 @@ export interface FilePersistenceGetFileParams
   extends FilePersistenceDefaultParams,
     FilepathMatcher {
   fileId: string;
+  /** Start byte position for range request (inclusive). If provided, rangeEnd must also be provided. */
+  rangeStart?: number;
+  /** End byte position for range request (inclusive). If provided, rangeStart must also be provided. */
+  rangeEnd?: number;
 }
 
 export interface FilePersistenceDescribeFileParams
@@ -137,7 +141,7 @@ export interface FilePersistenceDescribeFolderFilesResult<TRaw = any> {
 
 export interface FilePersistenceDescribeFolderContentResult<
   TFileRaw = any,
-  TFolderRaw = any,
+  TFolderRaw = any
 > {
   files: PersistedFileDescription<TFileRaw>[];
   folders: PersistedFolderDescription<TFolderRaw>[];

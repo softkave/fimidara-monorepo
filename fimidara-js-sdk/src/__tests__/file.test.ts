@@ -7,7 +7,11 @@ import {
   fimidaraTestVars,
   test_deleteFile,
   test_getFileDetails,
+  test_readFile_multipleRanges,
   test_readFile_nodeReadable,
+  test_readFile_rangeHeader,
+  test_readFile_rangeNotSatisfiable,
+  test_readFile_singleRange,
   test_updateFileDetails,
   test_uploadFile_nodeReadable,
   test_uploadFile_nodeReadableNotFromFile,
@@ -241,5 +245,77 @@ describe('file', () => {
 
     expect(result.file.resourceId).toBe(file.resourceId);
     expect(result.jobId).toBeDefined();
+  });
+
+  describe('range downloads', () => {
+    test('read file with single range at beginning', async () => {
+      const fileContent = '0123456789ABCDEFGHIJ';
+      await test_readFile_singleRange({start: 0, end: 4}, fileContent);
+    });
+
+    test('read file with single range in middle', async () => {
+      const fileContent = '0123456789ABCDEFGHIJ';
+      await test_readFile_singleRange({start: 5, end: 9}, fileContent);
+    });
+
+    test('read file with single range at end', async () => {
+      const fileContent = '0123456789ABCDEFGHIJ';
+      const fileLength = fileContent.length;
+      await test_readFile_singleRange(
+        {start: fileLength - 5, end: fileLength - 1},
+        fileContent
+      );
+    });
+
+    test('read file with single range covering full file', async () => {
+      const fileContent = '0123456789ABCDEFGHIJ';
+      const fileLength = fileContent.length;
+      await test_readFile_singleRange(
+        {start: 0, end: fileLength - 1},
+        fileContent
+      );
+    });
+
+    test('read file with multiple ranges (multipart)', async () => {
+      const fileContent = '0123456789ABCDEFGHIJ';
+      await test_readFile_multipleRanges(
+        [
+          {start: 0, end: 4},
+          {start: 10, end: 14},
+        ],
+        fileContent
+      );
+    });
+
+    test('read file with multiple ranges overlapping', async () => {
+      const fileContent = '0123456789ABCDEFGHIJ';
+      await test_readFile_multipleRanges(
+        [
+          {start: 0, end: 9},
+          {start: 5, end: 14},
+        ],
+        fileContent
+      );
+    });
+
+    test('read file with range header', async () => {
+      const fileContent = '0123456789ABCDEFGHIJ';
+      await test_readFile_rangeHeader('bytes=5-9', fileContent);
+    });
+
+    test('read file with range header multiple ranges', async () => {
+      const fileContent = '0123456789ABCDEFGHIJ';
+      await test_readFile_rangeHeader('bytes=0-4,10-14', fileContent);
+    });
+
+    test('read file with range not satisfiable - start beyond file size', async () => {
+      const fileContent = '0123456789ABCDEFGHIJ';
+      const fileLength = fileContent.length;
+      // Request range that starts beyond the file size
+      await test_readFile_rangeNotSatisfiable(
+        {start: fileLength + 10, end: fileLength + 20},
+        fileContent
+      );
+    });
   });
 });

@@ -23,11 +23,7 @@ List of collaborators in the workspace.
 ```json
 [
   {
-    "resourceId": {
-      "__id": "FieldString",
-      "description": "user ID",
-      "example": "user000_000000000000000000000"
-    },
+    "resourceId": "user000_000000000000000000000",
     "workspaceId": {
       "__id": "FieldString",
       "description": "Workspace ID",

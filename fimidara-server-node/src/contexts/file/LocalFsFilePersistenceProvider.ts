@@ -140,7 +140,24 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
       return {body: undefined};
     }
 
-    const stream = fse.createReadStream(nativePath, {autoClose: true});
+    const streamOptions: Parameters<typeof fse.createReadStream>[1] = {
+      autoClose: true,
+    };
+
+    // Add range support if range parameters are provided
+    if (params.rangeStart !== undefined && params.rangeEnd !== undefined) {
+      streamOptions.start = params.rangeStart;
+      streamOptions.end = params.rangeEnd;
+    } else if (
+      params.rangeStart !== undefined ||
+      params.rangeEnd !== undefined
+    ) {
+      throw new Error(
+        'Both rangeStart and rangeEnd must be provided for range requests'
+      );
+    }
+
+    const stream = fse.createReadStream(nativePath, streamOptions);
     return {body: stream, size: stat.size};
   };
 

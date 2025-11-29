@@ -16,11 +16,7 @@ Response containing the requested resources. Each resource is wrapped with metad
 {
   "resources": [
     {
-      "resourceId": {
-        "__id": "FieldString",
-        "description": "file ID",
-        "example": "file000_000000000000000000000"
-      },
+      "resourceId": "file000_000000000000000000000",
       "resourceType": "file",
       "resource": {
         "__id": "FieldObject",
@@ -295,11 +291,7 @@ Response containing the requested resources. Each resource is wrapped with metad
       }
     },
     {
-      "resourceId": {
-        "__id": "FieldString",
-        "description": "folder ID",
-        "example": "folder0_000000000000000000000"
-      },
+      "resourceId": "folder0_000000000000000000000",
       "resourceType": "folder",
       "resource": {
         "__id": "FieldObject",
@@ -544,34 +536,18 @@ Array of resource wrappers containing the requested resources and their metadata
 ```json
 [
   {
-    "resourceId": {
-      "__id": "FieldString",
-      "description": "file ID",
-      "example": "file000_000000000000000000000"
-    },
+    "resourceId": "file000_000000000000000000000",
     "resourceType": "file",
     "resource": {
-      "resourceId": {
-        "__id": "FieldString",
-        "description": "file ID",
-        "example": "file000_000000000000000000000"
-      },
+      "resourceId": "file000_000000000000000000000",
       "createdAt": 1672531200000,
       "lastUpdatedAt": 1672531200000,
       "lastUpdatedBy": {
-        "agentId": {
-          "__id": "FieldString",
-          "description": "agentToken ID",
-          "example": "agtoken_000000000000000000000"
-        },
+        "agentId": "agtoken_000000000000000000000",
         "agentType": "agentToken"
       },
       "createdBy": {
-        "agentId": {
-          "__id": "FieldString",
-          "description": "agentToken ID",
-          "example": "agtoken_000000000000000000000"
-        },
+        "agentId": "agtoken_000000000000000000000",
         "agentType": "agentToken"
       }
     }

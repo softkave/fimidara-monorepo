@@ -158,7 +158,23 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
     const file = this.getMemoryFile(params);
 
     if (file) {
-      return {body: Readable.from(file.body), size: file.size};
+      let bodyBuffer = file.body;
+
+      // Handle range requests
+      if (
+        params.rangeStart !== undefined &&
+        params.rangeEnd !== undefined
+      ) {
+        const start = Math.max(0, params.rangeStart);
+        const end = Math.min(file.body.length - 1, params.rangeEnd);
+        bodyBuffer = file.body.subarray(start, end + 1);
+      } else if (params.rangeStart !== undefined || params.rangeEnd !== undefined) {
+        throw new Error(
+          'Both rangeStart and rangeEnd must be provided for range requests'
+        );
+      }
+
+      return {body: Readable.from(bodyBuffer), size: file.size};
     }
 
     return {body: undefined};

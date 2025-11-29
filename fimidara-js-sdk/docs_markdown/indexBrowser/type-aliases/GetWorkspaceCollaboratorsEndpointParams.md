@@ -49,5 +49,5 @@ ID of the workspace to get collaborators from. If not provided, the user's defau
 #### Example
 
 ```
-w-some-workspace-id
+wrkspce_000000000000000000000
 ```

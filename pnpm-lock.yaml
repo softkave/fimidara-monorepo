@@ -26,8 +26,8 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       mfdoc-js-sdk-base:
-        specifier: ^0.3.2
-        version: 0.3.2(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0)
+        specifier: ^0.3.3
+        version: 0.3.3(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0)
       path-browserify:
         specifier: ^1.0.1
         version: 1.0.1
@@ -428,8 +428,8 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       mfdoc:
-        specifier: ^0.4.1
-        version: 0.4.1(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1)
+        specifier: ^0.5.1
+        version: 0.5.1(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1)
       mongoose:
         specifier: 8.15.1
         version: 8.15.1
@@ -5435,8 +5435,8 @@ packages:
     resolution: {integrity: sha512-pcE45JvYcohXVVi1LJ8YG1XloH6BKSOaUCkBVw4nA54TnTgEfZx4B/jOrRBAN0c2F9kxQQ4b5tvLSjlmWJicHA==}
     engines: {node: '>=13'}
 
-  mfdoc-js-sdk-base@0.3.2:
-    resolution: {integrity: sha512-mT3WE5ocqXei4UWnHsY62DijPnTGT3d2V/x0Q+YQ0Bmz/PcHAMP1svBT57Aennyi5WGJx1Y5T37/ZwG/MxRzQQ==}
+  mfdoc-js-sdk-base@0.3.3:
+    resolution: {integrity: sha512-NChNSkLf5gMgeBle3LjANCj8cN1tqhf675/mQExIRTwEuITYK2mrSHtkC9yIAR33AGITgLZgG5iGfsCsa6mbeQ==}
     engines: {node: '>=13'}
 
   mfdoc@0.4.0:
@@ -5444,8 +5444,8 @@ packages:
     engines: {node: '>=24'}
     hasBin: true
 
-  mfdoc@0.4.1:
-    resolution: {integrity: sha512-sO4/mVdjj2kfoLdxMRMvJ8l26tcZBM8AG00X21g7KOYIKBwOn9nVtt/27hl2+pIy0LQMLxRELyowSzHo4sianQ==}
+  mfdoc@0.5.1:
+    resolution: {integrity: sha512-DpnFRzXsDOJsOXioZkaoad7W4PuALG1qANkTKk0s/gVoP9g9QpSn6cYwauuj+ZMvkOi2wXpVHeLlALSw//wB6w==}
     engines: {node: '>=24'}
     hasBin: true
 
@@ -11762,7 +11762,7 @@ snapshots:
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
       eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1)
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.57.1)
       eslint-plugin-react: 7.37.5(eslint@8.57.1)
       eslint-plugin-react-hooks: 5.0.0-canary-7118f5dd7-20230705(eslint@8.57.1)
@@ -11800,7 +11800,7 @@ snapshots:
       tinyglobby: 0.2.14
       unrs-resolver: 1.9.2
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -11833,7 +11833,7 @@ snapshots:
       eslint-utils: 2.1.0
       regexpp: 3.2.0
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
@@ -12340,7 +12340,7 @@ snapshots:
       commander: 12.1.0
       fs-extra: 11.3.0
       lodash-es: 4.17.21
-      mfdoc-js-sdk-base: 0.3.2(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0)
+      mfdoc-js-sdk-base: 0.3.3(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0)
       path-browserify: 1.0.1
       softkave-js-utils: 0.10.0(assert@2.1.0)(lodash-es@4.17.21)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0)
       type-fest: 4.41.0
@@ -12351,7 +12351,7 @@ snapshots:
   fimidx@0.5.0(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0):
     dependencies:
       lodash-es: 4.17.21
-      mfdoc-js-sdk-base: 0.3.2(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0)
+      mfdoc-js-sdk-base: 0.3.3(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0)
       softkave-js-utils: 0.17.0(assert@2.1.0)(lodash-es@4.17.21)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0)
     transitivePeerDependencies:
       - assert
@@ -13376,7 +13376,7 @@ snapshots:
       - path-browserify
       - type-fest
 
-  mfdoc-js-sdk-base@0.3.2(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0):
+  mfdoc-js-sdk-base@0.3.3(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0):
     dependencies:
       assert: 2.1.0
       axios: 1.10.0
@@ -13403,7 +13403,7 @@ snapshots:
       - nanoid
       - path-browserify
 
-  mfdoc@0.4.1(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1):
+  mfdoc@0.5.1(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1):
     dependencies:
       case: 1.6.3
       commander: 14.0.0

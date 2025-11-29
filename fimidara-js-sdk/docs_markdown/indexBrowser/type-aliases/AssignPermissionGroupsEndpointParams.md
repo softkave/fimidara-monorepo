@@ -21,7 +21,7 @@ Entity ID or array of entity IDs (users, collaborators, or agent tokens) to assi
 #### Example
 
 ```
-user_01234567890
+user000_000000000000000000000
 ```
 
 ***
@@ -35,7 +35,7 @@ Permission group ID or array of permission group IDs to assign
 #### Example
 
 ```
-perm_group_01234567890
+pmgroup_000000000000000000000
 ```
 
 ***

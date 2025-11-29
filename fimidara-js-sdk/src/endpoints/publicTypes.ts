@@ -233,365 +233,6 @@ export type AddAgentTokenEndpointResult = {
   token: AgentToken;
 };
 /**
- * File backend type - determines which storage provider to use (AWS S3, Google Cloud Storage, etc.)
- * @example
- * ```
- * fimidara
- * ```
- */
-export type FileBackendType = 'fimidara' | 'aws-s3';
-/**
- * Authentication credentials and configuration for the backend provider. Structure varies by backend type: - AWS S3: accessKeyId, secretAccessKey, region, etc. - Google Cloud: service account key JSON - Azure: connection string or account keys Store sensitive values as environment variable references.
- * @example
- * ```json
- * {
- *   "accessKeyId": "AKIA...",
- *   "secretAccessKey": "NPox...",
- *   "region": "us-east-1"
- * }
- * ```
- */
-export type FileBackendConfigCredentials = {};
-/**
- * Parameters for creating a new file backend config to store credentials and settings for external storage providers
- */
-export type AddFileBackendConfigEndpointParams = {
-  /**
-   * Workspace ID (optional if using workspace from auth context)
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  workspaceId?: string;
-  /**
-   * Display name for the new backend config
-   * @example
-   * ```
-   * My resource name
-   * ```
-   */
-  name: string;
-  /**
-   * Optional description explaining what this config is used for
-   * @example
-   * ```
-   * This is a resource description.
-   * ```
-   */
-  description?: string;
-  /**
-   * Storage backend type (AWS S3, Google Cloud, etc.)
-   * @example
-   * ```
-   * fimidara
-   * ```
-   */
-  backend: FileBackendType;
-  /**
-   * Authentication credentials and configuration for the backend provider
-   * @example
-   * ```json
-   * {
-   *   "accessKeyId": "AKIA...",
-   *   "secretAccessKey": "NPox...",
-   *   "region": "us-east-1"
-   * }
-   * ```
-   */
-  credentials: FileBackendConfigCredentials;
-};
-/**
- * A file backend config stores credentials and settings for connecting to external storage providers like AWS S3, Google Cloud Storage, etc.
- */
-export type FileBackendConfig = {
-  /**
-   * Resource ID
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  resourceId: string;
-  /**
-   * Represents a user or system entity that performed an action (e.g., created or updated a resource)
-   */
-  createdBy: Agent;
-  /**
-   * UTC timestamp in milliseconds
-   * @example
-   * ```
-   * 1672531200000
-   * ```
-   */
-  createdAt: number;
-  /**
-   * Represents a user or system entity that performed an action (e.g., created or updated a resource)
-   */
-  lastUpdatedBy: Agent;
-  /**
-   * UTC timestamp in milliseconds
-   * @example
-   * ```
-   * 1672531200000
-   * ```
-   */
-  lastUpdatedAt: number;
-  isDeleted: boolean;
-  /**
-   * UTC timestamp in milliseconds
-   * @example
-   * ```
-   * 1672531200000
-   * ```
-   */
-  deletedAt?: number;
-  /**
-   * Represents a user or system entity that performed an action (e.g., created or updated a resource)
-   */
-  deletedBy?: Agent;
-  /**
-   * Workspace ID
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  workspaceId: string;
-  /**
-   * Display name for this backend config
-   * @example
-   * ```
-   * My resource name
-   * ```
-   */
-  name: string;
-  /**
-   * Optional description explaining what this config is used for
-   * @example
-   * ```
-   * This is a resource description.
-   * ```
-   */
-  description?: string;
-  /**
-   * The storage backend type this config is for
-   * @example
-   * ```
-   * fimidara
-   * ```
-   */
-  backend: FileBackendType;
-};
-/**
- * Response when successfully creating a new file backend config
- */
-export type AddFileBackendConfigEndpointResult = {
-  /**
-   * The newly created file backend config
-   */
-  config: FileBackendConfig;
-};
-/**
- * Parameters for creating a new file backend mount to connect a folder to external storage
- */
-export type AddFileBackendMountEndpointParams = {
-  /**
-   * Workspace ID (optional if using workspace from auth context)
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  workspaceId?: string;
-  /**
-   * Display name for the new mount
-   * @example
-   * ```
-   * My resource name
-   * ```
-   */
-  name: string;
-  /**
-   * Optional description explaining the purpose of this mount
-   * @example
-   * ```
-   * This is a resource description.
-   * ```
-   */
-  description?: string;
-  /**
-   * Storage backend type to use (AWS S3, Google Cloud, etc.)
-   * @example
-   * ```
-   * fimidara
-   * ```
-   */
-  backend: FileBackendType;
-  /**
-   * Folder path where this mount should be attached (e.g., "/documents")
-   * @example
-   * ```
-   * /workspace-rootname/my-folder/my-sub-folder
-   * ```
-   */
-  folderpath: string;
-  /**
-   * Backend config ID to use, or null for default fimidara storage
-   * @example
-   * ```
-   * bckconf_000000000000000000000
-   * ```
-   */
-  configId: string | null;
-  /**
-   * Priority index (higher numbers = higher priority)
-   * @example
-   * ```
-   * 10
-   * ```
-   */
-  index: number;
-  /**
-   * Storage location in the backend (e.g., S3 bucket name or path)
-   * @example
-   * ```
-   * my-bucket/documents
-   * ```
-   */
-  mountedFrom: string;
-};
-/**
- * A file backend mount connects a folder in your workspace to external storage, allowing files to be stored in AWS S3, Google Cloud, etc.
- */
-export type FileBackendMount = {
-  /**
-   * Resource ID
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  resourceId: string;
-  /**
-   * Represents a user or system entity that performed an action (e.g., created or updated a resource)
-   */
-  createdBy: Agent;
-  /**
-   * UTC timestamp in milliseconds
-   * @example
-   * ```
-   * 1672531200000
-   * ```
-   */
-  createdAt: number;
-  /**
-   * Represents a user or system entity that performed an action (e.g., created or updated a resource)
-   */
-  lastUpdatedBy: Agent;
-  /**
-   * UTC timestamp in milliseconds
-   * @example
-   * ```
-   * 1672531200000
-   * ```
-   */
-  lastUpdatedAt: number;
-  isDeleted: boolean;
-  /**
-   * UTC timestamp in milliseconds
-   * @example
-   * ```
-   * 1672531200000
-   * ```
-   */
-  deletedAt?: number;
-  /**
-   * Represents a user or system entity that performed an action (e.g., created or updated a resource)
-   */
-  deletedBy?: Agent;
-  /**
-   * Workspace ID
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  workspaceId: string;
-  /**
-   * Display name for this mount
-   * @example
-   * ```
-   * My resource name
-   * ```
-   */
-  name: string;
-  /**
-   * Optional description explaining the purpose of this mount
-   * @example
-   * ```
-   * This is a resource description.
-   * ```
-   */
-  description?: string;
-  /**
-   * The storage backend type (AWS S3, Google Cloud, etc.)
-   * @example
-   * ```
-   * fimidara
-   * ```
-   */
-  backend: FileBackendType;
-  /**
-   * Backend config ID containing credentials, or null for default storage
-   * @example
-   * ```
-   * bckconf_000000000000000000000
-   * ```
-   */
-  configId: string | null;
-  /**
-   * Array of folder names representing the path where this mount is attached
-   * @example
-   * ```json
-   * [
-   *   "my-folder",
-   *   "my-sub-folder"
-   * ]
-   * ```
-   */
-  namepath: Array<string>;
-  /**
-   * Priority index when multiple mounts exist on the same folder
-   * @example
-   * ```
-   * 10
-   * ```
-   */
-  index: number;
-  /**
-   * Path segments indicating where files are stored in the backend
-   * @example
-   * ```json
-   * [
-   *   "my-bucket",
-   *   "documents",
-   *   "uploads"
-   * ]
-   * ```
-   */
-  mountedFrom: Array<string>;
-};
-/**
- * Response when successfully creating a new file backend mount
- */
-export type AddFileBackendMountEndpointResult = {
-  /**
-   * The newly created file backend mount
-   */
-  mount: FileBackendMount;
-};
-/**
  * Parameters for creating a new folder
  */
 export type AddFolderEndpointParams = {
@@ -922,7 +563,7 @@ export type PermissionItemInput = {
    * Specific resource ID(s) to grant/deny permission to
    * @example
    * ```
-   * folder_01234567890123456789abcd
+   * folder0_000000000000000000000
    * ```
    */
   targetId?: string | Array<string>;
@@ -962,7 +603,7 @@ export type PermissionItemInput = {
    * Entity ID(s) to grant/deny permission to (user, permission group, or agent token)
    * @example
    * ```
-   * user_01234567890123456789abcd
+   * user000_000000000000000000000
    * ```
    */
   entityId: string | Array<string>;
@@ -1008,7 +649,7 @@ export type AssignPermissionGroupsEndpointParams = {
    * Entity ID or array of entity IDs (users, collaborators, or agent tokens) to assign permission groups to
    * @example
    * ```
-   * user_01234567890
+   * user000_000000000000000000000
    * ```
    */
   entityId: string | Array<string>;
@@ -1016,7 +657,7 @@ export type AssignPermissionGroupsEndpointParams = {
    * Permission group ID or array of permission group IDs to assign
    * @example
    * ```
-   * perm_group_01234567890
+   * pmgroup_000000000000000000000
    * ```
    */
   permissionGroupId: string | Array<string>;
@@ -1222,81 +863,10 @@ export type CompleteMultipartUploadEndpointResult = {
    * Job ID for tracking the file assembly process if it runs asynchronously
    * @example
    * ```
-   * job-456e7890-e89b-12d3-a456-426614174001
+   * job0000_000000000000000000000
    * ```
    */
   jobId?: string;
-};
-/**
- * Parameters for counting file backend configs with optional filtering
- */
-export type CountFileBackendConfigsEndpointParams = {
-  /**
-   * Workspace ID to filter configs (optional if using workspace from auth context)
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  workspaceId?: string;
-  /**
-   * Filter configs by backend type (optional)
-   * @example
-   * ```
-   * fimidara
-   * ```
-   */
-  backend?: FileBackendType;
-};
-/**
- * Response containing the count of resources matching the query criteria
- */
-export type CountItemsResult = {
-  /**
-   * Total number of resources matching the query
-   * @example
-   * ```
-   * 42
-   * ```
-   */
-  count: number;
-};
-/**
- * Parameters for counting file backend mounts with optional filtering
- */
-export type CountFileBackendMountsEndpointParams = {
-  /**
-   * Workspace ID to filter mounts (optional if using workspace from auth context)
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  workspaceId?: string;
-  /**
-   * Filter mounts by backend type (optional)
-   * @example
-   * ```
-   * fimidara
-   * ```
-   */
-  backend?: FileBackendType;
-  /**
-   * Filter mounts by folder path (optional)
-   * @example
-   * ```
-   * /workspace-rootname/my-folder/my-sub-folder
-   * ```
-   */
-  folderpath?: string;
-  /**
-   * Filter mounts by backend config ID (optional)
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  configId?: string;
 };
 /**
  * Parameters for counting the number of items in a folder
@@ -1363,6 +933,19 @@ export type CountWorkspaceAgentTokensEndpointParams = {
   workspaceId?: string;
 };
 /**
+ * Response containing the count of resources matching the query criteria
+ */
+export type CountItemsResult = {
+  /**
+   * Total number of resources matching the query
+   * @example
+   * ```
+   * 42
+   * ```
+   */
+  count: number;
+};
+/**
  * Parameters for counting the total number of collaboration requests sent from your workspace.
  */
 export type CountWorkspaceCollaborationRequestsEndpointParams = {
@@ -1383,7 +966,7 @@ export type CountWorkspaceCollaboratorsEndpointParams = {
    * ID of the workspace to count collaborators in. If not provided, the user's default workspace is used.
    * @example
    * ```
-   * w-some-workspace-id
+   * wrkspce_000000000000000000000
    * ```
    */
   workspaceId?: string;
@@ -1541,48 +1124,6 @@ export type DeleteCollaborationRequestEndpointParams = {
   requestId: string;
 };
 /**
- * Parameters for deleting a file backend config
- */
-export type DeleteFileBackendConfigEndpointParams = {
-  /**
-   * ID of the config to delete
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  configId: string;
-  /**
-   * Workspace ID (optional if using workspace from auth context)
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  workspaceId?: string;
-};
-/**
- * Parameters for deleting a file backend mount
- */
-export type DeleteFileBackendMountEndpointParams = {
-  /**
-   * ID of the mount to delete
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  mountId: string;
-  /**
-   * Workspace ID (optional if using workspace from auth context)
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  workspaceId?: string;
-};
-/**
  * Parameters for deleting a file or specific multipart upload parts
  */
 export type DeleteFileEndpointParams = {
@@ -1662,7 +1203,7 @@ export type DeletePermissionGroupEndpointParams = {
    * Permission group ID. Either provide the permission group ID, or provide the workspace ID and permission group name
    * @example
    * ```
-   * perm_group_01234567890
+   * pmgroup_000000000000000000000
    * ```
    */
   permissionGroupId?: string;
@@ -1691,7 +1232,7 @@ export type DeletePermissionItemInput = {
    * Specific resource ID(s) to remove permissions from
    * @example
    * ```
-   * folder_01234567890123456789abcd
+   * folder0_000000000000000000000
    * ```
    */
   targetId?: string | Array<string>;
@@ -1739,7 +1280,7 @@ export type DeletePermissionItemInput = {
    * Entity ID(s) to remove permissions from. If not specified, removes permissions for all entities.
    * @example
    * ```
-   * user_01234567890123456789abcd
+   * user000_000000000000000000000
    * ```
    */
   entityId?: string | Array<string>;
@@ -1888,7 +1429,7 @@ export type GetCollaboratorEndpointParams = {
    * ID of the workspace containing the collaborator. If not provided, the user's default workspace is used.
    * @example
    * ```
-   * w-some-workspace-id
+   * wrkspce_000000000000000000000
    * ```
    */
   workspaceId?: string;
@@ -1896,7 +1437,7 @@ export type GetCollaboratorEndpointParams = {
    * Unique ID of the collaborator to retrieve.
    * @example
    * ```
-   * c-some-collaborator-id
+   * user000_000000000000000000000
    * ```
    */
   collaboratorId: string;
@@ -2008,7 +1549,7 @@ export type GetEntityAssignedPermissionGroupsParams = {
    * ID of the entity (user, collaborator, or agent token) to get assigned permission groups for
    * @example
    * ```
-   * user_01234567890
+   * user000_000000000000000000000
    * ```
    */
   entityId: string;
@@ -2029,7 +1570,7 @@ export type PublicAssignedPermissionGroupMeta = {
    * The ID of the assigned permission group
    * @example
    * ```
-   * perm_group_01234567890
+   * pmgroup_000000000000000000000
    * ```
    */
   permissionGroupId: string;
@@ -2049,7 +1590,7 @@ export type PublicAssignedPermissionGroupMeta = {
    * The ID of the entity (user, collaborator, or agent token) that was assigned the permission group
    * @example
    * ```
-   * user_01234567890
+   * user000_000000000000000000000
    * ```
    */
   assigneeEntityId: string;
@@ -2066,174 +1607,6 @@ export type GetEntityAssignedPermissionGroupsEndpointResult = {
    * Metadata about the direct assignment of permission groups (excludes inherited ones)
    */
   immediateAssignedPermissionGroupsMeta: Array<PublicAssignedPermissionGroupMeta>;
-};
-/**
- * Parameters for retrieving a specific file backend config by ID
- */
-export type GetFileBackendConfigEndpointParams = {
-  /**
-   * Workspace ID (optional if using workspace from auth context)
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  workspaceId?: string;
-  /**
-   * ID of the config to retrieve
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  configId: string;
-};
-/**
- * Response containing the requested file backend config
- */
-export type GetFileBackendConfigEndpointResult = {
-  /**
-   * The requested file backend config
-   */
-  config: FileBackendConfig;
-};
-/**
- * Parameters for retrieving a list of file backend configs with optional filtering
- */
-export type GetFileBackendConfigsEndpointParams = {
-  /**
-   * Workspace ID to filter configs (optional if using workspace from auth context)
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  workspaceId?: string;
-  /**
-   * Filter configs by backend type (optional)
-   * @example
-   * ```
-   * fimidara
-   * ```
-   */
-  backend?: FileBackendType;
-  /**
-   * Page number for pagination (optional, defaults to 0)
-   */
-  page?: number;
-  /**
-   * Number of items per page (optional, defaults to system limit)
-   * @example
-   * ```
-   * 50
-   * ```
-   */
-  pageSize?: number;
-};
-/**
- * Response containing a paginated list of file backend configs
- */
-export type GetFileBackendConfigsEndpointResult = {
-  /**
-   * Array of file backend configs matching the query criteria
-   */
-  configs: Array<FileBackendConfig>;
-  /**
-   * Current page number in the paginated results
-   */
-  page: number;
-};
-/**
- * Parameters for retrieving a specific file backend mount by ID
- */
-export type GetFileBackendMountEndpointParams = {
-  /**
-   * Workspace ID (optional if using workspace from auth context)
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  workspaceId?: string;
-  /**
-   * ID of the mount to retrieve
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  mountId: string;
-};
-/**
- * Response containing the requested file backend mount
- */
-export type GetFileBackendMountEndpointResult = {
-  /**
-   * The requested file backend mount
-   */
-  mount: FileBackendMount;
-};
-/**
- * Parameters for retrieving a list of file backend mounts with optional filtering
- */
-export type GetFileBackendMountsEndpointParams = {
-  /**
-   * Workspace ID to filter mounts (optional if using workspace from auth context)
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  workspaceId?: string;
-  /**
-   * Filter mounts by backend type (optional)
-   * @example
-   * ```
-   * fimidara
-   * ```
-   */
-  backend?: FileBackendType;
-  /**
-   * Filter mounts by folder path (optional)
-   * @example
-   * ```
-   * /workspace-rootname/my-folder/my-sub-folder
-   * ```
-   */
-  folderpath?: string;
-  /**
-   * Filter mounts by backend config ID (optional)
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  configId?: string;
-  /**
-   * Page number for pagination (optional, defaults to 0)
-   */
-  page?: number;
-  /**
-   * Number of items per page (optional, defaults to system limit)
-   * @example
-   * ```
-   * 50
-   * ```
-   */
-  pageSize?: number;
-};
-/**
- * Response containing a paginated list of file backend mounts
- */
-export type GetFileBackendMountsEndpointResult = {
-  /**
-   * Array of file backend mounts matching the query criteria
-   */
-  mounts: Array<FileBackendMount>;
-  /**
-   * Current page number in the paginated results
-   */
-  page: number;
 };
 /**
  * Parameters for retrieving file details
@@ -2350,7 +1723,7 @@ export type GetPermissionGroupEndpointParams = {
    * Permission group ID. Either provide the permission group ID, or provide the workspace ID and permission group name
    * @example
    * ```
-   * perm_group_01234567890
+   * pmgroup_000000000000000000000
    * ```
    */
   permissionGroupId?: string;
@@ -2393,7 +1766,7 @@ export type FileMatcher = {
    * Unique identifier for the file. Use either fileId or filepath, not both
    * @example
    * ```
-   * file_01h2x3y4z5a6b7c8d9e0f1g2h3
+   * file000_000000000000000000000
    * ```
    */
   fileId?: string;
@@ -2407,7 +1780,7 @@ export type GetPresignedPathsForFilesEndpointParams = {
    * ID of the workspace containing the files. If not provided, uses the default workspace
    * @example
    * ```
-   * workspace_01h2x3y4z5a6b7c8d9e0f1g2h3
+   * wrkspce_000000000000000000000
    * ```
    */
   workspaceId?: string;
@@ -2493,7 +1866,7 @@ export type FetchResourceItem = {
  * @example
  * ```json
  * {
- *   "workspaceId": "ws_1234567890abcdef",
+ *   "workspaceId": "wrkspce_000000000000000000000",
  *   "resources": [
  *     {
  *       "action": "read",
@@ -2505,11 +1878,7 @@ export type FetchResourceItem = {
  *     },
  *     {
  *       "action": "write",
- *       "resourceId": {
- *         "__id": "FieldString",
- *         "description": "file ID",
- *         "example": "file000_000000000000000000000"
- *       }
+ *       "resourceId": "file000_000000000000000000000"
  *     }
  *   ]
  * }
@@ -2568,11 +1937,7 @@ export type FimidaraResourceType =
  * @example
  * ```json
  * {
- *   "resourceId": {
- *     "__id": "FieldString",
- *     "description": "file ID",
- *     "example": "file000_000000000000000000000"
- *   },
+ *   "resourceId": "file000_000000000000000000000",
  *   "name": "report.pdf",
  *   "workspaceId": {
  *     "__id": "FieldString",
@@ -2636,34 +2001,18 @@ export type Resource = {
  * @example
  * ```json
  * {
- *   "resourceId": {
- *     "__id": "FieldString",
- *     "description": "file ID",
- *     "example": "file000_000000000000000000000"
- *   },
+ *   "resourceId": "file000_000000000000000000000",
  *   "resourceType": "file",
  *   "resource": {
- *     "resourceId": {
- *       "__id": "FieldString",
- *       "description": "file ID",
- *       "example": "file000_000000000000000000000"
- *     },
+ *     "resourceId": "file000_000000000000000000000",
  *     "createdAt": 1672531200000,
  *     "lastUpdatedAt": 1672531200000,
  *     "lastUpdatedBy": {
- *       "agentId": {
- *         "__id": "FieldString",
- *         "description": "agentToken ID",
- *         "example": "agtoken_000000000000000000000"
- *       },
+ *       "agentId": "agtoken_000000000000000000000",
  *       "agentType": "agentToken"
  *     },
  *     "createdBy": {
- *       "agentId": {
- *         "__id": "FieldString",
- *         "description": "agentToken ID",
- *         "example": "agtoken_000000000000000000000"
- *       },
+ *       "agentId": "agtoken_000000000000000000000",
  *       "agentType": "agentToken"
  *     }
  *   }
@@ -2692,11 +2041,7 @@ export type ResourceWrapper = {
    * @example
    * ```json
    * {
-   *   "resourceId": {
-   *     "__id": "FieldString",
-   *     "description": "file ID",
-   *     "example": "file000_000000000000000000000"
-   *   },
+   *   "resourceId": "file000_000000000000000000000",
    *   "name": "report.pdf",
    *   "workspaceId": {
    *     "__id": "FieldString",
@@ -2717,11 +2062,7 @@ export type ResourceWrapper = {
  * {
  *   "resources": [
  *     {
- *       "resourceId": {
- *         "__id": "FieldString",
- *         "description": "file ID",
- *         "example": "file000_000000000000000000000"
- *       },
+ *       "resourceId": "file000_000000000000000000000",
  *       "resourceType": "file",
  *       "resource": {
  *         "__id": "FieldObject",
@@ -2996,11 +2337,7 @@ export type ResourceWrapper = {
  *       }
  *     },
  *     {
- *       "resourceId": {
- *         "__id": "FieldString",
- *         "description": "folder ID",
- *         "example": "folder0_000000000000000000000"
- *       },
+ *       "resourceId": "folder0_000000000000000000000",
  *       "resourceType": "folder",
  *       "resource": {
  *         "__id": "FieldObject",
@@ -3239,34 +2576,18 @@ export type GetResourcesEndpointResult = {
    * ```json
    * [
    *   {
-   *     "resourceId": {
-   *       "__id": "FieldString",
-   *       "description": "file ID",
-   *       "example": "file000_000000000000000000000"
-   *     },
+   *     "resourceId": "file000_000000000000000000000",
    *     "resourceType": "file",
    *     "resource": {
-   *       "resourceId": {
-   *         "__id": "FieldString",
-   *         "description": "file ID",
-   *         "example": "file000_000000000000000000000"
-   *       },
+   *       "resourceId": "file000_000000000000000000000",
    *       "createdAt": 1672531200000,
    *       "lastUpdatedAt": 1672531200000,
    *       "lastUpdatedBy": {
-   *         "agentId": {
-   *           "__id": "FieldString",
-   *           "description": "agentToken ID",
-   *           "example": "agtoken_000000000000000000000"
-   *         },
+   *         "agentId": "agtoken_000000000000000000000",
    *         "agentType": "agentToken"
    *       },
    *       "createdBy": {
-   *         "agentId": {
-   *           "__id": "FieldString",
-   *           "description": "agentToken ID",
-   *           "example": "agtoken_000000000000000000000"
-   *         },
+   *         "agentId": "agtoken_000000000000000000000",
    *         "agentType": "agentToken"
    *       }
    *     }
@@ -3574,7 +2895,7 @@ export type GetWorkspaceCollaboratorsEndpointParams = {
    * ID of the workspace to get collaborators from. If not provided, the user's default workspace is used.
    * @example
    * ```
-   * w-some-workspace-id
+   * wrkspce_000000000000000000000
    * ```
    */
   workspaceId?: string;
@@ -3605,11 +2926,7 @@ export type GetWorkspaceCollaboratorsEndpointResult = {
    * ```json
    * [
    *   {
-   *     "resourceId": {
-   *       "__id": "FieldString",
-   *       "description": "user ID",
-   *       "example": "user000_000000000000000000000"
-   *     },
+   *     "resourceId": "user000_000000000000000000000",
    *     "workspaceId": {
    *       "__id": "FieldString",
    *       "description": "Workspace ID",
@@ -4035,7 +3352,7 @@ export type IssuePresignedPathEndpointParams = {
    * Unique identifier for the file. Required if filepath is not provided
    * @example
    * ```
-   * file_01h2x3y4z5a6b7c8d9e0f1g2h3
+   * file000_000000000000000000000
    * ```
    */
   fileId?: string;
@@ -4318,6 +3635,23 @@ export type ImageResizeParams = {
  */
 export type ImageFormatEnum = 'jpeg' | 'png' | 'webp' | 'tiff' | 'raw';
 /**
+ * Byte range with start and end positions
+ */
+export type Range = {
+  /**
+   * Start byte position of a range
+   */
+  start: number;
+  /**
+   * End byte position of a range
+   * @example
+   * ```
+   * 499
+   * ```
+   */
+  end: number;
+};
+/**
  * Parameters for reading/downloading a file with optional image processing
  */
 export type ReadFileEndpointParams = {
@@ -4353,6 +3687,26 @@ export type ReadFileEndpointParams = {
    * Whether the server should add "Content-Disposition: attachment" header which forces browsers to download files like HTML, JPEG, etc. which it'll otherwise open in the browser
    */
   download?: boolean;
+  /**
+   * Array of byte ranges to request. For single range, array has one element. For multipart ranges, array has multiple elements.
+   */
+  ranges?: Array<Range>;
+  /**
+   * Raw Range header value extracted from HTTP request (for parsing after file size is known)
+   * @example
+   * ```
+   * bytes=0-499
+   * ```
+   */
+  rangeHeader?: string;
+  /**
+   * Raw If-Range header value extracted from HTTP request
+   * @example
+   * ```
+   * "etag-value"
+   * ```
+   */
+  ifRangeHeader?: string;
 };
 /**
  * Parameters for refreshing an agent token to get a new JWT
@@ -4400,7 +3754,7 @@ export type RevokeCollaboratorEndpointParams = {
    * ID of the workspace to remove the collaborator from. If not provided, the user's default workspace is used.
    * @example
    * ```
-   * w-some-workspace-id
+   * wrkspce_000000000000000000000
    * ```
    */
   workspaceId?: string;
@@ -4408,7 +3762,7 @@ export type RevokeCollaboratorEndpointParams = {
    * ID of the collaborator to remove from the workspace.
    * @example
    * ```
-   * c-some-collaborator-id
+   * user000_000000000000000000000
    * ```
    */
   collaboratorId: string;
@@ -4421,7 +3775,7 @@ export type ResolveEntityPermissionItemInput = {
    * Specific resource ID(s) to check permissions for
    * @example
    * ```
-   * folder_01234567890123456789abcd
+   * folder0_000000000000000000000
    * ```
    */
   targetId?: string | Array<string>;
@@ -4453,7 +3807,7 @@ export type ResolveEntityPermissionItemInput = {
    * Entity ID(s) to check permissions for (user, permission group, or agent token)
    * @example
    * ```
-   * user_01234567890123456789abcd
+   * user000_000000000000000000000
    * ```
    */
   entityId: string | Array<string>;
@@ -4491,7 +3845,7 @@ export type ResolvedEntityPermissionItemTarget = {
    * The specific resource ID if the permission applies to a particular resource
    * @example
    * ```
-   * folder_01234567890123456789abcd
+   * folder0_000000000000000000000
    * ```
    */
   targetId?: string;
@@ -4532,7 +3886,7 @@ export type ResolvedEntityPermissionItem = {
    * The entity ID this permission resolution is for
    * @example
    * ```
-   * user_01234567890123456789abcd
+   * user000_000000000000000000000
    * ```
    */
   entityId: string;
@@ -4556,7 +3910,7 @@ export type ResolvedEntityPermissionItem = {
    * The entity that directly granted this permission (may be different from entityId if inherited from a group)
    * @example
    * ```
-   * permissionGroup_01234567890123456789abcd
+   * pmgroup_000000000000000000000
    * ```
    */
   permittingEntityId?: string;
@@ -4564,7 +3918,7 @@ export type ResolvedEntityPermissionItem = {
    * The target that directly holds this permission (may be different from target if inherited from a parent)
    * @example
    * ```
-   * folder_01234567890123456789abcd
+   * folder0_000000000000000000000
    * ```
    */
   permittingTargetId?: string;
@@ -4577,60 +3931,6 @@ export type ResolveEntityPermissionsEndpointResult = {
    * List of resolved permission items with access decisions.
    */
   items: Array<ResolvedEntityPermissionItem>;
-};
-/**
- * Parameters for resolving which file backend mounts apply to a specific file or folder. Provide either file or folder identifiers.
- */
-export type ResolveFileBackendMountsEndpointParams = {
-  /**
-   * Workspace ID (optional if using workspace from auth context)
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  workspaceId?: string;
-  /**
-   * Folder ID to resolve mounts for (alternative to folderpath)
-   * @example
-   * ```
-   * folder0_000000000000000000000
-   * ```
-   */
-  folderId?: string;
-  /**
-   * Folder path to resolve mounts for (alternative to folderId)
-   * @example
-   * ```
-   * /workspace-rootname/my-folder/my-sub-folder
-   * ```
-   */
-  folderpath?: string;
-  /**
-   * File ID to resolve mounts for (alternative to filepath)
-   * @example
-   * ```
-   * file000_000000000000000000000
-   * ```
-   */
-  fileId?: string;
-  /**
-   * File path to resolve mounts for (alternative to fileId)
-   * @example
-   * ```
-   * /workspace-rootname/my-folder/my-file.txt
-   * ```
-   */
-  filepath?: string;
-};
-/**
- * Response containing the file backend mounts that apply to the specified file or folder
- */
-export type ResolveFileBackendMountsEndpointResult = {
-  /**
-   * Array of file backend mounts that apply to the specified location, ordered by priority
-   */
-  mounts: Array<FileBackendMount>;
 };
 /**
  * Parameters for revoking a collaboration request you have sent. This cancels the invitation before it can be accepted.
@@ -4754,7 +4054,7 @@ export type UnassignPermissionGroupsEndpointParams = {
    * Entity ID or array of entity IDs (users, collaborators, or agent tokens) to remove permission groups from
    * @example
    * ```
-   * user_01234567890
+   * user000_000000000000000000000
    * ```
    */
   entityId: string | Array<string>;
@@ -4762,7 +4062,7 @@ export type UnassignPermissionGroupsEndpointParams = {
    * Permission group ID or array of permission group IDs to unassign
    * @example
    * ```
-   * perm_group_01234567890
+   * pmgroup_000000000000000000000
    * ```
    */
   permissionGroupId: string | Array<string>;
@@ -4918,168 +4218,6 @@ export type UpdateCollaborationRequestEndpointResult = {
   request: CollaborationRequestForWorkspace;
 };
 /**
- * Input fields for updating an existing file backend config. All fields are optional - only provide fields you want to change.
- */
-export type UpdateFileBackendConfigInput = {
-  /**
-   * New display name for the config
-   * @example
-   * ```
-   * My resource name
-   * ```
-   */
-  name?: string;
-  /**
-   * New description for the config
-   * @example
-   * ```
-   * This is a resource description.
-   * ```
-   */
-  description?: string;
-  /**
-   * New credentials and settings for the backend provider
-   * @example
-   * ```json
-   * {
-   *   "accessKeyId": "AKIA...",
-   *   "secretAccessKey": "NPox...",
-   *   "region": "us-east-1"
-   * }
-   * ```
-   */
-  credentials?: FileBackendConfigCredentials;
-};
-/**
- * Parameters for updating an existing file backend config
- */
-export type UpdateFileBackendConfigEndpointParams = {
-  /**
-   * Workspace ID (optional if using workspace from auth context)
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  workspaceId?: string;
-  /**
-   * ID of the config to update
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  configId: string;
-  /**
-   * Config update data containing only the fields to change
-   */
-  config: UpdateFileBackendConfigInput;
-};
-/**
- * Response when successfully updating a file backend config
- */
-export type UpdateFileBackendConfigEndpointResult = {
-  /**
-   * The updated file backend config
-   */
-  config: FileBackendConfig;
-};
-/**
- * Input fields for updating an existing file backend mount. All fields are optional - only provide fields you want to change.
- */
-export type UpdateFileBackendMountInput = {
-  /**
-   * New display name for the mount
-   * @example
-   * ```
-   * My resource name
-   * ```
-   */
-  name?: string;
-  /**
-   * New description explaining the purpose of this mount
-   * @example
-   * ```
-   * This is a resource description.
-   * ```
-   */
-  description?: string;
-  /**
-   * New backend config ID to use for this mount
-   * @example
-   * ```
-   * bckconf_000000000000000000000
-   * ```
-   */
-  configId?: string;
-  /**
-   * New folder path where this mount should be attached
-   * @example
-   * ```
-   * /workspace-rootname/my-folder/my-sub-folder
-   * ```
-   */
-  folderpath?: string;
-  /**
-   * New priority index for this mount
-   * @example
-   * ```
-   * 10
-   * ```
-   */
-  index?: number;
-  /**
-   * New storage location path in the backend provider
-   * @example
-   * ```
-   * my-bucket/documents
-   * ```
-   */
-  mountedFrom?: string;
-};
-/**
- * Parameters for updating an existing file backend mount
- */
-export type UpdateFileBackendMountEndpointParams = {
-  /**
-   * Workspace ID (optional if using workspace from auth context)
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  workspaceId?: string;
-  /**
-   * ID of the mount to update
-   * @example
-   * ```
-   * wrkspce_000000000000000000000
-   * ```
-   */
-  mountId: string;
-  /**
-   * Mount update data containing only the fields to change
-   */
-  mount: UpdateFileBackendMountInput;
-};
-/**
- * Response when successfully updating a file backend mount
- */
-export type UpdateFileBackendMountEndpointResult = {
-  /**
-   * The updated file backend mount
-   */
-  mount: FileBackendMount;
-  /**
-   * Background job ID if the update triggered file migration (optional)
-   * @example
-   * ```
-   * job0000_000000000000000000000
-   * ```
-   */
-  jobId?: string;
-};
-/**
  * Input data for updating file details like description and MIME type
  */
 export type UpdateFileDetailsInput = {
@@ -5210,7 +4348,7 @@ export type UpdatePermissionGroupEndpointParams = {
    * Permission group ID. Either provide the permission group ID, or provide the workspace ID and permission group name
    * @example
    * ```
-   * perm_group_01234567890
+   * pmgroup_000000000000000000000
    * ```
    */
   permissionGroupId?: string;

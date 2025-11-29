@@ -35,7 +35,7 @@ Entity ID(s) to check permissions for (user, permission group, or agent token)
 #### Example
 
 ```
-user_01234567890123456789abcd
+user000_000000000000000000000
 ```
 
 ***
@@ -77,7 +77,7 @@ Specific resource ID(s) to check permissions for
 #### Example
 
 ```
-folder_01234567890123456789abcd
+folder0_000000000000000000000
 ```
 
 ***

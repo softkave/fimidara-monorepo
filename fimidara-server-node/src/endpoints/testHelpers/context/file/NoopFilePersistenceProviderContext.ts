@@ -5,6 +5,7 @@ import {
   FilePersistenceDescribeFolderContentResult,
   FilePersistenceDescribeFolderFoldersParams,
   FilePersistenceDescribeFolderFoldersResult,
+  FilePersistenceGetFileParams,
   FilePersistenceProvider,
   FilePersistenceProviderFeature,
   FilePersistenceStartMultipartUploadResult,
@@ -35,7 +36,15 @@ export default class NoopFilePersistenceProviderContext
     }
   };
 
-  readFile = async (): Promise<PersistedFile> => {
+  readFile = async (params: FilePersistenceGetFileParams): Promise<PersistedFile> => {
+    if (
+      params.rangeStart !== undefined ||
+      params.rangeEnd !== undefined
+    ) {
+      throw new Error(
+        'Range requests are not supported by NoopFilePersistenceProvider'
+      );
+    }
     return {body: undefined};
   };
 

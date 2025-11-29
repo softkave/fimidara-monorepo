@@ -14,7 +14,7 @@ import {
 import {expectFileBodyEqual} from '../../../endpoints/testHelpers/helpers/file.js';
 import {completeTests} from '../../../endpoints/testHelpers/helpers/testFns.js';
 import {initTests} from '../../../endpoints/testHelpers/utils.js';
-import {loopAndCollate, pathJoin} from '../../../utils/fns.js';
+import {loopAndCollate, pathJoin, streamToBuffer} from '../../../utils/fns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
 import {MemoryFilePersistenceProvider} from '../MemoryFilePersistenceProvider.js';
 
@@ -375,6 +375,154 @@ describe('MemoryFilePersistenceProvider', () => {
 
     assert.ok(result.body);
     await expectFileBodyEqual(buffer, result.body);
+  });
+
+  test('readFile with range', async () => {
+    const buffer = Buffer.from('Hello world!');
+    const data = Readable.from(buffer);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
+    const filepath = generateTestFilepathString({
+      length: mount.namepath.length + 2,
+      parentNamepath: mount.namepath,
+    });
+    const backend = new MemoryFilePersistenceProvider();
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+    await backend.uploadFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      body: data,
+    });
+
+    // Test reading a range from the beginning of the file
+    const rangeStart = 0;
+    const rangeEnd = 4; // Should read "Hello"
+    const result = await backend.readFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      rangeStart,
+      rangeEnd,
+    });
+
+    assert.ok(result.body);
+    const resultBuffer = await streamToBuffer(result.body);
+    const expectedBuffer = buffer.subarray(rangeStart, rangeEnd + 1);
+    expect(resultBuffer.equals(expectedBuffer)).toBe(true);
+    expect(result.size).toBe(buffer.length);
+  });
+
+  test('readFile with range at end of file', async () => {
+    const buffer = Buffer.from('Hello world!');
+    const data = Readable.from(buffer);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
+    const filepath = generateTestFilepathString({
+      length: mount.namepath.length + 2,
+      parentNamepath: mount.namepath,
+    });
+    const backend = new MemoryFilePersistenceProvider();
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+    await backend.uploadFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      body: data,
+    });
+
+    // Test reading a range from the end of the file
+    const rangeStart = 6;
+    const rangeEnd = 11; // Should read "world!"
+    const result = await backend.readFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      rangeStart,
+      rangeEnd,
+    });
+
+    assert.ok(result.body);
+    const resultBuffer = await streamToBuffer(result.body);
+    const expectedBuffer = buffer.subarray(rangeStart, rangeEnd + 1);
+    expect(resultBuffer.equals(expectedBuffer)).toBe(true);
+    expect(result.size).toBe(buffer.length);
+  });
+
+  test('readFile with rangeStart only throws error', async () => {
+    const buffer = Buffer.from('Hello world!');
+    const data = Readable.from(buffer);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
+    const filepath = generateTestFilepathString({
+      length: mount.namepath.length + 2,
+      parentNamepath: mount.namepath,
+    });
+    const backend = new MemoryFilePersistenceProvider();
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+    await backend.uploadFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      body: data,
+    });
+
+    await expect(
+      backend.readFile({
+        mount,
+        workspaceId,
+        filepath,
+        fileId,
+        rangeStart: 0,
+      })
+    ).rejects.toThrow(
+      'Both rangeStart and rangeEnd must be provided for range requests'
+    );
+  });
+
+  test('readFile with rangeEnd only throws error', async () => {
+    const buffer = Buffer.from('Hello world!');
+    const data = Readable.from(buffer);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
+    const filepath = generateTestFilepathString({
+      length: mount.namepath.length + 2,
+      parentNamepath: mount.namepath,
+    });
+    const backend = new MemoryFilePersistenceProvider();
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+    await backend.uploadFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      body: data,
+    });
+
+    await expect(
+      backend.readFile({
+        mount,
+        workspaceId,
+        filepath,
+        fileId,
+        rangeEnd: 4,
+      })
+    ).rejects.toThrow(
+      'Both rangeStart and rangeEnd must be provided for range requests'
+    );
   });
 
   test('deleteFiles', async () => {

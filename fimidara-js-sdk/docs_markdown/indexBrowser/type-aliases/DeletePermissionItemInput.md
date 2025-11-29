@@ -49,7 +49,7 @@ Entity ID(s) to remove permissions from. If not specified, removes permissions f
 #### Example
 
 ```
-user_01234567890123456789abcd
+user000_000000000000000000000
 ```
 
 ***
@@ -91,7 +91,7 @@ Specific resource ID(s) to remove permissions from
 #### Example
 
 ```
-folder_01234567890123456789abcd
+folder0_000000000000000000000
 ```
 
 ***

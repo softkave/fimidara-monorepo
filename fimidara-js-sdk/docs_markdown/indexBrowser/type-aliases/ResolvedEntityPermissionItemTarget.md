@@ -49,7 +49,7 @@ The specific resource ID if the permission applies to a particular resource
 #### Example
 
 ```
-folder_01234567890123456789abcd
+folder0_000000000000000000000
 ```
 
 ***

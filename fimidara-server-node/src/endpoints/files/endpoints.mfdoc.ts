@@ -53,6 +53,7 @@ import {
   ListPartsHttpEndpoint,
   ReadFileEndpointHTTPHeaders,
   ReadFileGETHttpEndpoint,
+  ReadFileHEADHttpEndpoint,
   ReadFilePOSTHttpEndpoint,
   StartMultipartUploadHttpEndpoint,
   UpdateFileDetailsHttpEndpoint,
@@ -143,6 +144,43 @@ const downloadQueryParam = mfdocConstruct.constructBoolean({
     'which forces browsers to download files like HTML, JPEG, etc. which ' +
     "it'll otherwise open in the browser",
   example: false,
+});
+const rangeStart = mfdocConstruct.constructNumber({
+  description: 'Start byte position of a range',
+  example: 0,
+});
+const rangeEnd = mfdocConstruct.constructNumber({
+  description: 'End byte position of a range',
+  example: 499,
+});
+const range = mfdocConstruct.constructObject<{start: number; end: number}>({
+  name: 'Range',
+  description: 'Byte range with start and end positions',
+  fields: {
+    start: mfdocConstruct.constructObjectField({
+      required: true,
+      data: rangeStart,
+    }),
+    end: mfdocConstruct.constructObjectField({
+      required: true,
+      data: rangeEnd,
+    }),
+  },
+});
+const ranges = mfdocConstruct.constructArray<{start: number; end: number}>({
+  description:
+    'Array of byte ranges to request. For single range, array has one element. ' +
+    'For multipart ranges, array has multiple elements.',
+  type: range,
+});
+const rangeHeader = mfdocConstruct.constructString({
+  description:
+    'Raw Range header value extracted from HTTP request (for parsing after file size is known)',
+  example: 'bytes=0-499',
+});
+const ifRangeHeader = mfdocConstruct.constructString({
+  description: 'Raw If-Range header value extracted from HTTP request',
+  example: '"etag-value"',
 });
 
 const file = mfdocConstruct.constructObject<PublicFile>({
@@ -338,6 +376,18 @@ const readFileParams = mfdocConstruct.constructObject<ReadFileEndpointParams>({
       required: false,
       data: downloadQueryParam,
     }),
+    ranges: mfdocConstruct.constructObjectField({
+      required: false,
+      data: ranges,
+    }),
+    rangeHeader: mfdocConstruct.constructObjectField({
+      required: false,
+      data: rangeHeader,
+    }),
+    ifRangeHeader: mfdocConstruct.constructObjectField({
+      required: false,
+      data: ifRangeHeader,
+    }),
   },
 });
 const readFileQuery = mfdocConstruct.constructObject<ReadFileEndpointHttpQuery>(
@@ -394,6 +444,35 @@ const readFileResponseHeaders =
       'Content-Disposition': mfdocConstruct.constructObjectField({
         required: false,
         data: mfdocEndpointHttpHeaderItems.responseHeaderItem_ContentDisposition,
+      }),
+      'Accept-Ranges': mfdocConstruct.constructObjectField({
+        required: false,
+        data: mfdocConstruct.constructString({
+          description: 'Indicates that the server supports range requests',
+          example: 'bytes',
+        }),
+      }),
+      'Last-Modified': mfdocConstruct.constructObjectField({
+        required: false,
+        data: mfdocConstruct.constructString({
+          description: 'Date and time when the file was last modified',
+          example: 'Wed, 21 Oct 2015 07:28:00 GMT',
+        }),
+      }),
+      ETag: mfdocConstruct.constructObjectField({
+        required: false,
+        data: mfdocConstruct.constructString({
+          description: 'Entity tag for cache validation',
+          example: '"a1b2c3d4e5f6789012345678901234ab"',
+        }),
+      }),
+      'Content-Range': mfdocConstruct.constructObjectField({
+        required: false,
+        data: mfdocConstruct.constructString({
+          description:
+            'Indicates where in the full body message a partial message belongs',
+          example: 'bytes 0-499/1024',
+        }),
       }),
     },
   });
@@ -656,6 +735,44 @@ export const readFileGETEndpointDefinition =
     name: 'fimidara/files/readFile',
     description:
       'Read/download a file with optional image processing capabilities using GET method',
+    tags: [kEndpointTag.public],
+  });
+
+export const readFileHEADEndpointDefinition =
+  mfdocConstruct.constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      ReadFileHEADHttpEndpoint['mfdocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      ReadFileHEADHttpEndpoint['mfdocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<
+      ReadFileHEADHttpEndpoint['mfdocHttpDefinition']['query']
+    >,
+    InferFieldObjectOrMultipartType<
+      ReadFileHEADHttpEndpoint['mfdocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      ReadFileHEADHttpEndpoint['mfdocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      ReadFileHEADHttpEndpoint['mfdocHttpDefinition']['responseBody']
+    >,
+    InferSdkParamsType<
+      ReadFileHEADHttpEndpoint['mfdocHttpDefinition']['sdkParamsBody']
+    >
+  >({
+    path: kFileConstants.routes.readFile_get,
+    pathParamaters: fileMatcherPathParameters,
+    method: HttpEndpointMethod.Head,
+    query: readFileQuery,
+    requestHeaders: mfdocEndpointHttpHeaderItems.requestHeaders_AuthOptional,
+    responseHeaders: readFileResponseHeaders,
+    responseBody: undefined,
+    sdkParamsBody: readFileSdkParams,
+    name: 'fimidara/files/readFile',
+    description:
+      'Get file metadata and check range support using HEAD method. Returns headers only, no body.',
     tags: [kEndpointTag.public],
   });
 

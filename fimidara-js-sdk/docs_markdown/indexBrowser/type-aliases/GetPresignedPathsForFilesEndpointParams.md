@@ -27,5 +27,5 @@ ID of the workspace containing the files. If not provided, uses the default work
 #### Example
 
 ```
-workspace_01h2x3y4z5a6b7c8d9e0f1g2h3
+wrkspce_000000000000000000000
 ```

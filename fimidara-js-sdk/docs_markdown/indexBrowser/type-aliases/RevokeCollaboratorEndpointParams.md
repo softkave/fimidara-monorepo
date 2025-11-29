@@ -21,7 +21,7 @@ ID of the collaborator to remove from the workspace.
 #### Example
 
 ```
-c-some-collaborator-id
+user000_000000000000000000000
 ```
 
 ***
@@ -35,5 +35,5 @@ ID of the workspace to remove the collaborator from. If not provided, the user's
 #### Example
 
 ```
-w-some-workspace-id
+wrkspce_000000000000000000000
 ```
