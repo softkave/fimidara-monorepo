@@ -36,19 +36,19 @@
                                         {
                                             "__id": "FieldString",
                                             "description": "Resource ID permission is effected on",
-                                            "example": "folder_01234567890123456789abcd"
+                                            "example": "folder0_000000000000000000000"
                                         },
                                         {
                                             "__id": "FieldArray",
                                             "type": {
                                                 "__id": "FieldString",
                                                 "description": "Resource ID permission is effected on",
-                                                "example": "folder_01234567890123456789abcd"
+                                                "example": "folder0_000000000000000000000"
                                             },
                                             "description": "List of target resource IDs permission is effected on",
                                             "example": [
-                                                "folder_01234567890123456789abcd",
-                                                "file_01234567890123456789abcd"
+                                                "folder0_000000000000000000000",
+                                                "file000_000000000000000000000"
                                             ]
                                         }
                                     ],
@@ -130,19 +130,19 @@
                                         {
                                             "__id": "FieldString",
                                             "description": "Permission entity resource ID. A permission entity is a resource granted or deny access. This can be a user, a permission group, or an agent token",
-                                            "example": "user_01234567890123456789abcd"
+                                            "example": "user000_000000000000000000000"
                                         },
                                         {
                                             "__id": "FieldArray",
                                             "type": {
                                                 "__id": "FieldString",
                                                 "description": "Permission entity resource ID. A permission entity is a resource granted or deny access. This can be a user, a permission group, or an agent token",
-                                                "example": "user_01234567890123456789abcd"
+                                                "example": "user000_000000000000000000000"
                                             },
                                             "description": "Permission entity resource ID list. A permission entity is a resource granted or deny access. This can be a user, a permission group, or an agent token",
                                             "example": [
-                                                "user_01234567890123456789abcd",
-                                                "permissionGroup_01234567890123456789abcd"
+                                                "user000_000000000000000000000",
+                                                "pmgroup_000000000000000000000"
                                             ]
                                         }
                                     ],
@@ -352,7 +352,7 @@
                                             "data": {
                                                 "__id": "FieldString",
                                                 "description": "Resource ID permission is effected on",
-                                                "example": "folder_01234567890123456789abcd"
+                                                "example": "folder0_000000000000000000000"
                                             },
                                             "description": "The specific resource ID if the permission applies to a particular resource"
                                         },
@@ -396,7 +396,7 @@
                                 "data": {
                                     "__id": "FieldString",
                                     "description": "Permission entity resource ID. A permission entity is a resource granted or deny access. This can be a user, a permission group, or an agent token",
-                                    "example": "user_01234567890123456789abcd"
+                                    "example": "user000_000000000000000000000"
                                 },
                                 "description": "The entity ID this permission resolution is for"
                             },
@@ -470,7 +470,7 @@
                                 "data": {
                                     "__id": "FieldString",
                                     "description": "ID of the permission entity that directly owns/is assigned the permission item producing this result. That is, the permission item used to resolve whether the requested entity has access or does not, the entity directly owning that item, is surfaced here as accessEntityId. This can be the requested entity itself, or a permission group assigned to the requested entity.",
-                                    "example": "permissionGroup_01234567890123456789abcd"
+                                    "example": "pmgroup_000000000000000000000"
                                 },
                                 "description": "The entity that directly granted this permission (may be different from entityId if inherited from a group)"
                             },
@@ -480,7 +480,7 @@
                                 "data": {
                                     "__id": "FieldString",
                                     "description": "ID of the permission target that directly owns/is assigned the permission item producing this result. That is, the permission item used to resolve whether the requested entity has access or does not, the target directly owning that item, is surfaced here as permittingTargetId. This can be the requested target itself, or a parent folder if the requested resource is a folder of file, etc.",
-                                    "example": "folder_01234567890123456789abcd"
+                                    "example": "folder0_000000000000000000000"
                                 },
                                 "description": "The target that directly holds this permission (may be different from target if inherited from a parent)"
                             }

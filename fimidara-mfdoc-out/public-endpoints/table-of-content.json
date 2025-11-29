@@ -94,145 +94,6 @@
                     }
                 }
             },
-            "fileBackends": {
-                "basename": "fileBackends",
-                "names": [
-                    "fimidara",
-                    "fileBackends"
-                ],
-                "children": {
-                    "addConfig__post": {
-                        "basename": "addConfig__post",
-                        "filepath": "fimidara/fileBackends/addConfig__post.json",
-                        "names": [
-                            "fimidara",
-                            "fileBackends",
-                            "addConfig__post"
-                        ],
-                        "children": {}
-                    },
-                    "addMount__post": {
-                        "basename": "addMount__post",
-                        "filepath": "fimidara/fileBackends/addMount__post.json",
-                        "names": [
-                            "fimidara",
-                            "fileBackends",
-                            "addMount__post"
-                        ],
-                        "children": {}
-                    },
-                    "countConfigs__post": {
-                        "basename": "countConfigs__post",
-                        "filepath": "fimidara/fileBackends/countConfigs__post.json",
-                        "names": [
-                            "fimidara",
-                            "fileBackends",
-                            "countConfigs__post"
-                        ],
-                        "children": {}
-                    },
-                    "countMounts__post": {
-                        "basename": "countMounts__post",
-                        "filepath": "fimidara/fileBackends/countMounts__post.json",
-                        "names": [
-                            "fimidara",
-                            "fileBackends",
-                            "countMounts__post"
-                        ],
-                        "children": {}
-                    },
-                    "deleteConfig__delete": {
-                        "basename": "deleteConfig__delete",
-                        "filepath": "fimidara/fileBackends/deleteConfig__delete.json",
-                        "names": [
-                            "fimidara",
-                            "fileBackends",
-                            "deleteConfig__delete"
-                        ],
-                        "children": {}
-                    },
-                    "deleteMount__delete": {
-                        "basename": "deleteMount__delete",
-                        "filepath": "fimidara/fileBackends/deleteMount__delete.json",
-                        "names": [
-                            "fimidara",
-                            "fileBackends",
-                            "deleteMount__delete"
-                        ],
-                        "children": {}
-                    },
-                    "getConfig__post": {
-                        "basename": "getConfig__post",
-                        "filepath": "fimidara/fileBackends/getConfig__post.json",
-                        "names": [
-                            "fimidara",
-                            "fileBackends",
-                            "getConfig__post"
-                        ],
-                        "children": {}
-                    },
-                    "getConfigs__post": {
-                        "basename": "getConfigs__post",
-                        "filepath": "fimidara/fileBackends/getConfigs__post.json",
-                        "names": [
-                            "fimidara",
-                            "fileBackends",
-                            "getConfigs__post"
-                        ],
-                        "children": {}
-                    },
-                    "getMount__post": {
-                        "basename": "getMount__post",
-                        "filepath": "fimidara/fileBackends/getMount__post.json",
-                        "names": [
-                            "fimidara",
-                            "fileBackends",
-                            "getMount__post"
-                        ],
-                        "children": {}
-                    },
-                    "getMounts__post": {
-                        "basename": "getMounts__post",
-                        "filepath": "fimidara/fileBackends/getMounts__post.json",
-                        "names": [
-                            "fimidara",
-                            "fileBackends",
-                            "getMounts__post"
-                        ],
-                        "children": {}
-                    },
-                    "resolveMounts__post": {
-                        "basename": "resolveMounts__post",
-                        "filepath": "fimidara/fileBackends/resolveMounts__post.json",
-                        "names": [
-                            "fimidara",
-                            "fileBackends",
-                            "resolveMounts__post"
-                        ],
-                        "children": {}
-                    },
-                    "updateConfig__post": {
-                        "basename": "updateConfig__post",
-                        "filepath": "fimidara/fileBackends/updateConfig__post.json",
-                        "names": [
-                            "fimidara",
-                            "fileBackends",
-                            "updateConfig__post"
-                        ],
-                        "children": {}
-                    },
-                    "updateMount__post": {
-                        "basename": "updateMount__post",
-                        "filepath": "fimidara/fileBackends/updateMount__post.json",
-                        "names": [
-                            "fimidara",
-                            "fileBackends",
-                            "updateMount__post"
-                        ],
-                        "children": {}
-                    }
-                }
-            },
             "folders": {
                 "basename": "folders",
                 "names": [
@@ -497,6 +358,16 @@
                         ],
                         "children": {}
                     },
+                    "readFile__head": {
+                        "basename": "readFile__head",
+                        "filepath": "fimidara/files/readFile__head.json",
+                        "names": [
+                            "fimidara",
+                            "files",
+                            "readFile__head"
+                        ],
+                        "children": {}
+                    },
                     "readFile__post": {
                         "basename": "readFile__post",
                         "filepath": "fimidara/files/readFile__post.json",
@@ -566,6 +437,16 @@
                         ],
                         "children": {}
                     },
+                    "getWorkspaceRequest__post": {
+                        "basename": "getWorkspaceRequest__post",
+                        "filepath": "fimidara/collaborationRequests/getWorkspaceRequest__post.json",
+                        "names": [
+                            "fimidara",
+                            "collaborationRequests",
+                            "getWorkspaceRequest__post"
+                        ],
+                        "children": {}
+                    },
                     "getWorkspaceRequests__post": {
                         "basename": "getWorkspaceRequests__post",
                         "filepath": "fimidara/collaborationRequests/getWorkspaceRequests__post.json",
@@ -593,6 +474,65 @@
                             "fimidara",
                             "collaborationRequests",
                             "sendRequest__post"
+                        ],
+                        "children": {}
+                    },
+                    "updateRequest__post": {
+                        "basename": "updateRequest__post",
+                        "filepath": "fimidara/collaborationRequests/updateRequest__post.json",
+                        "names": [
+                            "fimidara",
+                            "collaborationRequests",
+                            "updateRequest__post"
+                        ],
+                        "children": {}
+                    }
+                }
+            },
+            "collaborators": {
+                "basename": "collaborators",
+                "names": [
+                    "fimidara",
+                    "collaborators"
+                ],
+                "children": {
+                    "countWorkspaceCollaborators__post": {
+                        "basename": "countWorkspaceCollaborators__post",
+                        "filepath": "fimidara/collaborators/countWorkspaceCollaborators__post.json",
+                        "names": [
+                            "fimidara",
+                            "collaborators",
+                            "countWorkspaceCollaborators__post"
+                        ],
+                        "children": {}
+                    },
+                    "getCollaborator__post": {
+                        "basename": "getCollaborator__post",
+                        "filepath": "fimidara/collaborators/getCollaborator__post.json",
+                        "names": [
+                            "fimidara",
+                            "collaborators",
+                            "getCollaborator__post"
+                        ],
+                        "children": {}
+                    },
+                    "getWorkspaceCollaborators__post": {
+                        "basename": "getWorkspaceCollaborators__post",
+                        "filepath": "fimidara/collaborators/getWorkspaceCollaborators__post.json",
+                        "names": [
+                            "fimidara",
+                            "collaborators",
+                            "getWorkspaceCollaborators__post"
+                        ],
+                        "children": {}
+                    },
+                    "removeCollaborator__post": {
+                        "basename": "removeCollaborator__post",
+                        "filepath": "fimidara/collaborators/removeCollaborator__post.json",
+                        "names": [
+                            "fimidara",
+                            "collaborators",
+                            "removeCollaborator__post"
                         ],
                         "children": {}
                     }

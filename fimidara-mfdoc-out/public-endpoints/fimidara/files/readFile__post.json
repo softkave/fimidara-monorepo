@@ -324,6 +324,57 @@
                     "description": "Whether the server should add \"Content-Disposition: attachment\" header which forces browsers to download files like HTML, JPEG, etc. which it'll otherwise open in the browser",
                     "example": false
                 }
+            },
+            "ranges": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldArray",
+                    "description": "Array of byte ranges to request. For single range, array has one element. For multipart ranges, array has multiple elements.",
+                    "type": {
+                        "__id": "FieldObject",
+                        "name": "Range",
+                        "description": "Byte range with start and end positions",
+                        "fields": {
+                            "start": {
+                                "__id": "FieldObjectField",
+                                "required": true,
+                                "data": {
+                                    "__id": "FieldNumber",
+                                    "description": "Start byte position of a range",
+                                    "example": 0
+                                }
+                            },
+                            "end": {
+                                "__id": "FieldObjectField",
+                                "required": true,
+                                "data": {
+                                    "__id": "FieldNumber",
+                                    "description": "End byte position of a range",
+                                    "example": 499
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "rangeHeader": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Raw Range header value extracted from HTTP request (for parsing after file size is known)",
+                    "example": "bytes=0-499"
+                }
+            },
+            "ifRangeHeader": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Raw If-Range header value extracted from HTTP request",
+                    "example": "\"etag-value\""
+                }
             }
         }
     },
@@ -357,6 +408,42 @@
                     "__id": "FieldString",
                     "description": "HTTP response content disposition",
                     "example": "attachment; filename=\"file.txt\""
+                }
+            },
+            "Accept-Ranges": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Indicates that the server supports range requests",
+                    "example": "bytes"
+                }
+            },
+            "Last-Modified": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Date and time when the file was last modified",
+                    "example": "Wed, 21 Oct 2015 07:28:00 GMT"
+                }
+            },
+            "ETag": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Entity tag for cache validation",
+                    "example": "\"a1b2c3d4e5f6789012345678901234ab\""
+                }
+            },
+            "Content-Range": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Indicates where in the full body message a partial message belongs",
+                    "example": "bytes 0-499/1024"
                 }
             }
         }
@@ -520,6 +607,57 @@
                         "__id": "FieldBoolean",
                         "description": "Whether the server should add \"Content-Disposition: attachment\" header which forces browsers to download files like HTML, JPEG, etc. which it'll otherwise open in the browser",
                         "example": false
+                    }
+                },
+                "ranges": {
+                    "__id": "FieldObjectField",
+                    "required": false,
+                    "data": {
+                        "__id": "FieldArray",
+                        "description": "Array of byte ranges to request. For single range, array has one element. For multipart ranges, array has multiple elements.",
+                        "type": {
+                            "__id": "FieldObject",
+                            "name": "Range",
+                            "description": "Byte range with start and end positions",
+                            "fields": {
+                                "start": {
+                                    "__id": "FieldObjectField",
+                                    "required": true,
+                                    "data": {
+                                        "__id": "FieldNumber",
+                                        "description": "Start byte position of a range",
+                                        "example": 0
+                                    }
+                                },
+                                "end": {
+                                    "__id": "FieldObjectField",
+                                    "required": true,
+                                    "data": {
+                                        "__id": "FieldNumber",
+                                        "description": "End byte position of a range",
+                                        "example": 499
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "rangeHeader": {
+                    "__id": "FieldObjectField",
+                    "required": false,
+                    "data": {
+                        "__id": "FieldString",
+                        "description": "Raw Range header value extracted from HTTP request (for parsing after file size is known)",
+                        "example": "bytes=0-499"
+                    }
+                },
+                "ifRangeHeader": {
+                    "__id": "FieldObjectField",
+                    "required": false,
+                    "data": {
+                        "__id": "FieldString",
+                        "description": "Raw If-Range header value extracted from HTTP request",
+                        "example": "\"etag-value\""
                     }
                 }
             }

@@ -25,24 +25,24 @@
                         {
                             "__id": "FieldString",
                             "description": "Permission entity resource ID. A permission entity is a resource granted or deny access. This can be a user, a permission group, or an agent token",
-                            "example": "user_01234567890123456789abcd"
+                            "example": "user000_000000000000000000000"
                         },
                         {
                             "__id": "FieldArray",
                             "type": {
                                 "__id": "FieldString",
                                 "description": "Permission entity resource ID. A permission entity is a resource granted or deny access. This can be a user, a permission group, or an agent token",
-                                "example": "user_01234567890123456789abcd"
+                                "example": "user000_000000000000000000000"
                             },
                             "description": "Permission entity resource ID list. A permission entity is a resource granted or deny access. This can be a user, a permission group, or an agent token",
                             "example": [
-                                "user_01234567890123456789abcd",
-                                "permissionGroup_01234567890123456789abcd"
+                                "user000_000000000000000000000",
+                                "pmgroup_000000000000000000000"
                             ]
                         }
                     ],
                     "description": "Entity ID or array of entity IDs (users, collaborators, or agent tokens) to remove permission groups from",
-                    "example": "user_01234567890"
+                    "example": "user000_000000000000000000000"
                 }
             },
             "permissionGroupId": {
@@ -54,14 +54,14 @@
                         {
                             "__id": "FieldString",
                             "description": "Permission group ID",
-                            "example": "perm_group_01234567890"
+                            "example": "pmgroup_000000000000000000000"
                         },
                         {
                             "__id": "FieldArray",
                             "type": {
                                 "__id": "FieldString",
                                 "description": "Permission group ID",
-                                "example": "perm_group_01234567890"
+                                "example": "pmgroup_000000000000000000000"
                             },
                             "description": "List of permission group IDs"
                         }

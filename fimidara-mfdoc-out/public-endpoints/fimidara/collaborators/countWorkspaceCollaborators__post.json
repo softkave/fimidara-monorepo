@@ -1,31 +1,22 @@
 {
     "__id": "HttpEndpointDefinition",
-    "path": "/v1/fileBackends/deleteConfig",
-    "method": "delete",
+    "path": "/v1/collaborators/countWorkspaceCollaborators",
+    "method": "post",
     "requestBody": {
         "__id": "FieldObject",
-        "name": "DeleteFileBackendConfigEndpointParams",
-        "description": "Parameters for deleting a file backend config",
+        "name": "CountWorkspaceCollaboratorsEndpointParams",
+        "description": "Parameters for counting workspace collaborators.",
         "fields": {
-            "configId": {
-                "__id": "FieldObjectField",
-                "required": true,
-                "data": {
-                    "__id": "FieldString",
-                    "description": "Resource ID",
-                    "example": "wrkspce_000000000000000000000"
-                },
-                "description": "ID of the config to delete"
-            },
             "workspaceId": {
                 "__id": "FieldObjectField",
                 "required": false,
+                "description": "ID of the workspace to count collaborators in. If not provided, the user's default workspace is used.",
+                "example": "wrkspce_000000000000000000000",
                 "data": {
                     "__id": "FieldString",
                     "description": "Workspace ID",
                     "example": "wrkspce_000000000000000000000"
-                },
-                "description": "Workspace ID (optional if using workspace from auth context)"
+                }
             }
         }
     },
@@ -79,21 +70,22 @@
     },
     "responseBody": {
         "__id": "FieldObject",
-        "name": "LongRunningJobResult",
-        "description": "Response for operations that run asynchronously in the background",
+        "name": "CountItemsResult",
+        "description": "Response containing the count of resources matching the query criteria",
         "fields": {
-            "jobId": {
+            "count": {
                 "__id": "FieldObjectField",
-                "required": false,
+                "required": true,
                 "data": {
-                    "__id": "FieldString",
-                    "description": "Long-running job ID",
-                    "example": "job0000_000000000000000000000"
+                    "__id": "FieldNumber",
+                    "description": "Total number of resources matching the query",
+                    "example": 42
                 }
             }
         }
     },
-    "name": "fimidara/fileBackends/deleteConfig",
+    "name": "fimidara/collaborators/countWorkspaceCollaborators",
+    "description": "Get the total number of collaborators in a workspace. Useful for pagination calculations and workspace analytics without fetching the full list of collaborators.",
     "tags": [
         "public"
     ],

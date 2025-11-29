@@ -17,7 +17,7 @@
             }
         }
     },
-    "method": "get",
+    "method": "head",
     "query": {
         "__id": "FieldObject",
         "name": "ReadFileEndpointHttpQuery",
@@ -230,10 +230,6 @@
                 }
             }
         }
-    },
-    "responseBody": {
-        "__id": "FieldBinary",
-        "description": "Binary file content or processed image data"
     },
     "sdkParamsBody": {
         "__id": "SdkParamsBody",
@@ -448,7 +444,7 @@
         "serializeAs": "json"
     },
     "name": "fimidara/files/readFile",
-    "description": "Read/download a file with optional image processing capabilities using GET method",
+    "description": "Get file metadata and check range support using HEAD method. Returns headers only, no body.",
     "tags": [
         "public"
     ],
