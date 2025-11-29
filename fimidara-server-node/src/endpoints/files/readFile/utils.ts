@@ -8,6 +8,93 @@ export interface Range {
 }
 
 /**
+ * Validates and optionally clamps an array of Range objects.
+ *
+ * @param ranges - Array of range objects to validate
+ * @param fileSize - The total size of the file in bytes
+ * @param shouldClamp - If true, clamps ranges to file size. If false, returns null when range is not satisfiable.
+ * @returns Array of validated (and optionally clamped) range objects, or null if invalid
+ */
+export function validateRanges(
+  ranges: Range[],
+  fileSize: number,
+  shouldClamp: boolean = false
+): Range[] | null {
+  if (!ranges || ranges.length === 0 || !fileSize || fileSize <= 0) {
+    return null;
+  }
+
+  const validatedRanges: Range[] = [];
+
+  for (const range of ranges) {
+    const {start, end} = range;
+
+    // Validate that start and end are numbers
+    if (typeof start !== 'number' || typeof end !== 'number') {
+      return null;
+    }
+
+    // Validate that start and end are non-negative integers
+    if (isNaN(start) || isNaN(end) || start < 0 || end < 0) {
+      return null;
+    }
+
+    // Validate that start <= end
+    if (start > end) {
+      return null;
+    }
+
+    // Check if range is satisfiable (start beyond file size)
+    if (!shouldClamp && start >= fileSize) {
+      return null;
+    }
+
+    // Clamp start if shouldClamp is true, otherwise use original start
+    const clampedStart = shouldClamp ? Math.min(start, fileSize - 1) : start;
+    // Always clamp end to file size
+    const clampedEnd = Math.min(end, fileSize - 1);
+
+    validatedRanges.push({start: clampedStart, end: clampedEnd});
+  }
+
+  return validatedRanges;
+}
+
+/**
+ * Merges overlapping or adjacent ranges and sorts them by start position.
+ *
+ * @param ranges - Array of range objects to merge and sort
+ * @returns Array of merged and sorted range objects
+ */
+export function mergeAndSortRanges(ranges: Range[]): Range[] {
+  if (!ranges || ranges.length === 0) {
+    return [];
+  }
+
+  // Sort ranges by start position
+  const sortedRanges = ranges.sort((a, b) => a.start - b.start);
+  return sortedRanges;
+  // const mergedRanges: Range[] = [];
+
+  // for (const range of sortedRanges) {
+  //   if (mergedRanges.length === 0) {
+  //     mergedRanges.push(range);
+  //     continue;
+  //   }
+
+  //   const last = mergedRanges[mergedRanges.length - 1];
+  //   // If ranges overlap or are adjacent, merge them
+  //   if (range.start <= last.end + 1) {
+  //     last.end = Math.max(last.end, range.end);
+  //   } else {
+  //     mergedRanges.push(range);
+  //   }
+  // }
+
+  // return mergedRanges;
+}
+
+/**
  * Parses the Range header value and returns an array of range objects.
  * Supports single and multiple ranges, suffix ranges, and open-ended ranges.
  *
@@ -107,25 +194,13 @@ export function parseRangeHeader(
     ranges.push({start: clampedStart, end: clampedEnd});
   }
 
-  // Remove overlapping ranges and sort
-  const sortedRanges = ranges.sort((a, b) => a.start - b.start);
-  const mergedRanges: Range[] = [];
-
-  for (const range of sortedRanges) {
-    if (mergedRanges.length === 0) {
-      mergedRanges.push(range);
-      continue;
-    }
-
-    const last = mergedRanges[mergedRanges.length - 1];
-    // If ranges overlap or are adjacent, merge them
-    if (range.start <= last.end + 1) {
-      last.end = Math.max(last.end, range.end);
-    } else {
-      mergedRanges.push(range);
-    }
+  // Validate, merge and sort ranges
+  const validatedRanges = validateRanges(ranges, fileSize, shouldClamp);
+  if (!validatedRanges) {
+    return null;
   }
 
+  const mergedRanges = mergeAndSortRanges(validatedRanges);
   return mergedRanges.length > 0 ? mergedRanges : null;
 }
 

@@ -26,7 +26,13 @@ import {RangeNotSatisfiableError} from '../errors.js';
 import {getFileWithMatcher} from '../getFilesWithMatcher.js';
 import {assertFile, stringifyFilenamepath} from '../utils.js';
 import {ReadFileEndpoint} from './types.js';
-import {generateETag, parseRangeHeader, validateIfRange} from './utils.js';
+import {
+  generateETag,
+  mergeAndSortRanges,
+  parseRangeHeader,
+  validateIfRange,
+  validateRanges,
+} from './utils.js';
 import {readFileJoiSchema} from './validation.js';
 
 interface ViableBackend {
@@ -125,16 +131,36 @@ const readFile: ReadFileEndpoint = async reqData => {
   const fileSize = file.size ?? 0;
   const etag = generateETag(lastModified, fileSize);
 
+  // Check If-Range header for conditional range requests (applies to both
+  // data.ranges and data.rangeHeader)
+  const shouldHonorRange =
+    !data.ifRangeHeader ||
+    validateIfRange(data.ifRangeHeader, lastModified, etag);
+
   // Parse Range header if present (and not already parsed from body). Range
   // header is extracted from HTTP layer and passed as parameter
   let ranges = data.ranges;
+
+  // Validate ranges from body if present
+  if (ranges && ranges.length > 0) {
+    if (!shouldHonorRange) {
+      // If-Range condition not satisfied, ignore ranges
+      ranges = undefined;
+    } else {
+      if (fileSize <= 0) {
+        // Range requested on empty file - invalid
+        throw new RangeNotSatisfiableError({fileSize: 0});
+      }
+      const validatedRanges = validateRanges(ranges, fileSize);
+      if (!validatedRanges) {
+        throw new RangeNotSatisfiableError({fileSize});
+      }
+      ranges = mergeAndSortRanges(validatedRanges);
+    }
+  }
+
   if (!ranges && !hasImageTransform && data.rangeHeader) {
     if (fileSize > 0) {
-      // Check If-Range header for conditional range requests
-      const shouldHonorRange =
-        !data.ifRangeHeader ||
-        validateIfRange(data.ifRangeHeader, lastModified, etag);
-
       if (shouldHonorRange) {
         ranges = parseRangeHeader(data.rangeHeader, fileSize) ?? undefined;
         // If range header was provided but parsing failed, throw error
