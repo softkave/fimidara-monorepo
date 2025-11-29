@@ -37,6 +37,10 @@ export type UploadFileEndpointHTTPHeaders =
 export type ReadFileEndpointHTTPHeaders =
   HttpEndpointResponseHeaders_ContentType_ContentLength & {
     'Content-Disposition'?: string;
+    'Accept-Ranges'?: string;
+    'Last-Modified'?: string;
+    ETag?: string;
+    'Content-Range'?: string;
   };
 
 export type ReadFilePOSTHttpEndpoint = ExportedHttpEndpointWithMfdocDefinition<
@@ -57,6 +61,16 @@ export type ReadFileGETHttpEndpoint = ExportedHttpEndpointWithMfdocDefinition<
   /** TRequestBody */ {},
   /** TResponseHeaders */ ReadFileEndpointHTTPHeaders,
   /** TResponseBody */ MfdocFieldBinaryTypePrimitive,
+  /** TSdkparams */ ReadFileEndpointParams
+>;
+export type ReadFileHEADHttpEndpoint = ExportedHttpEndpointWithMfdocDefinition<
+  /** TEndpoint */ ReadFileEndpoint,
+  /** TRequestHeaders */ HttpEndpointRequestHeaders_AuthOptional,
+  /** TPathParameters */ FileMatcherPathParameters,
+  /** TQuery */ ReadFileEndpointHttpQuery,
+  /** TRequestBody */ {},
+  /** TResponseHeaders */ ReadFileEndpointHTTPHeaders,
+  /** TResponseBody */ undefined,
   /** TSdkparams */ ReadFileEndpointParams
 >;
 export type DeleteFileHttpEndpoint =
@@ -84,7 +98,11 @@ export type CompleteMultipartUploadHttpEndpoint =
   ExportedHttpEndpointWithMfdocDefinition<CompleteMultipartUploadEndpoint>;
 
 export type FilesExportedEndpoints = {
-  readFile: [ReadFilePOSTHttpEndpoint, ReadFileGETHttpEndpoint];
+  readFile: [
+    ReadFilePOSTHttpEndpoint,
+    ReadFileGETHttpEndpoint,
+    ReadFileHEADHttpEndpoint
+  ];
   deleteFile: DeleteFileHttpEndpoint;
   getFileDetails: GetFileDetailsHttpEndpoint;
   updateFileDetails: UpdateFileDetailsHttpEndpoint;

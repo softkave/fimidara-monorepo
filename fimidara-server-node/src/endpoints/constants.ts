@@ -8,6 +8,7 @@ export const kEndpointConstants = {
     forbidden: 403,
     notFound: 404,
     conflict: 409,
+    rangeNotSatisfiable: 416,
     tooManyRequests: 429,
     serverError: 500,
   } as const,

@@ -141,7 +141,7 @@ export type ExportedHttpEndpointWithMfdocDefinition<
   TQuery extends AnyObject = AnyObject,
   TRequestBody extends AnyObject = InferEndpointParams<TEndpoint>,
   TResponseHeaders extends AnyObject = HttpEndpointResponseHeaders_ContentType_ContentLength,
-  TResponseBody extends AnyObject = InferEndpointResult<TEndpoint>,
+  TResponseBody extends AnyObject | undefined = InferEndpointResult<TEndpoint>,
   TSdkParams extends AnyObject = TRequestBody
 > = {
   tag: string[];
