@@ -49,7 +49,7 @@ The entity ID this permission resolution is for
 #### Example
 
 ```
-user_01234567890123456789abcd
+user000_000000000000000000000
 ```
 
 ***
@@ -63,7 +63,7 @@ The entity that directly granted this permission (may be different from entityId
 #### Example
 
 ```
-permissionGroup_01234567890123456789abcd
+pmgroup_000000000000000000000
 ```
 
 ***
@@ -77,7 +77,7 @@ The target that directly holds this permission (may be different from target if 
 #### Example
 
 ```
-folder_01234567890123456789abcd
+folder0_000000000000000000000
 ```
 
 ***

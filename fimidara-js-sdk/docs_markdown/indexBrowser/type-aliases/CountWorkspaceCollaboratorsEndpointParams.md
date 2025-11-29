@@ -21,5 +21,5 @@ ID of the workspace to count collaborators in. If not provided, the user's defau
 #### Example
 
 ```
-w-some-workspace-id
+wrkspce_000000000000000000000
 ```

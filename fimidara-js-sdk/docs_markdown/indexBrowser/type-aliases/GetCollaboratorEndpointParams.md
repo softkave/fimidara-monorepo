@@ -21,7 +21,7 @@ Unique ID of the collaborator to retrieve.
 #### Example
 
 ```
-c-some-collaborator-id
+user000_000000000000000000000
 ```
 
 ***
@@ -35,5 +35,5 @@ ID of the workspace containing the collaborator. If not provided, the user's def
 #### Example
 
 ```
-w-some-workspace-id
+wrkspce_000000000000000000000
 ```

@@ -14,7 +14,7 @@ Parameters for fetching multiple resources in a single request. This allows batc
 
 ```json
 {
-  "workspaceId": "ws_1234567890abcdef",
+  "workspaceId": "wrkspce_000000000000000000000",
   "resources": [
     {
       "action": "read",
@@ -26,11 +26,7 @@ Parameters for fetching multiple resources in a single request. This allows batc
     },
     {
       "action": "write",
-      "resourceId": {
-        "__id": "FieldString",
-        "description": "file ID",
-        "example": "file000_000000000000000000000"
-      }
+      "resourceId": "file000_000000000000000000000"
     }
   ]
 }

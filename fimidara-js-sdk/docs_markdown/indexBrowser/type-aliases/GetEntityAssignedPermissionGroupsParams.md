@@ -21,7 +21,7 @@ ID of the entity (user, collaborator, or agent token) to get assigned permission
 #### Example
 
 ```
-user_01234567890
+user000_000000000000000000000
 ```
 
 ***

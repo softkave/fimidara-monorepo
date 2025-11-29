@@ -49,7 +49,7 @@ Entity ID(s) to grant/deny permission to (user, permission group, or agent token
 #### Example
 
 ```
-user_01234567890123456789abcd
+user000_000000000000000000000
 ```
 
 ***
@@ -91,7 +91,7 @@ Specific resource ID(s) to grant/deny permission to
 #### Example
 
 ```
-folder_01234567890123456789abcd
+folder0_000000000000000000000
 ```
 
 ***

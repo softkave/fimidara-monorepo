@@ -35,7 +35,7 @@ Permission group ID. Either provide the permission group ID, or provide the work
 #### Example
 
 ```
-perm_group_01234567890
+pmgroup_000000000000000000000
 ```
 
 ***

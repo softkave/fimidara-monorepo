@@ -29,5 +29,5 @@ Job ID for tracking the file assembly process if it runs asynchronously
 #### Example
 
 ```
-job-456e7890-e89b-12d3-a456-426614174001
+job0000_000000000000000000000
 ```

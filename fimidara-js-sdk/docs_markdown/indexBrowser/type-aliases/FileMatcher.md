@@ -19,7 +19,7 @@ Unique identifier for the file. Use either fileId or filepath, not both
 #### Example
 
 ```
-file_01h2x3y4z5a6b7c8d9e0f1g2h3
+file000_000000000000000000000
 ```
 
 ***

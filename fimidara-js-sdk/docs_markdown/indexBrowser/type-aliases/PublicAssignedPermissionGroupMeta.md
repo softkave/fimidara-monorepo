@@ -43,7 +43,7 @@ The ID of the entity (user, collaborator, or agent token) that was assigned the 
 #### Example
 
 ```
-user_01234567890
+user000_000000000000000000000
 ```
 
 ***
@@ -57,5 +57,5 @@ The ID of the assigned permission group
 #### Example
 
 ```
-perm_group_01234567890
+pmgroup_000000000000000000000
 ```
