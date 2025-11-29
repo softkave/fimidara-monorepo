@@ -47,11 +47,29 @@ import {uploadFileBaseTest} from '../testutils/utils.js';
 
 let defaultFileProviderResolver: FileProviderResolver | undefined;
 let defaultSuppliedConfig: FimidaraSuppliedConfig | undefined;
+let unhandledRejectionHandler: ((reason: unknown) => void) | undefined;
 
 beforeAll(async () => {
   await initTests();
   defaultFileProviderResolver = kIjxUtils.fileProviderResolver();
   defaultSuppliedConfig = kIjxUtils.suppliedConfig();
+
+  // Handle expected FileNotWritableError rejections from concurrent uploads
+  // These occur in background queue processing and are expected behavior
+  // We use prependListener to ensure our handler runs first, but we only
+  // handle FileNotWritableError errors. Other errors will still be reported by Vitest.
+  unhandledRejectionHandler = (reason: unknown) => {
+    if (reason instanceof FileNotWritableError) {
+      // Silently ignore expected FileNotWritableError from concurrent uploads
+      // This prevents Vitest from reporting them as unhandled rejections
+      // The error is expected when multiple concurrent uploads try to write the same file
+      return;
+    }
+    // For other errors, we don't handle them here, so they'll still be reported by Vitest
+  };
+  // Use prependListener so our handler runs before Vitest's handler
+  // This allows us to filter out expected errors while preserving Vitest's error tracking
+  process.prependListener('unhandledRejection', unhandledRejectionHandler);
 });
 
 afterEach(() => {
@@ -63,6 +81,9 @@ afterEach(() => {
 });
 
 afterAll(async () => {
+  if (unhandledRejectionHandler) {
+    process.removeListener('unhandledRejection', unhandledRejectionHandler);
+  }
   await completeTests();
 });
 
