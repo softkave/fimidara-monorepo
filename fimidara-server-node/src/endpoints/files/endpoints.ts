@@ -84,6 +84,8 @@ const handleReadFileError: ExportedHttpEndpoint_HandleErrorFn = (
 
   if (rangeError) {
     // Handle Range Not Satisfiable (416)
+    // Per HTTP spec, 416 response must include Content-Range header with format:
+    // Content-Range: bytes */<fileSize>
     const fileSize = rangeError.fileSize ?? 0;
     res.setHeader('Content-Range', `bytes */${fileSize}`);
     // Defer to default error handling which will use the status code from the error
