@@ -163,7 +163,7 @@
     },
     "responseHeaders": {
         "__id": "FieldObject",
-        "name": "ReadFileEndpointHTTPHeaders",
+        "name": "ReadFileEndpointHTTPResponseHeaders",
         "description": "HTTP response headers for file read operations",
         "fields": {
             "Content-Type": {

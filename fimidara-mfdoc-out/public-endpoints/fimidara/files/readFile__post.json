@@ -148,15 +148,25 @@
     },
     "requestHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointRequestHeaders_AuthOptional_JsonContentType",
+        "name": "ReadFileEndpointHTTPRequestHeaders_POST",
+        "description": "HTTP request headers for POST file read operations",
         "fields": {
-            "Authorization": {
+            "Range": {
                 "__id": "FieldObjectField",
                 "required": false,
                 "data": {
                     "__id": "FieldString",
-                    "description": "Access token",
-                    "example": "Bearer <token>"
+                    "description": "Raw Range header value extracted from HTTP request (for parsing after file size is known)",
+                    "example": "bytes=0-499"
+                }
+            },
+            "If-Range": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Raw If-Range header value extracted from HTTP request",
+                    "example": "\"etag-value\""
                 }
             },
             "Content-Type": {
@@ -166,6 +176,15 @@
                     "__id": "FieldString",
                     "description": "HTTP JSON request content type",
                     "example": "application/json"
+                }
+            },
+            "Authorization": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Access token",
+                    "example": "Bearer <token>"
                 }
             }
         }
@@ -380,7 +399,7 @@
     },
     "responseHeaders": {
         "__id": "FieldObject",
-        "name": "ReadFileEndpointHTTPHeaders",
+        "name": "ReadFileEndpointHTTPResponseHeaders",
         "description": "HTTP response headers for file read operations",
         "fields": {
             "Content-Type": {

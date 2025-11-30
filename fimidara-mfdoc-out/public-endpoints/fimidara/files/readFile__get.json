@@ -148,8 +148,27 @@
     },
     "requestHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointRequestHeaders_AuthOptional",
+        "name": "ReadFileEndpointHTTPRequestHeaders_GET",
+        "description": "HTTP request headers for GET file read operations",
         "fields": {
+            "Range": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Raw Range header value extracted from HTTP request (for parsing after file size is known)",
+                    "example": "bytes=0-499"
+                }
+            },
+            "If-Range": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Raw If-Range header value extracted from HTTP request",
+                    "example": "\"etag-value\""
+                }
+            },
             "Authorization": {
                 "__id": "FieldObjectField",
                 "required": false,
@@ -163,7 +182,7 @@
     },
     "responseHeaders": {
         "__id": "FieldObject",
-        "name": "ReadFileEndpointHTTPHeaders",
+        "name": "ReadFileEndpointHTTPResponseHeaders",
         "description": "HTTP response headers for file read operations",
         "fields": {
             "Content-Type": {
