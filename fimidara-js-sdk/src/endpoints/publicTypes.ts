@@ -3692,7 +3692,7 @@ export type ReadFileEndpointParams = {
    */
   ranges?: Array<Range>;
   /**
-   * Raw Range header value extracted from HTTP request (for parsing after file size is known)
+   * HTTP Range header specifying byte range(s) to request
    * @example
    * ```
    * bytes=0-499
@@ -3700,7 +3700,7 @@ export type ReadFileEndpointParams = {
    */
   rangeHeader?: string;
   /**
-   * Raw If-Range header value extracted from HTTP request
+   * HTTP If-Range header value (ETag or Last-Modified date) for conditional range requests
    * @example
    * ```
    * "etag-value"

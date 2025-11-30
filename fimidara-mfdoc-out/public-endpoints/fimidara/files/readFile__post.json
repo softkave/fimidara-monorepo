@@ -156,7 +156,7 @@
                 "required": false,
                 "data": {
                     "__id": "FieldString",
-                    "description": "Raw Range header value extracted from HTTP request (for parsing after file size is known)",
+                    "description": "HTTP Range header specifying byte range(s) to request",
                     "example": "bytes=0-499"
                 }
             },
@@ -165,7 +165,7 @@
                 "required": false,
                 "data": {
                     "__id": "FieldString",
-                    "description": "Raw If-Range header value extracted from HTTP request",
+                    "description": "HTTP If-Range header value (ETag or Last-Modified date) for conditional range requests",
                     "example": "\"etag-value\""
                 }
             },
@@ -382,7 +382,7 @@
                 "required": false,
                 "data": {
                     "__id": "FieldString",
-                    "description": "Raw Range header value extracted from HTTP request (for parsing after file size is known)",
+                    "description": "HTTP Range header specifying byte range(s) to request",
                     "example": "bytes=0-499"
                 }
             },
@@ -391,7 +391,7 @@
                 "required": false,
                 "data": {
                     "__id": "FieldString",
-                    "description": "Raw If-Range header value extracted from HTTP request",
+                    "description": "HTTP If-Range header value (ETag or Last-Modified date) for conditional range requests",
                     "example": "\"etag-value\""
                 }
             }
@@ -666,7 +666,7 @@
                     "required": false,
                     "data": {
                         "__id": "FieldString",
-                        "description": "Raw Range header value extracted from HTTP request (for parsing after file size is known)",
+                        "description": "HTTP Range header specifying byte range(s) to request",
                         "example": "bytes=0-499"
                     }
                 },
@@ -675,7 +675,7 @@
                     "required": false,
                     "data": {
                         "__id": "FieldString",
-                        "description": "Raw If-Range header value extracted from HTTP request",
+                        "description": "HTTP If-Range header value (ETag or Last-Modified date) for conditional range requests",
                         "example": "\"etag-value\""
                     }
                 }
