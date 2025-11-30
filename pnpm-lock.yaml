@@ -428,8 +428,8 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       mfdoc:
-        specifier: ^0.5.1
-        version: 0.5.1(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1)
+        specifier: ^0.6.0
+        version: 0.6.0(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1)
       mongoose:
         specifier: 8.15.1
         version: 8.15.1
@@ -5444,8 +5444,8 @@ packages:
     engines: {node: '>=24'}
     hasBin: true
 
-  mfdoc@0.5.1:
-    resolution: {integrity: sha512-DpnFRzXsDOJsOXioZkaoad7W4PuALG1qANkTKk0s/gVoP9g9QpSn6cYwauuj+ZMvkOi2wXpVHeLlALSw//wB6w==}
+  mfdoc@0.6.0:
+    resolution: {integrity: sha512-CECJ3jtsIMepnhuwLvCSDJ3X5mWW9zFo06ZI+5nou6F3EUJH92/oX4PQz76LILQr7qvmFLSH6rriiFDh5ETxYA==}
     engines: {node: '>=24'}
     hasBin: true
 
@@ -13403,7 +13403,7 @@ snapshots:
       - nanoid
       - path-browserify
 
-  mfdoc@0.5.1(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1):
+  mfdoc@0.6.0(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1):
     dependencies:
       case: 1.6.3
       commander: 14.0.0
