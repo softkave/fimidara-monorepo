@@ -1,6 +1,6 @@
 {
   "name": "fimidara",
-  "version": "1.38.0",
+  "version": "1.38.1",
   "description": "js sdk for fimidara file storage service",
   "author": {
     "email": "ywordk@gmail.com",
