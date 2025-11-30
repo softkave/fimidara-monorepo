@@ -34,7 +34,7 @@ export type UploadFileEndpointHTTPHeaders =
     'content-length': number;
   };
 
-export type ReadFileEndpointHTTPHeaders =
+export type ReadFileEndpointHTTPResponseHeaders =
   HttpEndpointResponseHeaders_ContentType_ContentLength & {
     'Content-Disposition'?: string;
     'Accept-Ranges'?: string;
@@ -43,23 +43,35 @@ export type ReadFileEndpointHTTPHeaders =
     'Content-Range'?: string;
   };
 
+export type ReadFileEndpointHTTPRequestHeaders_POST =
+  HttpEndpointRequestHeaders_AuthOptional_ContentType & {
+    Range?: string;
+    'If-Range'?: string;
+  };
+
+export type ReadFileEndpointHTTPRequestHeaders_GET =
+  HttpEndpointRequestHeaders_AuthOptional & {
+    Range?: string;
+    'If-Range'?: string;
+  };
+
 export type ReadFilePOSTHttpEndpoint = ExportedHttpEndpointWithMfdocDefinition<
   /** TEndpoint */ ReadFileEndpoint,
-  /** TRequestHeaders */ HttpEndpointRequestHeaders_AuthOptional_ContentType,
+  /** TRequestHeaders */ ReadFileEndpointHTTPRequestHeaders_POST,
   /** TPathParameters */ FileMatcherPathParameters,
   /** TQuery */ ReadFileEndpointHttpQuery,
   /** TRequestBody */ ReadFileEndpointParams,
-  /** TResponseHeaders */ ReadFileEndpointHTTPHeaders,
+  /** TResponseHeaders */ ReadFileEndpointHTTPResponseHeaders,
   /** TResponseBody */ MfdocFieldBinaryTypePrimitive,
   /** TSdkparams */ ReadFileEndpointParams
 >;
 export type ReadFileGETHttpEndpoint = ExportedHttpEndpointWithMfdocDefinition<
   /** TEndpoint */ ReadFileEndpoint,
-  /** TRequestHeaders */ HttpEndpointRequestHeaders_AuthOptional,
+  /** TRequestHeaders */ ReadFileEndpointHTTPRequestHeaders_GET,
   /** TPathParameters */ FileMatcherPathParameters,
   /** TQuery */ ReadFileEndpointHttpQuery,
   /** TRequestBody */ {},
-  /** TResponseHeaders */ ReadFileEndpointHTTPHeaders,
+  /** TResponseHeaders */ ReadFileEndpointHTTPResponseHeaders,
   /** TResponseBody */ MfdocFieldBinaryTypePrimitive,
   /** TSdkparams */ ReadFileEndpointParams
 >;
@@ -69,7 +81,7 @@ export type ReadFileHEADHttpEndpoint = ExportedHttpEndpointWithMfdocDefinition<
   /** TPathParameters */ FileMatcherPathParameters,
   /** TQuery */ ReadFileEndpointHttpQuery,
   /** TRequestBody */ {},
-  /** TResponseHeaders */ ReadFileEndpointHTTPHeaders,
+  /** TResponseHeaders */ ReadFileEndpointHTTPResponseHeaders,
   /** TResponseBody */ undefined,
   /** TSdkparams */ ReadFileEndpointParams
 >;

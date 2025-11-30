@@ -3,7 +3,6 @@ import {
   MfdocFieldBinaryTypePrimitive as FieldBinaryType,
   MfdocFieldObjectFieldsMap as FieldObjectFieldsMap,
   MfdocHttpEndpointMethod as HttpEndpointMethod,
-  HttpEndpointRequestHeaders_AuthOptional,
   InferMfdocFieldObjectOrMultipartType as InferFieldObjectOrMultipartType,
   InferMfdocFieldObjectType as InferFieldObjectType,
   InferMfdocSdkParamsType as InferSdkParamsType,
@@ -51,7 +50,9 @@ import {
   FileMatcherPathParameters,
   GetFileDetailsHttpEndpoint,
   ListPartsHttpEndpoint,
-  ReadFileEndpointHTTPHeaders,
+  ReadFileEndpointHTTPRequestHeaders_GET,
+  ReadFileEndpointHTTPRequestHeaders_POST,
+  ReadFileEndpointHTTPResponseHeaders,
   ReadFileGETHttpEndpoint,
   ReadFileHEADHttpEndpoint,
   ReadFilePOSTHttpEndpoint,
@@ -422,8 +423,8 @@ const readFileQuery = mfdocConstruct.constructObject<ReadFileEndpointHttpQuery>(
   }
 );
 const readFileResponseHeaders =
-  mfdocConstruct.constructObject<ReadFileEndpointHTTPHeaders>({
-    name: 'ReadFileEndpointHTTPHeaders',
+  mfdocConstruct.constructObject<ReadFileEndpointHTTPResponseHeaders>({
+    name: 'ReadFileEndpointHTTPResponseHeaders',
     description: 'HTTP response headers for file read operations',
     fields: {
       'Content-Type': mfdocConstruct.constructObjectField({
@@ -479,6 +480,50 @@ const readFileResponseHeaders =
 const readFileResponseBody = mfdocConstruct.constructBinary({
   description: 'Binary file content or processed image data',
 });
+
+const readFileRequestHeadersPOST =
+  mfdocConstruct.constructObject<ReadFileEndpointHTTPRequestHeaders_POST>({
+    name: 'ReadFileEndpointHTTPRequestHeaders_POST',
+    description: 'HTTP request headers for POST file read operations',
+    fields: {
+      Range: mfdocConstruct.constructObjectField({
+        required: false,
+        data: rangeHeader,
+      }),
+      'If-Range': mfdocConstruct.constructObjectField({
+        required: false,
+        data: ifRangeHeader,
+      }),
+      'Content-Type': mfdocConstruct.constructObjectField({
+        required: true,
+        data: mfdocEndpointHttpHeaderItems.requestHeaderItem_JsonContentType,
+      }),
+      Authorization: mfdocConstruct.constructObjectField({
+        required: false,
+        data: mfdocEndpointHttpHeaderItems.requestHeaderItem_Authorization,
+      }),
+    },
+  });
+
+const readFileRequestHeadersGET =
+  mfdocConstruct.constructObject<ReadFileEndpointHTTPRequestHeaders_GET>({
+    name: 'ReadFileEndpointHTTPRequestHeaders_GET',
+    description: 'HTTP request headers for GET file read operations',
+    fields: {
+      Range: mfdocConstruct.constructObjectField({
+        required: false,
+        data: rangeHeader,
+      }),
+      'If-Range': mfdocConstruct.constructObjectField({
+        required: false,
+        data: ifRangeHeader,
+      }),
+      Authorization: mfdocConstruct.constructObjectField({
+        required: false,
+        data: mfdocEndpointHttpHeaderItems.requestHeaderItem_Authorization,
+      }),
+    },
+  });
 
 const uploadFileParams = mfdocConstruct.constructHttpEndpointMultipartFormdata<
   Pick<UploadFileEndpointParams, 'data'>
@@ -592,7 +637,8 @@ const updloadFileSdkParams = mfdocConstruct.constructSdkParamsBody<
 
 const readFileSdkParams = mfdocConstruct.constructSdkParamsBody<
   ReadFileEndpointParams,
-  HttpEndpointRequestHeaders_AuthOptional,
+  | ReadFileEndpointHTTPRequestHeaders_GET
+  | ReadFileEndpointHTTPRequestHeaders_POST,
   FileMatcherPathParameters
 >({
   mappings: key => {
@@ -601,6 +647,10 @@ const readFileSdkParams = mfdocConstruct.constructSdkParamsBody<
         return ['path', 'filepathOrId'];
       case 'fileId':
         return ['path', 'filepathOrId'];
+      case 'rangeHeader':
+        return ['header', 'Range'];
+      case 'ifRangeHeader':
+        return ['header', 'If-Range'];
       default:
         return undefined;
     }
@@ -687,8 +737,7 @@ export const readFilePOSTEndpointDefinition =
     pathParamaters: fileMatcherPathParameters,
     method: HttpEndpointMethod.Post,
     query: readFileQuery,
-    requestHeaders:
-      mfdocEndpointHttpHeaderItems.requestHeaders_AuthOptional_JsonContentType,
+    requestHeaders: readFileRequestHeadersPOST,
     requestBody: readFileParams,
     responseHeaders: readFileResponseHeaders,
     responseBody: readFileResponseBody,
@@ -728,7 +777,7 @@ export const readFileGETEndpointDefinition =
     pathParamaters: fileMatcherPathParameters,
     method: HttpEndpointMethod.Get,
     query: readFileQuery,
-    requestHeaders: mfdocEndpointHttpHeaderItems.requestHeaders_AuthOptional,
+    requestHeaders: readFileRequestHeadersGET,
     responseHeaders: readFileResponseHeaders,
     responseBody: readFileResponseBody,
     sdkParamsBody: readFileSdkParams,

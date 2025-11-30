@@ -529,6 +529,8 @@ export class FilesEndpoints extends AbstractSdkEndpoints {
     const mapping = {
       filepath: ['path', 'filepathOrId'],
       fileId: ['path', 'filepathOrId'],
+      rangeHeader: ['header', 'Range'],
+      ifRangeHeader: ['header', 'If-Range'],
     } as const;
     return this.executeRaw(
       {
