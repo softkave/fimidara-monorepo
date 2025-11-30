@@ -175,12 +175,12 @@ const ranges = mfdocConstruct.constructArray<{start: number; end: number}>({
   type: range,
 });
 const rangeHeader = mfdocConstruct.constructString({
-  description:
-    'Raw Range header value extracted from HTTP request (for parsing after file size is known)',
+  description: 'HTTP Range header specifying byte range(s) to request',
   example: 'bytes=0-499',
 });
 const ifRangeHeader = mfdocConstruct.constructString({
-  description: 'Raw If-Range header value extracted from HTTP request',
+  description:
+    'HTTP If-Range header value (ETag or Last-Modified date) for conditional range requests',
   example: '"etag-value"',
 });
 
@@ -784,7 +784,7 @@ export const readFileGETEndpointDefinition =
     name: 'fimidara/files/readFile',
     description:
       'Read/download a file with optional image processing capabilities using GET method',
-    tags: [kEndpointTag.public],
+    tags: [kEndpointTag.public, kEndpointTag.ignoreForJsSdk],
   });
 
 export const readFileHEADEndpointDefinition =
@@ -822,7 +822,7 @@ export const readFileHEADEndpointDefinition =
     name: 'fimidara/files/readFile',
     description:
       'Get file metadata and check range support using HEAD method. Returns headers only, no body.',
-    tags: [kEndpointTag.public],
+    tags: [kEndpointTag.public, kEndpointTag.ignoreForJsSdk],
   });
 
 export const uploadFileEndpointDefinition =

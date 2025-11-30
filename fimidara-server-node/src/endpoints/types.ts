@@ -205,4 +205,6 @@ export interface EndpointResultNote {
 export const kEndpointTag = {
   public: 'public',
   private: 'private',
+  ignoreForEndpointsInfo: 'ignoreForEndpointsInfo',
+  ignoreForJsSdk: 'ignoreForJsSdk',
 } as const;
