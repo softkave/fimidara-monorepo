@@ -37,12 +37,13 @@ export async function prepareFileForUpload(params: {
     'filepath' | 'clientMultipartId' | 'fileId'
   >;
   agent: SessionAgent;
+  shouldCreate?: boolean; // defaults to true
 }) {
-  const {data, agent} = params;
+  const {data, agent, shouldCreate = true} = params;
   const workspaceId = await getWorkspaceIdByMatcher(data);
   const file = await queuePrepareFile({
     agent,
-    input: {...data, workspaceId},
+    input: {...data, workspaceId, shouldCreate},
   });
 
   const {mountFilepath, primaryBackend, primaryMount} =
