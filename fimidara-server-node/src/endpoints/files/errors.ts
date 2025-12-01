@@ -35,3 +35,16 @@ export class RangeNotSatisfiableError extends OperationError {
     );
   }
 }
+
+export class UnsupportedOperationError extends OperationError {
+  name = 'UnsupportedOperationError';
+  statusCode = kEndpointConstants.httpStatusCode.badRequest;
+
+  constructor(props?: OperationErrorParameters | string) {
+    super(props);
+    this.message = getErrorMessageFromParams(
+      props,
+      'The requested operation is not supported.'
+    );
+  }
+}

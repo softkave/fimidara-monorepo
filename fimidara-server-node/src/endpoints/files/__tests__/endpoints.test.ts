@@ -362,6 +362,292 @@ describe('endpoints', () => {
       expect(result.clientMultipartId).toBe('multipart-123');
       expect(result.part).toBe(5);
     });
+
+    test('extracts append header as true when set to "true"', async () => {
+      const endpoints = getFilesHttpEndpoints();
+      const getDataFromReq = endpoints.uploadFile.getDataFromReq!;
+
+      const req = {
+        path: `/api/v1/files/uploadFile/workspace-rootname/file.txt`,
+        headers: {
+          'x-fimidara-append': 'true',
+        },
+        pipe: vi.fn(),
+      } as unknown as Request;
+
+      let fileHandler: (filename: string, stream: Readable, info: any) => void;
+      mockBusboy.on.mockImplementation((event: string, handler: any) => {
+        if (event === 'file') {
+          fileHandler = handler;
+        }
+      });
+
+      const promise = getDataFromReq(req) as Promise<UploadFileEndpointParams>;
+
+      fileHandler!('test.txt', mockFileStream, {
+        mimeType: 'text/plain',
+        encoding: 'utf-8',
+      });
+
+      const result = await promise;
+
+      expect(result.append).toBe(true);
+    });
+
+    test('extracts append header as true when set to "1"', async () => {
+      const endpoints = getFilesHttpEndpoints();
+      const getDataFromReq = endpoints.uploadFile.getDataFromReq!;
+
+      const req = {
+        path: `/api/v1/files/uploadFile/workspace-rootname/file.txt`,
+        headers: {
+          'x-fimidara-append': '1',
+        },
+        pipe: vi.fn(),
+      } as unknown as Request;
+
+      let fileHandler: (filename: string, stream: Readable, info: any) => void;
+      mockBusboy.on.mockImplementation((event: string, handler: any) => {
+        if (event === 'file') {
+          fileHandler = handler;
+        }
+      });
+
+      const promise = getDataFromReq(req) as Promise<UploadFileEndpointParams>;
+
+      fileHandler!('test.txt', mockFileStream, {
+        mimeType: 'text/plain',
+        encoding: 'utf-8',
+      });
+
+      const result = await promise;
+
+      expect(result.append).toBe(true);
+    });
+
+    test('extracts append header as undefined when not set or set to other values', async () => {
+      const endpoints = getFilesHttpEndpoints();
+      const getDataFromReq = endpoints.uploadFile.getDataFromReq!;
+
+      const req = {
+        path: `/api/v1/files/uploadFile/workspace-rootname/file.txt`,
+        headers: {
+          'x-fimidara-append': 'false',
+        },
+        pipe: vi.fn(),
+      } as unknown as Request;
+
+      let fileHandler: (filename: string, stream: Readable, info: any) => void;
+      mockBusboy.on.mockImplementation((event: string, handler: any) => {
+        if (event === 'file') {
+          fileHandler = handler;
+        }
+      });
+
+      const promise = getDataFromReq(req) as Promise<UploadFileEndpointParams>;
+
+      fileHandler!('test.txt', mockFileStream, {
+        mimeType: 'text/plain',
+        encoding: 'utf-8',
+      });
+
+      const result = await promise;
+
+      expect(result.append).toBeUndefined();
+    });
+
+    test('extracts onAppendCreateIfNotExists header as undefined when not set (defaults to false)', async () => {
+      const endpoints = getFilesHttpEndpoints();
+      const getDataFromReq = endpoints.uploadFile.getDataFromReq!;
+
+      const req = {
+        path: `/api/v1/files/uploadFile/workspace-rootname/file.txt`,
+        headers: {
+          'x-fimidara-append': 'true',
+        },
+        pipe: vi.fn(),
+      } as unknown as Request;
+
+      let fileHandler: (filename: string, stream: Readable, info: any) => void;
+      mockBusboy.on.mockImplementation((event: string, handler: any) => {
+        if (event === 'file') {
+          fileHandler = handler;
+        }
+      });
+
+      const promise = getDataFromReq(req) as Promise<UploadFileEndpointParams>;
+
+      fileHandler!('test.txt', mockFileStream, {
+        mimeType: 'text/plain',
+        encoding: 'utf-8',
+      });
+
+      const result = await promise;
+
+      expect(result.onAppendCreateIfNotExists).toBeUndefined();
+    });
+
+    test('extracts onAppendCreateIfNotExists header as true when set to "true"', async () => {
+      const endpoints = getFilesHttpEndpoints();
+      const getDataFromReq = endpoints.uploadFile.getDataFromReq!;
+
+      const req = {
+        path: `/api/v1/files/uploadFile/workspace-rootname/file.txt`,
+        headers: {
+          'x-fimidara-append': 'true',
+          'x-fimidara-on-append-create-if-not-exists': 'true',
+        },
+        pipe: vi.fn(),
+      } as unknown as Request;
+
+      let fileHandler: (filename: string, stream: Readable, info: any) => void;
+      mockBusboy.on.mockImplementation((event: string, handler: any) => {
+        if (event === 'file') {
+          fileHandler = handler;
+        }
+      });
+
+      const promise = getDataFromReq(req) as Promise<UploadFileEndpointParams>;
+
+      fileHandler!('test.txt', mockFileStream, {
+        mimeType: 'text/plain',
+        encoding: 'utf-8',
+      });
+
+      const result = await promise;
+
+      expect(result.onAppendCreateIfNotExists).toBe(true);
+    });
+
+    test('extracts onAppendCreateIfNotExists header as true when set to "1"', async () => {
+      const endpoints = getFilesHttpEndpoints();
+      const getDataFromReq = endpoints.uploadFile.getDataFromReq!;
+
+      const req = {
+        path: `/api/v1/files/uploadFile/workspace-rootname/file.txt`,
+        headers: {
+          'x-fimidara-append': 'true',
+          'x-fimidara-on-append-create-if-not-exists': '1',
+        },
+        pipe: vi.fn(),
+      } as unknown as Request;
+
+      let fileHandler: (filename: string, stream: Readable, info: any) => void;
+      mockBusboy.on.mockImplementation((event: string, handler: any) => {
+        if (event === 'file') {
+          fileHandler = handler;
+        }
+      });
+
+      const promise = getDataFromReq(req) as Promise<UploadFileEndpointParams>;
+
+      fileHandler!('test.txt', mockFileStream, {
+        mimeType: 'text/plain',
+        encoding: 'utf-8',
+      });
+
+      const result = await promise;
+
+      expect(result.onAppendCreateIfNotExists).toBe(true);
+    });
+
+    test('extracts onAppendCreateIfNotExists header as undefined when set to "false"', async () => {
+      const endpoints = getFilesHttpEndpoints();
+      const getDataFromReq = endpoints.uploadFile.getDataFromReq!;
+
+      const req = {
+        path: `/api/v1/files/uploadFile/workspace-rootname/file.txt`,
+        headers: {
+          'x-fimidara-append': 'true',
+          'x-fimidara-on-append-create-if-not-exists': 'false',
+        },
+        pipe: vi.fn(),
+      } as unknown as Request;
+
+      let fileHandler: (filename: string, stream: Readable, info: any) => void;
+      mockBusboy.on.mockImplementation((event: string, handler: any) => {
+        if (event === 'file') {
+          fileHandler = handler;
+        }
+      });
+
+      const promise = getDataFromReq(req) as Promise<UploadFileEndpointParams>;
+
+      fileHandler!('test.txt', mockFileStream, {
+        mimeType: 'text/plain',
+        encoding: 'utf-8',
+      });
+
+      const result = await promise;
+
+      expect(result.onAppendCreateIfNotExists).toBeUndefined();
+    });
+
+    test('extracts both append headers together', async () => {
+      const endpoints = getFilesHttpEndpoints();
+      const getDataFromReq = endpoints.uploadFile.getDataFromReq!;
+
+      const req = {
+        path: `/api/v1/files/uploadFile/workspace-rootname/file.txt`,
+        headers: {
+          'x-fimidara-append': 'true',
+          'x-fimidara-on-append-create-if-not-exists': 'false',
+        },
+        pipe: vi.fn(),
+      } as unknown as Request;
+
+      let fileHandler: (filename: string, stream: Readable, info: any) => void;
+      mockBusboy.on.mockImplementation((event: string, handler: any) => {
+        if (event === 'file') {
+          fileHandler = handler;
+        }
+      });
+
+      const promise = getDataFromReq(req) as Promise<UploadFileEndpointParams>;
+
+      fileHandler!('test.txt', mockFileStream, {
+        mimeType: 'text/plain',
+        encoding: 'utf-8',
+      });
+
+      const result = await promise;
+
+      expect(result.append).toBe(true);
+      expect(result.onAppendCreateIfNotExists).toBeUndefined();
+    });
+
+    test('extracts append headers from busboy field event', async () => {
+      const endpoints = getFilesHttpEndpoints();
+      const getDataFromReq = endpoints.uploadFile.getDataFromReq!;
+
+      const req = {
+        path: `/api/v1/files/uploadFile/workspace-rootname/file.txt`,
+        headers: {
+          'x-fimidara-append': 'true',
+          'x-fimidara-on-append-create-if-not-exists': 'true',
+        },
+        pipe: vi.fn(),
+      } as unknown as Request;
+
+      let fieldHandler: (name: string, value: string, info: any) => void;
+      mockBusboy.on.mockImplementation((event: string, handler: any) => {
+        if (event === 'field') {
+          fieldHandler = handler;
+        }
+      });
+
+      const promise = getDataFromReq(req) as Promise<UploadFileEndpointParams>;
+
+      fieldHandler!(kFileConstants.uploadedFileFieldName, 'field data', {
+        mimeType: 'text/plain',
+        encoding: 'utf-8',
+      });
+
+      const result = await promise;
+
+      expect(result.append).toBe(true);
+      expect(result.onAppendCreateIfNotExists).toBe(true);
+    });
   });
 
   describe('cleanupUploadFileReq through endpoint', () => {

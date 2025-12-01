@@ -304,6 +304,15 @@ async function extractUploadFileParamsFromReq(
   const part = parseInt(
     req.headers[kFileConstants.headers['x-fimidara-multipart-part']] as string
   );
+  const appendHeader = req.headers[kFileConstants.headers['x-fimidara-append']];
+  const onAppendCreateIfNotExistsHeader =
+    req.headers[
+      kFileConstants.headers['x-fimidara-on-append-create-if-not-exists']
+    ];
+  const append = appendHeader === 'true' || appendHeader === '1';
+  const onAppendCreateIfNotExists =
+    onAppendCreateIfNotExistsHeader === 'true' ||
+    onAppendCreateIfNotExistsHeader === '1';
 
   const bb = busboy({
     limits: kFileConstants.multipartLimits,
@@ -353,6 +362,8 @@ async function extractUploadFileParamsFromReq(
           ? clientMultipartId
           : undefined,
         part: isNumber(part) && !isNaN(part) ? part : undefined,
+        append: append || undefined,
+        onAppendCreateIfNotExists: onAppendCreateIfNotExists ? true : undefined,
       });
     });
 
@@ -383,6 +394,8 @@ async function extractUploadFileParamsFromReq(
         clientMultipartId: isString(clientMultipartId)
           ? clientMultipartId
           : undefined,
+        append: append || undefined,
+        onAppendCreateIfNotExists: onAppendCreateIfNotExists ? true : undefined,
       });
     });
   });

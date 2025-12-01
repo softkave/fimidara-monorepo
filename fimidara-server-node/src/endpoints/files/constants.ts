@@ -42,6 +42,8 @@ export const kFileConstants = {
     'x-fimidara-file-size': 'x-fimidara-file-size',
     'x-fimidara-multipart-id': 'x-fimidara-multipart-id',
     'x-fimidara-multipart-part': 'x-fimidara-multipart-part',
+    'x-fimidara-append': 'x-fimidara-append',
+    'x-fimidara-on-append-create-if-not-exists': 'x-fimidara-on-append-create-if-not-exists',
   } as const,
   multipartLockTimeoutSeconds: 60 * 60 * 24, // 24 hours
   partResultCacheKeyPrefix: 'mpr_', // + multipartId + part hash

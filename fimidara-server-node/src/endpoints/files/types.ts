@@ -31,6 +31,8 @@ export type UploadFileEndpointHTTPHeaders =
     'x-fimidara-file-size'?: number;
     'x-fimidara-multipart-id'?: string;
     'x-fimidara-multipart-part'?: number;
+    'x-fimidara-append'?: string;
+    'x-fimidara-on-append-create-if-not-exists'?: string;
     'content-length': number;
   };
 

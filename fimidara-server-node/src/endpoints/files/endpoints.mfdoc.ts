@@ -549,7 +549,8 @@ const uploadFileParams = mfdocConstruct.constructHttpEndpointMultipartFormdata<
 const clientMultipartId = mfdocConstruct.constructString({
   description:
     'Client generated unique identifier for multipart uploads. ' +
-    'It is used to identify the same multipart upload across multiple requests',
+    'It is used to identify the same multipart upload across multiple requests. ' +
+    'Cannot be used with append mode.',
   example: 'upload-123e4567-e89b-12d3-a456-426614174000',
 });
 const isLastPart = mfdocConstruct.constructBoolean({
@@ -560,6 +561,19 @@ const part = mfdocConstruct.constructNumber({
   description:
     'Part number of the multipart upload. -1 can be used to signify the end of a multipart upload.',
   example: 1,
+});
+const append = mfdocConstruct.constructBoolean({
+  description:
+    'Whether to append data to the existing file instead of replacing it. ' +
+    'If true, the new data will be appended to the end of the file. ' +
+    'Cannot be used with multipart uploads (clientMultipartId must not be provided when append is true).',
+  example: false,
+});
+const onAppendCreateIfNotExists = mfdocConstruct.constructBoolean({
+  description:
+    'Whether to create the file if it does not exist when append is true. ' +
+    'Defaults to true. If false and the file does not exist, the operation will fail.',
+  example: true,
 });
 
 const uploadFileSdkParamsDef =
@@ -594,6 +608,14 @@ const uploadFileSdkParamsDef =
         data: clientMultipartId,
       }),
       part: mfdocConstruct.constructObjectField({required: false, data: part}),
+      append: mfdocConstruct.constructObjectField({
+        required: false,
+        data: append,
+      }),
+      onAppendCreateIfNotExists: mfdocConstruct.constructObjectField({
+        required: false,
+        data: onAppendCreateIfNotExists,
+      }),
     },
   });
 
@@ -627,6 +649,13 @@ const updloadFileSdkParams = mfdocConstruct.constructSdkParamsBody<
         return ['header', kFileConstants.headers['x-fimidara-multipart-id']];
       case 'part':
         return ['header', kFileConstants.headers['x-fimidara-multipart-part']];
+      case 'append':
+        return ['header', kFileConstants.headers['x-fimidara-append']];
+      case 'onAppendCreateIfNotExists':
+        return [
+          'header',
+          kFileConstants.headers['x-fimidara-on-append-create-if-not-exists'],
+        ];
       default:
         throw new Error(`unknown key ${String(key)}`);
     }
@@ -697,6 +726,21 @@ const uploadFileEndpointHTTPHeaders =
         required: false,
         data: part,
       }),
+      'x-fimidara-append': mfdocConstruct.constructObjectField({
+        required: false,
+        data: mfdocConstruct.constructString({
+          description: append.description,
+          example: 'false',
+        }),
+      }),
+      'x-fimidara-on-append-create-if-not-exists':
+        mfdocConstruct.constructObjectField({
+          required: false,
+          data: mfdocConstruct.constructString({
+            description: onAppendCreateIfNotExists.description,
+            example: 'true',
+          }),
+        }),
     },
   });
 const uploadFileResponseBody =
@@ -859,7 +903,9 @@ export const uploadFileEndpointDefinition =
     responseBody: uploadFileResponseBody,
     sdkParamsBody: updloadFileSdkParams,
     name: 'fimidara/files/uploadFile',
-    description: 'Upload a file or file part for multipart uploads',
+    description:
+      'Upload a file or file part for multipart uploads. ' +
+      'Supports appending data to existing files when append parameter is true.',
     tags: [kEndpointTag.public],
   });
 
