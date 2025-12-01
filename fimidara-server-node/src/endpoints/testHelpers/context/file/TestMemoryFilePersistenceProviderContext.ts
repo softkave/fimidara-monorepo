@@ -23,6 +23,7 @@ export default class TestMemoryFilePersistenceProviderContext
   dispose: TestFilePersistenceProviderContext['dispose'];
   deleteMultipartUploadPart: TestFilePersistenceProviderContext['deleteMultipartUploadPart'];
   startMultipartUpload: TestFilePersistenceProviderContext['startMultipartUpload'];
+  appendFile: TestFilePersistenceProviderContext['appendFile'];
 
   constructor() {
     this.client = new MemoryFilePersistenceProvider();
@@ -63,7 +64,7 @@ export default class TestMemoryFilePersistenceProviderContext
     this.startMultipartUpload = vi
       .fn(this.client.startMultipartUpload)
       .mockName('startMultipartUpload');
-
+    this.appendFile = vi.fn(this.client.appendFile).mockName('appendFile');
     mockWith(this.client, this);
   }
 }

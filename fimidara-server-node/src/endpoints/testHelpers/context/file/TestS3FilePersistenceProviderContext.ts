@@ -35,6 +35,7 @@ export default class TestS3FilePersistenceProviderContext
   describeFolderContent: TestS3FilePersistenceProviderContextType['describeFolderContent'];
   supportsFeature: TestS3FilePersistenceProviderContextType['supportsFeature'];
   dispose: TestS3FilePersistenceProviderContextType['dispose'];
+  appendFile: TestFilePersistenceProviderContext['appendFile'];
 
   constructor(params: S3FilePersistenceProviderInitParams) {
     this.client = new S3FilePersistenceProvider(params);
@@ -75,7 +76,7 @@ export default class TestS3FilePersistenceProviderContext
     this.deleteMultipartUploadPart = vi
       .fn(this.client.deleteMultipartUploadPart)
       .mockName('deleteMultipartUploadPart');
-
+    this.appendFile = vi.fn(this.client.appendFile).mockName('appendFile');
     mockWith(this.client, this);
   }
 }

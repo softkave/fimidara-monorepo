@@ -23,11 +23,9 @@ export default class TestLocalFsFilePersistenceProviderContext
   dispose: TestFilePersistenceProviderContext['dispose'];
   deleteMultipartUploadPart: TestFilePersistenceProviderContext['deleteMultipartUploadPart'];
   startMultipartUpload: TestFilePersistenceProviderContext['startMultipartUpload'];
+  appendFile: TestFilePersistenceProviderContext['appendFile'];
 
-  constructor(
-    private dir: string,
-    private partsDir: string
-  ) {
+  constructor(private dir: string, private partsDir: string) {
     this.client = new LocalFsFilePersistenceProvider({
       dir: this.dir,
       partsDir: this.partsDir,
@@ -69,7 +67,7 @@ export default class TestLocalFsFilePersistenceProviderContext
     this.supportsFeature = vi
       .fn(this.client.supportsFeature)
       .mockName('supportsFeature');
-
+    this.appendFile = vi.fn(this.client.appendFile).mockName('appendFile');
     mockWith(this.client, this);
   }
 }
