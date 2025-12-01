@@ -21,6 +21,8 @@ import {LocalFsFilePersistenceProvider} from './LocalFsFilePersistenceProvider.j
 import {MemoryFilePersistenceProvider} from './MemoryFilePersistenceProvider.js';
 import {S3FilePersistenceProvider} from './S3FilePersistenceProvider.js';
 import {
+  FilePersistenceAppendFileParams,
+  FilePersistenceAppendFileResult,
   FilePersistenceCleanupMultipartUploadParams,
   FilePersistenceCompleteMultipartUploadParams,
   FilePersistenceDefaultParams,
@@ -92,6 +94,8 @@ export class FimidaraFilePersistenceProvider
       case 'readFile':
       case 'uploadFile':
         return true;
+      case 'appendFile':
+        return this.backend.supportsFeature('appendFile');
     }
   };
 
@@ -100,6 +104,14 @@ export class FimidaraFilePersistenceProvider
   ): Promise<FilePersistenceUploadFileResult> => {
     const preparedParams = this.prepareParams(params);
     const result = await this.backend.uploadFile(preparedParams);
+    return result;
+  };
+
+  appendFile = async (
+    params: FilePersistenceAppendFileParams
+  ): Promise<FilePersistenceAppendFileResult> => {
+    const preparedParams = this.prepareParams(params);
+    const result = await this.backend.appendFile(preparedParams);
     return result;
   };
 
