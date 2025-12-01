@@ -583,6 +583,11 @@ export class FilesEndpoints extends AbstractSdkEndpoints {
       mimetype: ['header', 'x-fimidara-file-mimetype'],
       clientMultipartId: ['header', 'x-fimidara-multipart-id'],
       part: ['header', 'x-fimidara-multipart-part'],
+      append: ['header', 'x-fimidara-append'],
+      onAppendCreateIfNotExists: [
+        'header',
+        'x-fimidara-on-append-create-if-not-exists',
+      ],
     } as const;
     return this.executeJson(
       {

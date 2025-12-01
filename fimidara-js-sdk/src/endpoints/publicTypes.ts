@@ -4486,7 +4486,7 @@ export type UploadFileEndpointParams = {
    */
   mimetype?: string;
   /**
-   * Client generated unique identifier for multipart uploads. It is used to identify the same multipart upload across multiple requests
+   * Client generated unique identifier for multipart uploads. It is used to identify the same multipart upload across multiple requests. Cannot be used with append mode.
    * @example
    * ```
    * upload-123e4567-e89b-12d3-a456-426614174000
@@ -4501,6 +4501,18 @@ export type UploadFileEndpointParams = {
    * ```
    */
   part?: number;
+  /**
+   * Whether to append data to the existing file instead of replacing it. If true, the new data will be appended to the end of the file. Cannot be used with multipart uploads (clientMultipartId must not be provided when append is true).
+   */
+  append?: boolean;
+  /**
+   * Whether to create the file if it does not exist when append is true. Defaults to true. If false and the file does not exist, the operation will fail.
+   * @example
+   * ```
+   * true
+   * ```
+   */
+  onAppendCreateIfNotExists?: boolean;
 };
 /**
  * Response containing the uploaded file information
