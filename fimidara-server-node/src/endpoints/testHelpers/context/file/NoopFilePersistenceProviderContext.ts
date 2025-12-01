@@ -1,4 +1,6 @@
 import {
+  FilePersistenceAppendFileParams,
+  FilePersistenceAppendFileResult,
   FilePersistenceCompleteMultipartUploadParams,
   FilePersistenceCompleteMultipartUploadResult,
   FilePersistenceDescribeFolderContentParams,
@@ -32,15 +34,15 @@ export default class NoopFilePersistenceProviderContext
       case 'describeFolderContent':
       case 'readFile':
       case 'uploadFile':
+      case 'appendFile':
         return false;
     }
   };
 
-  readFile = async (params: FilePersistenceGetFileParams): Promise<PersistedFile> => {
-    if (
-      params.rangeStart !== undefined ||
-      params.rangeEnd !== undefined
-    ) {
+  readFile = async (
+    params: FilePersistenceGetFileParams
+  ): Promise<PersistedFile> => {
+    if (params.rangeStart !== undefined || params.rangeEnd !== undefined) {
       throw new Error(
         'Range requests are not supported by NoopFilePersistenceProvider'
       );
@@ -107,5 +109,11 @@ export default class NoopFilePersistenceProviderContext
     params: FimidaraToFilePersistencePathParams
   ): FimidaraToFilePersistencePathResult => {
     return {nativePath: params.fimidaraPath};
+  };
+
+  appendFile = async (
+    params: FilePersistenceAppendFileParams
+  ): Promise<FilePersistenceAppendFileResult> => {
+    return {filepath: params.filepath, raw: undefined};
   };
 }

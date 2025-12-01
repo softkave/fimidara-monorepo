@@ -12,7 +12,8 @@ export type FilePersistenceProviderFeature =
   | 'uploadFile'
   | 'readFile'
   | 'deleteFiles'
-  | 'deleteFolders';
+  | 'deleteFolders'
+  | 'appendFile';
 
 export type IFilePersistenceProviderMount = Pick<
   FileBackendMount,
@@ -57,6 +58,20 @@ export type FilePersistenceUploadFileResult<TRaw = any> = Pick<
   'filepath' | 'raw'
 > &
   Partial<FilePersistenceUploadPartResult>;
+
+export interface FilePersistenceAppendFileParams
+  extends FilePersistenceDefaultParams,
+    FilepathMatcher {
+  body: Readable;
+  mimetype?: string;
+  encoding?: string;
+  fileId: string;
+}
+
+export type FilePersistenceAppendFileResult<TRaw = any> = Pick<
+  PersistedFileDescription<TRaw>,
+  'filepath' | 'raw'
+>;
 
 export interface FilePersistenceGetFileParams
   extends FilePersistenceDefaultParams,
@@ -223,6 +238,9 @@ export interface FilePersistenceProvider extends DisposableResource {
   uploadFile: (
     params: FilePersistenceUploadFileParams
   ) => Promise<FilePersistenceUploadFileResult>;
+  appendFile: (
+    params: FilePersistenceAppendFileParams
+  ) => Promise<FilePersistenceAppendFileResult>;
   completeMultipartUpload: (
     params: FilePersistenceCompleteMultipartUploadParams
   ) => Promise<FilePersistenceCompleteMultipartUploadResult>;

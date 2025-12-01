@@ -109,8 +109,9 @@ export async function completeFileUpload(params: {
   size: number;
   primaryMount: FileBackendMount;
   persistedMountData: FilePersistenceUploadFileResult<unknown>;
+  append?: boolean;
 }) {
-  const {requestId, agent, file, data, size, primaryMount, persistedMountData} =
+  const {requestId, agent, file, data, size, primaryMount, persistedMountData, append} =
     params;
 
   const update = getFinalFileUpdate({
@@ -118,6 +119,7 @@ export async function completeFileUpload(params: {
     file,
     data,
     size,
+    append,
   });
 
   const [, updatedFile] = await Promise.all([
@@ -126,6 +128,7 @@ export async function completeFileUpload(params: {
       agent,
       file,
       size,
+      append,
     }),
     updateFileAndInsertMountEntry({
       agent,

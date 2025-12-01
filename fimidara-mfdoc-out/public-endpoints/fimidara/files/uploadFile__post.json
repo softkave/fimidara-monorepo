@@ -116,7 +116,7 @@
                 "required": false,
                 "data": {
                     "__id": "FieldString",
-                    "description": "Client generated unique identifier for multipart uploads. It is used to identify the same multipart upload across multiple requests",
+                    "description": "Client generated unique identifier for multipart uploads. It is used to identify the same multipart upload across multiple requests. Cannot be used with append mode.",
                     "example": "upload-123e4567-e89b-12d3-a456-426614174000"
                 }
             },
@@ -127,6 +127,24 @@
                     "__id": "FieldNumber",
                     "description": "Part number of the multipart upload. -1 can be used to signify the end of a multipart upload.",
                     "example": 1
+                }
+            },
+            "x-fimidara-append": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Whether to append data to the existing file instead of replacing it. If true, the new data will be appended to the end of the file. Cannot be used with multipart uploads (clientMultipartId must not be provided when append is true).",
+                    "example": "false"
+                }
+            },
+            "x-fimidara-on-append-create-if-not-exists": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Whether to create the file if it does not exist when append is true. Defaults to true. If false and the file does not exist, the operation will fail.",
+                    "example": "true"
                 }
             }
         }
@@ -513,7 +531,7 @@
                     "required": false,
                     "data": {
                         "__id": "FieldString",
-                        "description": "Client generated unique identifier for multipart uploads. It is used to identify the same multipart upload across multiple requests",
+                        "description": "Client generated unique identifier for multipart uploads. It is used to identify the same multipart upload across multiple requests. Cannot be used with append mode.",
                         "example": "upload-123e4567-e89b-12d3-a456-426614174000"
                     }
                 },
@@ -525,13 +543,31 @@
                         "description": "Part number of the multipart upload. -1 can be used to signify the end of a multipart upload.",
                         "example": 1
                     }
+                },
+                "append": {
+                    "__id": "FieldObjectField",
+                    "required": false,
+                    "data": {
+                        "__id": "FieldBoolean",
+                        "description": "Whether to append data to the existing file instead of replacing it. If true, the new data will be appended to the end of the file. Cannot be used with multipart uploads (clientMultipartId must not be provided when append is true).",
+                        "example": false
+                    }
+                },
+                "onAppendCreateIfNotExists": {
+                    "__id": "FieldObjectField",
+                    "required": false,
+                    "data": {
+                        "__id": "FieldBoolean",
+                        "description": "Whether to create the file if it does not exist when append is true. Defaults to true. If false and the file does not exist, the operation will fail.",
+                        "example": true
+                    }
                 }
             }
         },
         "serializeAs": "formdata"
     },
     "name": "fimidara/files/uploadFile",
-    "description": "Upload a file or file part for multipart uploads",
+    "description": "Upload a file or file part for multipart uploads. Supports appending data to existing files when append parameter is true.",
     "tags": [
         "public"
     ],

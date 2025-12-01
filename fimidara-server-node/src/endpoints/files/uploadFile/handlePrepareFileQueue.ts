@@ -6,6 +6,7 @@ import {kUsageProviderConstants} from '../../../contexts/usage/constants.js';
 import {File} from '../../../definitions/file.js';
 import {SessionAgent} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
+import {appAssert} from '../../../utils/assertion.js';
 import {ValidationError} from '../../../utils/errors.js';
 import {
   singleItemHandleShardQueue,
@@ -17,6 +18,7 @@ import {
   kShardRunnerOutputType,
   ShardRunnerProvidedHandlerResult,
 } from '../../../utils/shardRunner/types.js';
+import {NotFoundError} from '../../errors.js';
 import {kFileConstants} from '../constants.js';
 import {
   createNewFileAndEnsureFolders,
@@ -30,7 +32,6 @@ import {
   UploadFileEndpointParams,
 } from './types.js';
 import {tryGetFile} from './utils.js';
-import {appAssert} from '../../../utils/assertion.js';
 
 async function createAndInsertNewFile(params: {
   agent: SessionAgent;
@@ -142,6 +143,7 @@ async function handlePrepareFileEntry(params: {
   const {entry} = params;
   const agent = entry.agent;
   const input = entry.item;
+  const shouldCreate = input.shouldCreate !== false; // defaults to true
 
   const filepathOrId = input.filepath ?? input.fileId;
   assert.ok(filepathOrId);
@@ -163,6 +165,11 @@ async function handlePrepareFileEntry(params: {
     };
   }
 
+  // If shouldCreate is false and file doesn't exist, throw error
+  if (!shouldCreate) {
+    throw new NotFoundError('File does not exist');
+  }
+
   if (kIjxUtils.locks().has(lockName)) {
     await kIjxUtils.locks().wait({
       name: lockName,
@@ -174,14 +181,39 @@ async function handlePrepareFileEntry(params: {
       data: input,
     });
 
-    assert.ok(existingFile);
-    return {
-      type: kShardRunnerOutputType.success,
-      item: existingFile,
-    };
+    if (existingFile) {
+      return {
+        type: kShardRunnerOutputType.success,
+        item: existingFile,
+      };
+    }
+
+    // Check again after waiting for lock, in case file was created
+    // If shouldCreate is false and file still doesn't exist, throw error
+    if (!shouldCreate) {
+      throw new NotFoundError('File does not exist');
+    }
   }
 
   return await kIjxUtils.locks().run(lockName, async () => {
+    // Double-check if file was created while waiting for lock
+    const existingFileAfterLock = await getAndPrepareExistingFile({
+      agent: sessionAgent,
+      data: input,
+    });
+
+    if (existingFileAfterLock) {
+      return {
+        type: kShardRunnerOutputType.success,
+        item: existingFileAfterLock,
+      };
+    }
+
+    // If shouldCreate is false and file still doesn't exist, throw error
+    if (!shouldCreate) {
+      throw new NotFoundError('File does not exist');
+    }
+
     const result = await createAndPrepareNewFile({
       agent: sessionAgent,
       data: input,
@@ -207,8 +239,7 @@ async function handlePrepareFileQueue(inputQueueNo: number) {
     providedHandler: async (params: {
       item: IShardRunnerEntry<IPrepareFileQueueInput>;
     }) => {
-      const result = await handlePrepareFileEntry({entry: params.item});
-      return result;
+      return await handlePrepareFileEntry({entry: params.item});
     },
   });
 }

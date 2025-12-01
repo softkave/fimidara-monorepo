@@ -17,6 +17,7 @@ import {Upload} from '@aws-sdk/lib-storage';
 import {first, merge} from 'lodash-es';
 import {AnyObject} from 'softkave-js-utils';
 import {Readable} from 'stream';
+import {UnsupportedOperationError} from '../../endpoints/files/errors.js';
 import {kFolderConstants} from '../../endpoints/folders/constants.js';
 import {FimidaraSuppliedConfig} from '../../resources/config.js';
 import {appAssert} from '../../utils/assertion.js';
@@ -24,6 +25,8 @@ import {streamToBuffer} from '../../utils/fns.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {kIjxUtils} from '../ijx/injectables.js';
 import {
+  FilePersistenceAppendFileParams,
+  FilePersistenceAppendFileResult,
   FilePersistenceCleanupMultipartUploadParams,
   FilePersistenceCompleteMultipartUploadParams,
   FilePersistenceCompleteMultipartUploadResult,
@@ -97,6 +100,9 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       case 'deleteFolders':
         // TODO: implement delete folders using job
         return false;
+      case 'appendFile':
+        // S3 does not natively support appending to objects
+        return false;
     }
   };
 
@@ -126,6 +132,15 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       const response = await this.parrallelUpload(bucket, nativePath, params);
       return {filepath: params.filepath, raw: response};
     }
+  }
+
+  async appendFile(
+    _params: FilePersistenceAppendFileParams
+  ): Promise<FilePersistenceAppendFileResult> {
+    throw new UnsupportedOperationError(
+      'S3 does not natively support appending data to objects. ' +
+        'Appending would require a read-modify-write operation which is inefficient for large files.'
+    );
   }
 
   async startMultipartUpload(

@@ -13,6 +13,11 @@ import {
   test_readFile_rangeNotSatisfiable,
   test_readFile_singleRange,
   test_updateFileDetails,
+  test_uploadFile_appendCreateIfNotExists,
+  test_uploadFile_appendFileNotExistsShouldFail,
+  test_uploadFile_appendToExisting,
+  test_uploadFile_appendWithMultipartShouldFail,
+  test_uploadFile_multipleAppends,
   test_uploadFile_nodeReadable,
   test_uploadFile_nodeReadableNotFromFile,
   test_uploadFile_string,
@@ -316,6 +321,32 @@ describe('file', () => {
         {start: fileLength + 10, end: fileLength + 20},
         fileContent
       );
+    });
+  });
+
+  describe('append mode', () => {
+    test('append to existing file', async () => {
+      await test_uploadFile_appendToExisting();
+    });
+
+    test('append when file does not exist with onAppendCreateIfNotExists=true', async () => {
+      await test_uploadFile_appendCreateIfNotExists(true);
+    });
+
+    test('append when file does not exist with onAppendCreateIfNotExists=false should fail', async () => {
+      await test_uploadFile_appendFileNotExistsShouldFail(false);
+    });
+
+    test('append when file does not exist without onAppendCreateIfNotExists should fail', async () => {
+      await test_uploadFile_appendFileNotExistsShouldFail();
+    });
+
+    test('multiple append operations', async () => {
+      await test_uploadFile_multipleAppends();
+    });
+
+    test('append cannot be used with multipart uploads', async () => {
+      await test_uploadFile_appendWithMultipartShouldFail();
     });
   });
 });

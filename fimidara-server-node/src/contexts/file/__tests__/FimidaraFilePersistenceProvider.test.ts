@@ -53,6 +53,7 @@ import {LocalFsFilePersistenceProvider} from '../LocalFsFilePersistenceProvider.
 import {MemoryFilePersistenceProvider} from '../MemoryFilePersistenceProvider.js';
 import {S3FilePersistenceProvider} from '../S3FilePersistenceProvider.js';
 import {
+  FilePersistenceAppendFileParams,
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
   FilePersistenceGetFileParams,
@@ -845,6 +846,120 @@ describe.each(
     });
 
     expect(fimidaraPath).toBe(filepath);
+  });
+
+  test('appendFile', async () => {
+    const {backend, internalBackend} = getTestMemoryInstance();
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+    const filepath = generateTestFilepathString();
+    const mount = generateFileBackendMountForTest();
+    const initialData = Buffer.from('Hello ');
+    const appendData = Buffer.from('world!');
+    const initialStream = Readable.from(initialData);
+    const appendStream = Readable.from(appendData);
+
+    // First upload the initial file
+    await backend.uploadFile({
+      fileId,
+      workspaceId,
+      filepath,
+      mount,
+      body: initialStream,
+    });
+
+    // Then append to it
+    const params: FilePersistenceAppendFileParams = {
+      fileId,
+      workspaceId,
+      filepath,
+      mount,
+      body: appendStream,
+    };
+    await backend.appendFile(params);
+
+    if (provider === kFimidaraConfigFilePersistenceProvider.s3) {
+      const s3Bucket = kIjxUtils.suppliedConfig().awsConfigs?.s3Bucket;
+      assert.ok(s3Bucket);
+      expect(internalBackend.appendFile).toBeCalledWith({
+        ...params,
+        mount: {...params.mount, mountedFrom: [s3Bucket]},
+        filepath: pathJoin([workspaceId, fileId]),
+      });
+    } else {
+      expect(internalBackend.appendFile).toBeCalledWith({
+        ...params,
+        filepath: pathJoin([workspaceId, fileId]),
+      });
+    }
+
+    // Verify the file contains both initial and appended data
+    const savedFile = await backend.readFile({
+      filepath,
+      fileId,
+      mount,
+      workspaceId,
+    });
+    assert.ok(savedFile.body);
+    const expectedData = Buffer.concat([initialData, appendData]);
+    await expectFileBodyEqual(expectedData, savedFile.body);
+  });
+
+  test('appendFile when file does not exist', async () => {
+    const {backend, internalBackend} = getTestMemoryInstance();
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+    const filepath = generateTestFilepathString();
+    const mount = generateFileBackendMountForTest();
+    const appendData = Buffer.from('Hello world!');
+    const appendStream = Readable.from(appendData);
+
+    // Append to non-existent file (should create it)
+    const params: FilePersistenceAppendFileParams = {
+      fileId,
+      workspaceId,
+      filepath,
+      mount,
+      body: appendStream,
+    };
+    await backend.appendFile(params);
+
+    if (provider === kFimidaraConfigFilePersistenceProvider.s3) {
+      const s3Bucket = kIjxUtils.suppliedConfig().awsConfigs?.s3Bucket;
+      assert.ok(s3Bucket);
+      expect(internalBackend.appendFile).toBeCalledWith({
+        ...params,
+        mount: {...params.mount, mountedFrom: [s3Bucket]},
+        filepath: pathJoin([workspaceId, fileId]),
+      });
+    } else {
+      expect(internalBackend.appendFile).toBeCalledWith({
+        ...params,
+        filepath: pathJoin([workspaceId, fileId]),
+      });
+    }
+
+    // Verify the file was created with the appended data
+    const savedFile = await backend.readFile({
+      filepath,
+      fileId,
+      mount,
+      workspaceId,
+    });
+    assert.ok(savedFile.body);
+    await expectFileBodyEqual(appendData, savedFile.body);
+  });
+
+  test('supportsFeature appendFile', () => {
+    const {backend} = getTestMemoryInstance();
+    const supportsAppend = backend.supportsFeature('appendFile');
+    // Memory provider supports appendFile, so Fimidara should too when using memory backend
+    if (provider === kFimidaraConfigFilePersistenceProvider.memory) {
+      expect(supportsAppend).toBe(true);
+    } else if (provider === kFimidaraConfigFilePersistenceProvider.fs) {
+      expect(supportsAppend).toBe(true);
+    }
+    // S3 is excluded from these tests, but if it were included, it should return false
   });
 });
 

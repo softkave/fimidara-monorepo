@@ -27,6 +27,7 @@ import {
 } from '../../../testHelpers/generate/file.js';
 import {kGenerateTestFileType} from '../../../testHelpers/generate/file/generateTestFileBinary.js';
 import {generateTestFolderpath} from '../../../testHelpers/generate/folder.js';
+import {setupIgnoreUnhandledRejections} from '../../../testHelpers/helpers/error.js';
 import {expectFileBodyEqual} from '../../../testHelpers/helpers/file.js';
 import {completeTests} from '../../../testHelpers/helpers/testFns.js';
 import {
@@ -47,29 +48,17 @@ import {uploadFileBaseTest} from '../testutils/utils.js';
 
 let defaultFileProviderResolver: FileProviderResolver | undefined;
 let defaultSuppliedConfig: FimidaraSuppliedConfig | undefined;
-let unhandledRejectionHandler: ((reason: unknown) => void) | undefined;
+
+// Handle expected FileNotWritableError rejections from concurrent uploads
+// These occur in background queue processing and are expected behavior
+const {beforeAll: beforeAllIgnoreErrors, afterAll: afterAllIgnoreErrors} =
+  setupIgnoreUnhandledRejections(FileNotWritableError);
 
 beforeAll(async () => {
   await initTests();
   defaultFileProviderResolver = kIjxUtils.fileProviderResolver();
   defaultSuppliedConfig = kIjxUtils.suppliedConfig();
-
-  // Handle expected FileNotWritableError rejections from concurrent uploads
-  // These occur in background queue processing and are expected behavior
-  // We use prependListener to ensure our handler runs first, but we only
-  // handle FileNotWritableError errors. Other errors will still be reported by Vitest.
-  unhandledRejectionHandler = (reason: unknown) => {
-    if (reason instanceof FileNotWritableError) {
-      // Silently ignore expected FileNotWritableError from concurrent uploads
-      // This prevents Vitest from reporting them as unhandled rejections
-      // The error is expected when multiple concurrent uploads try to write the same file
-      return;
-    }
-    // For other errors, we don't handle them here, so they'll still be reported by Vitest
-  };
-  // Use prependListener so our handler runs before Vitest's handler
-  // This allows us to filter out expected errors while preserving Vitest's error tracking
-  process.prependListener('unhandledRejection', unhandledRejectionHandler);
+  beforeAllIgnoreErrors();
 });
 
 afterEach(() => {
@@ -81,9 +70,7 @@ afterEach(() => {
 });
 
 afterAll(async () => {
-  if (unhandledRejectionHandler) {
-    process.removeListener('unhandledRejection', unhandledRejectionHandler);
-  }
+  afterAllIgnoreErrors();
   await completeTests();
 });
 

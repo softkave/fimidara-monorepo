@@ -1,9 +1,13 @@
+import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {Readable} from 'stream';
 import {expect} from 'vitest';
 import {FimidaraEndpoints} from '../../endpoints/publicEndpoints.js';
 import {Range, ReadFileEndpointParams} from '../../endpoints/publicTypes.js';
-import {stringifyFimidaraFilepath} from '../../path/index.js';
+import {
+  fimidaraAddRootnameToPath,
+  stringifyFimidaraFilepath,
+} from '../../path/index.js';
 import {
   deleteFileTestExecFn,
   getFileDetailsTestExecFn,
@@ -302,4 +306,241 @@ export const test_readFile_rangeNotSatisfiable = async (
   ).rejects.toThrow();
 
   return {filepath, fileSize: fileBuffer.byteLength};
+};
+
+export const test_uploadFile_appendToExisting = async () => {
+  // Upload initial file
+  const initialContent = 'Initial content';
+  const initialBuffer = Buffer.from(initialContent);
+  const initialStream = Readable.from([initialBuffer]);
+
+  const initialUploadResult = await uploadFileTestExecFn(
+    fimidaraTestInstance,
+    fimidaraTestVars,
+    {
+      data: initialStream,
+      size: initialBuffer.byteLength,
+    }
+  );
+
+  const filepath = stringifyFimidaraFilepath(
+    initialUploadResult.file,
+    fimidaraTestVars.workspaceRootname
+  );
+
+  // Append data to the file
+  const appendContent = ' appended content';
+  const appendBuffer = Buffer.from(appendContent);
+  const appendStream = Readable.from([appendBuffer]);
+
+  const appendUploadResult = await uploadFileTestExecFn(
+    fimidaraTestInstance,
+    fimidaraTestVars,
+    {
+      filepath,
+      data: appendStream,
+      size: appendBuffer.byteLength,
+      append: true,
+    }
+  );
+
+  // Verify file size increased
+  expect(appendUploadResult.file.size).toBe(
+    initialBuffer.byteLength + appendBuffer.byteLength
+  );
+
+  // Read the file and verify it contains both chunks
+  const readResult = await readFileTestExecFn(
+    fimidaraTestInstance,
+    fimidaraTestVars,
+    {filepath},
+    {responseType: 'stream'},
+    {}
+  );
+
+  const actualContent = await streamToString(readResult);
+  const expectedContent = initialContent + appendContent;
+  expect(actualContent).toBe(expectedContent);
+
+  return {
+    initialUploadResult,
+    appendUploadResult,
+    filepath,
+    expectedContent,
+    actualContent,
+  };
+};
+
+export const test_uploadFile_appendCreateIfNotExists = async (
+  onAppendCreateIfNotExists: boolean
+) => {
+  const filepath = fimidaraAddRootnameToPath(
+    faker.system.filePath(),
+    fimidaraTestVars.workspaceRootname
+  );
+
+  const content = 'New file content';
+  const buffer = Buffer.from(content);
+  const stream = Readable.from([buffer]);
+
+  const uploadResult = await uploadFileTestExecFn(
+    fimidaraTestInstance,
+    fimidaraTestVars,
+    {
+      filepath,
+      data: stream,
+      size: buffer.byteLength,
+      append: true,
+      onAppendCreateIfNotExists,
+    }
+  );
+
+  // Verify file was created
+  expect(uploadResult.file.size).toBe(buffer.byteLength);
+
+  // Read the file and verify content
+  const readResult = await readFileTestExecFn(
+    fimidaraTestInstance,
+    fimidaraTestVars,
+    {filepath},
+    {responseType: 'stream'},
+    {}
+  );
+
+  const actualContent = await streamToString(readResult);
+  expect(actualContent).toBe(content);
+
+  return {uploadResult, filepath, content, actualContent};
+};
+
+export const test_uploadFile_appendFileNotExistsShouldFail = async (
+  onAppendCreateIfNotExists: boolean = false
+) => {
+  const filepath = fimidaraAddRootnameToPath(
+    faker.system.filePath(),
+    fimidaraTestVars.workspaceRootname
+  );
+
+  const content = 'Content for non-existent file';
+  const buffer = Buffer.from(content);
+  const stream = Readable.from([buffer]);
+
+  // This should throw an error
+  await expect(
+    uploadFileTestExecFn(fimidaraTestInstance, fimidaraTestVars, {
+      filepath,
+      data: stream,
+      size: buffer.byteLength,
+      append: true,
+      onAppendCreateIfNotExists,
+    })
+  ).rejects.toThrow();
+
+  return {filepath};
+};
+
+export const test_uploadFile_multipleAppends = async () => {
+  // Upload initial file
+  const initialContent = 'Initial';
+  const initialBuffer = Buffer.from(initialContent);
+  const initialStream = Readable.from([initialBuffer]);
+
+  const initialUploadResult = await uploadFileTestExecFn(
+    fimidaraTestInstance,
+    fimidaraTestVars,
+    {
+      data: initialStream,
+      size: initialBuffer.byteLength,
+    }
+  );
+
+  const filepath = stringifyFimidaraFilepath(
+    initialUploadResult.file,
+    fimidaraTestVars.workspaceRootname
+  );
+
+  // Append multiple times
+  const appendContents = [' first', ' second', ' third'];
+  let totalSize = initialBuffer.byteLength;
+  let expectedContent = initialContent;
+
+  for (const appendContent of appendContents) {
+    const appendBuffer = Buffer.from(appendContent);
+    const appendStream = Readable.from([appendBuffer]);
+
+    const appendUploadResult = await uploadFileTestExecFn(
+      fimidaraTestInstance,
+      fimidaraTestVars,
+      {
+        filepath,
+        data: appendStream,
+        size: appendBuffer.byteLength,
+        append: true,
+      }
+    );
+
+    totalSize += appendBuffer.byteLength;
+    expectedContent += appendContent;
+
+    expect(appendUploadResult.file.size).toBe(totalSize);
+  }
+
+  // Read the file and verify it contains all chunks
+  const readResult = await readFileTestExecFn(
+    fimidaraTestInstance,
+    fimidaraTestVars,
+    {filepath},
+    {responseType: 'stream'},
+    {}
+  );
+
+  const actualContent = await streamToString(readResult);
+  expect(actualContent).toBe(expectedContent);
+
+  return {
+    initialUploadResult,
+    filepath,
+    expectedContent,
+    actualContent,
+    totalSize,
+  };
+};
+
+export const test_uploadFile_appendWithMultipartShouldFail = async () => {
+  // Upload initial file
+  const initialContent = 'Initial content';
+  const initialBuffer = Buffer.from(initialContent);
+  const initialStream = Readable.from([initialBuffer]);
+
+  const initialUploadResult = await uploadFileTestExecFn(
+    fimidaraTestInstance,
+    fimidaraTestVars,
+    {
+      data: initialStream,
+      size: initialBuffer.byteLength,
+    }
+  );
+
+  const filepath = stringifyFimidaraFilepath(
+    initialUploadResult.file,
+    fimidaraTestVars.workspaceRootname
+  );
+
+  // Try to append with multipart - this should fail
+  const appendContent = 'Appended content';
+  const appendBuffer = Buffer.from(appendContent);
+  const appendStream = Readable.from([appendBuffer]);
+
+  await expect(
+    uploadFileTestExecFn(fimidaraTestInstance, fimidaraTestVars, {
+      filepath,
+      data: appendStream,
+      size: appendBuffer.byteLength,
+      append: true,
+      clientMultipartId: 'test-multipart-id',
+      part: 1,
+    })
+  ).rejects.toThrow();
+
+  return {initialUploadResult, filepath};
 };

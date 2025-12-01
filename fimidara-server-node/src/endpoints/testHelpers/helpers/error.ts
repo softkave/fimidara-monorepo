@@ -52,3 +52,97 @@ export async function expectErrorThrown(
     }
   }
 }
+
+/**
+ * Creates a setup/teardown helper for ignoring expected unhandled promise rejections
+ * in tests. This is useful when errors are thrown in background queue processing
+ * and are expected behavior (e.g., concurrent uploads causing FileNotWritableError).
+ *
+ * @param errorMatcher - One or more error classes/constructors to match, or a function
+ *                       that returns true if the error should be ignored
+ * @returns An object with `beforeAll` and `afterAll` hooks to set up and tear down
+ *          the unhandled rejection handler
+ *
+ * @example
+ * ```ts
+ * const {beforeAll: beforeAllIgnoreErrors, afterAll: afterAllIgnoreErrors} =
+ *   setupIgnoreUnhandledRejections(FileNotWritableError);
+ *
+ * beforeAll(beforeAllIgnoreErrors);
+ * afterAll(afterAllIgnoreErrors);
+ * ```
+ *
+ * @example
+ * ```ts
+ * const {beforeAll: beforeAllIgnoreErrors, afterAll: afterAllIgnoreErrors} =
+ *   setupIgnoreUnhandledRejections([NotFoundError, FileNotWritableError]);
+ *
+ * beforeAll(beforeAllIgnoreErrors);
+ * afterAll(afterAllIgnoreErrors);
+ * ```
+ */
+export function setupIgnoreUnhandledRejections(
+  errorMatcher:
+    | (new (...args: any[]) => Error)
+    | Array<new (...args: any[]) => Error>
+    | ((reason: unknown) => boolean)
+): {
+  beforeAll: () => void;
+  afterAll: () => void;
+} {
+  let unhandledRejectionHandler: ((reason: unknown) => void) | undefined;
+
+  const beforeAllHook = () => {
+    unhandledRejectionHandler = (reason: unknown) => {
+      let shouldIgnore = false;
+
+      if (isArray(errorMatcher)) {
+        // Multiple error classes
+        shouldIgnore = errorMatcher.some(
+          ErrorClass => reason instanceof ErrorClass
+        );
+      } else if (isFunction(errorMatcher)) {
+        // Check if it's a class constructor by inspecting its string representation
+        // ES6 classes have toString() that starts with "class "
+        const isClassConstructor = errorMatcher
+          .toString()
+          .trim()
+          .startsWith('class ');
+
+        if (isClassConstructor) {
+          // It's a class constructor, use instanceof
+          shouldIgnore = reason instanceof (errorMatcher as any);
+        } else {
+          // It's a plain function, use it as a custom matcher
+          shouldIgnore = errorMatcher(reason);
+        }
+      } else {
+        // Fallback: treat as error class (shouldn't happen with proper typing)
+        shouldIgnore = reason instanceof (errorMatcher as any);
+      }
+
+      if (shouldIgnore) {
+        // Silently ignore expected errors
+        // This prevents Vitest from reporting them as unhandled rejections
+        return;
+      }
+      // For other errors, we don't handle them here, so they'll still be reported by Vitest
+    };
+
+    // Use prependListener so our handler runs before Vitest's handler
+    // This allows us to filter out expected errors while preserving Vitest's error tracking
+    process.prependListener('unhandledRejection', unhandledRejectionHandler);
+  };
+
+  const afterAllHook = () => {
+    if (unhandledRejectionHandler) {
+      process.removeListener('unhandledRejection', unhandledRejectionHandler);
+      unhandledRejectionHandler = undefined;
+    }
+  };
+
+  return {
+    beforeAll: beforeAllHook,
+    afterAll: afterAllHook,
+  };
+}

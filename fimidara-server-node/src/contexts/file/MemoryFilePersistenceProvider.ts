@@ -3,6 +3,8 @@ import {isObjectEmpty, OmitFrom} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {streamToBuffer} from '../../utils/fns.js';
 import {
+  FilePersistenceAppendFileParams,
+  FilePersistenceAppendFileResult,
   FilePersistenceCleanupMultipartUploadParams,
   FilePersistenceCompleteMultipartUploadParams,
   FilePersistenceCompleteMultipartUploadResult,
@@ -71,6 +73,7 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
       case 'describeFolderContent':
       case 'readFile':
       case 'uploadFile':
+      case 'appendFile':
         return true;
       case 'deleteFolders':
       case 'describeFolder':
@@ -116,6 +119,47 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
 
       return {filepath, raw: undefined};
     }
+  }
+
+  async appendFile(
+    params: FilePersistenceAppendFileParams
+  ): Promise<FilePersistenceAppendFileResult> {
+    const {mount, filepath} = params;
+    const {nativePath} = this.toNativePath({mount, fimidaraPath: filepath});
+    const body = await streamToBuffer(params.body);
+
+    const existingFile = this.getMemoryFile({
+      workspaceId: params.workspaceId,
+      filepath,
+      mount,
+    });
+
+    if (existingFile) {
+      // Append to existing file
+      const appendedBody = Buffer.concat([existingFile.body, body]);
+      this.setMemoryFile(params, {
+        body: appendedBody,
+        nativePath,
+        lastUpdatedAt: Date.now(),
+        size: appendedBody.byteLength,
+        mountId: params.mount.resourceId,
+        mimetype: params.mimetype || existingFile.mimetype,
+        encoding: params.encoding || existingFile.encoding,
+      });
+    } else {
+      // Create new file if it doesn't exist
+      this.setMemoryFile(params, {
+        body,
+        nativePath,
+        lastUpdatedAt: Date.now(),
+        size: body.byteLength,
+        mountId: params.mount.resourceId,
+        mimetype: params.mimetype,
+        encoding: params.encoding,
+      });
+    }
+
+    return {filepath, raw: undefined};
   }
 
   async completeMultipartUpload(

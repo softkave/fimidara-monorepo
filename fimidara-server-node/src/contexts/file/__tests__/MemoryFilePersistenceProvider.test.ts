@@ -711,4 +711,197 @@ describe('MemoryFilePersistenceProvider', () => {
       )
     );
   });
+
+  test('appendFile', async () => {
+    const initialBuffer = Buffer.from('Hello ');
+    const appendBuffer = Buffer.from('world!');
+    const initialData = Readable.from(initialBuffer);
+    const appendData = Readable.from(appendBuffer);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
+    const filepath = generateTestFilepathString({
+      length: mount.namepath.length + 2,
+      parentNamepath: mount.namepath,
+    });
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+
+    const backend = new MemoryFilePersistenceProvider();
+    // First upload the initial file
+    await backend.uploadFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      body: initialData,
+    });
+
+    // Then append to it
+    await backend.appendFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      body: appendData,
+    });
+
+    const savedFile = await backend.readFile({
+      filepath,
+      mount,
+      workspaceId,
+      fileId,
+    });
+    assert.ok(savedFile.body);
+    const expectedBuffer = Buffer.concat([initialBuffer, appendBuffer]);
+    await expectFileBodyEqual(expectedBuffer, savedFile.body);
+  });
+
+  test('appendFile when file does not exist', async () => {
+    const appendBuffer = Buffer.from('Hello world!');
+    const appendData = Readable.from(appendBuffer);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
+    const filepath = generateTestFilepathString({
+      length: mount.namepath.length + 2,
+      parentNamepath: mount.namepath,
+    });
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+
+    const backend = new MemoryFilePersistenceProvider();
+    // Append to non-existent file (should create it)
+    await backend.appendFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      body: appendData,
+    });
+
+    const savedFile = await backend.readFile({
+      filepath,
+      mount,
+      workspaceId,
+      fileId,
+    });
+    assert.ok(savedFile.body);
+    await expectFileBodyEqual(appendBuffer, savedFile.body);
+  });
+
+  test('appendFile multiple times', async () => {
+    const initialBuffer = Buffer.from('Hello');
+    const appendBuffer1 = Buffer.from(' ');
+    const appendBuffer2 = Buffer.from('world!');
+    const initialData = Readable.from(initialBuffer);
+    const appendData1 = Readable.from(appendBuffer1);
+    const appendData2 = Readable.from(appendBuffer2);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
+    const filepath = generateTestFilepathString({
+      length: mount.namepath.length + 2,
+      parentNamepath: mount.namepath,
+    });
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+
+    const backend = new MemoryFilePersistenceProvider();
+    // First upload the initial file
+    await backend.uploadFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      body: initialData,
+    });
+
+    // Append multiple times
+    await backend.appendFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      body: appendData1,
+    });
+    await backend.appendFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      body: appendData2,
+    });
+
+    const savedFile = await backend.readFile({
+      filepath,
+      mount,
+      workspaceId,
+      fileId,
+    });
+    assert.ok(savedFile.body);
+    const expectedBuffer = Buffer.concat([
+      initialBuffer,
+      appendBuffer1,
+      appendBuffer2,
+    ]);
+    await expectFileBodyEqual(expectedBuffer, savedFile.body);
+  });
+
+  test('appendFile preserves existing file metadata', async () => {
+    const initialBuffer = Buffer.from('Hello ');
+    const appendBuffer = Buffer.from('world!');
+    const initialData = Readable.from(initialBuffer);
+    const appendData = Readable.from(appendBuffer);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
+    const filepath = generateTestFilepathString({
+      length: mount.namepath.length + 2,
+      parentNamepath: mount.namepath,
+    });
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+    const mimetype = 'text/plain';
+    const encoding = 'utf8';
+
+    const backend = new MemoryFilePersistenceProvider();
+    // First upload the initial file with metadata
+    await backend.uploadFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      body: initialData,
+      mimetype,
+      encoding,
+    });
+
+    // Append to it (should preserve existing metadata if not provided)
+    await backend.appendFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      body: appendData,
+    });
+
+    const fileDescription = await backend.describeFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+    });
+    assert.ok(fileDescription);
+    expect(fileDescription.mimetype).toBe(mimetype);
+    expect(fileDescription.encoding).toBe(encoding);
+    expect(fileDescription.size).toBe(
+      initialBuffer.byteLength + appendBuffer.byteLength
+    );
+  });
+
+  test('supportsFeature appendFile', () => {
+    const backend = new MemoryFilePersistenceProvider();
+    expect(backend.supportsFeature('appendFile')).toBe(true);
+  });
 });

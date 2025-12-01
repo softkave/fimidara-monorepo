@@ -4,6 +4,8 @@ import {TestEmailProviderContext} from '../types.js';
 export default class MockTestEmailProviderContext
   implements TestEmailProviderContext
 {
-  sendEmail = vi.fn().mockName('sendEmail');
-  dispose = vi.fn().mockName('close');
+  sendEmail = vi
+    .fn()
+    .mockName('sendEmail') as TestEmailProviderContext['sendEmail'];
+  dispose = vi.fn().mockName('close') as TestEmailProviderContext['dispose'];
 }

@@ -41,11 +41,15 @@ export async function handleFinalStorageUsageRecords(params: {
   agent: Agent;
   file: File;
   size: number;
+  append?: boolean;
 }) {
-  const {requestId, agent, file, size} = params;
+  const {requestId, agent, file, size, append} = params;
   const fileWithSize = {...file, size, resourceId: undefined};
 
-  await decrementStorageUsageRecord({agent, file});
+  // For append operations, don't decrement the old file size since we're appending, not replacing
+  if (!append) {
+    await decrementStorageUsageRecord({agent, file});
+  }
   await incrementStorageUsageRecord({
     requestId,
     agent,

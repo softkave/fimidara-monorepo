@@ -82,7 +82,7 @@ export interface UsageRecord extends WorkspaceResource {
   /** Summation level 2 only. */
   month: number;
   year: number;
-  /** whether it carries over from month to month */
+  /** Whether it carries over from month to month */
   persistent: boolean;
 }
 

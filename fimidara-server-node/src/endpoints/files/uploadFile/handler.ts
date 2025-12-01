@@ -3,11 +3,13 @@ import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {FileWithRuntimeData} from '../../../definitions/file.js';
 import {SessionAgent} from '../../../definitions/system.js';
+import {appAssert} from '../../../utils/assertion.js';
 import {ByteCounterPassThroughStream} from '../../../utils/streams.js';
 import {validate} from '../../../utils/validate.js';
 import RequestData from '../../RequestData.js';
 import {InvalidRequestError} from '../../errors.js';
 import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils.js';
+import {UnsupportedOperationError} from '../errors.js';
 import {fileExtractor} from '../utils.js';
 import {prepareMountFilepath} from '../utils/prepareMountFilepath.js';
 import {
@@ -19,7 +21,6 @@ import {UploadFileEndpoint, UploadFileEndpointParams} from './types.js';
 import {setFileWritable} from './update.js';
 import {handleIntermediateStorageUsageRecords} from './usage.js';
 import {uploadFileJoiSchema} from './validation.js';
-import {appAssert} from '../../../utils/assertion.js';
 
 async function handleUploadFile(params: {
   file: FileWithRuntimeData;
@@ -30,6 +31,8 @@ async function handleUploadFile(params: {
   const {data, agent, reqData} = params;
   let file = params.file;
   const isMultipart = isString(data.clientMultipartId);
+  const isAppend = data.append === true;
+
   const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs({
     file,
     initPrimaryBackendOnly: true,
@@ -48,17 +51,41 @@ async function handleUploadFile(params: {
       );
     }
 
+    // Check backend support for append operation
+    if (isAppend) {
+      appAssert(
+        primaryBackend.supportsFeature('appendFile'),
+        new UnsupportedOperationError(
+          'The backend does not support append file operations'
+        )
+      );
+    }
+
     const byteCounter = new ByteCounterPassThroughStream();
     data.data.pipe(byteCounter);
-    const persistedMountData = await primaryBackend.uploadFile({
-      filepath: mountFilepath,
-      workspaceId: file.workspaceId,
-      body: byteCounter,
-      fileId: file.resourceId,
-      mount: primaryMount,
-      part: data.part,
-      multipartId: file.internalMultipartId,
-    });
+
+    let persistedMountData;
+    if (isAppend) {
+      persistedMountData = await primaryBackend.appendFile!({
+        filepath: mountFilepath,
+        workspaceId: file.workspaceId,
+        body: byteCounter,
+        fileId: file.resourceId,
+        mount: primaryMount,
+        mimetype: data.mimetype,
+        encoding: data.encoding,
+      });
+    } else {
+      persistedMountData = await primaryBackend.uploadFile({
+        filepath: mountFilepath,
+        workspaceId: file.workspaceId,
+        body: byteCounter,
+        fileId: file.resourceId,
+        mount: primaryMount,
+        part: data.part,
+        multipartId: file.internalMultipartId,
+      });
+    }
 
     const size = byteCounter.contentLength;
     await handleIntermediateStorageUsageRecords({
@@ -86,9 +113,11 @@ async function handleUploadFile(params: {
         size,
         primaryMount,
         persistedMountData,
+        append: isAppend,
       });
     }
 
+    appAssert(file, new InvalidRequestError('File is required'));
     return {file: fileExtractor(file)};
   } catch (error) {
     if (!isMultipart) {
@@ -111,12 +140,18 @@ const uploadFile: UploadFileEndpoint = async reqData => {
       kSessionUtils.accessScopes.api
     );
 
-  const {file} = await prepareFileForUpload({data, agent});
+  const isAppend = data.append === true;
+  const onAppendCreateIfNotExists = data.onAppendCreateIfNotExists === true; // defaults to false
+  // For append operations, pass shouldCreate based on onAppendCreateIfNotExists
+  // For normal uploads, shouldCreate defaults to true
+  const shouldCreate = isAppend ? onAppendCreateIfNotExists : true;
+
+  const {file} = await prepareFileForUpload({data, agent, shouldCreate});
   const isMultipart = isString(data.clientMultipartId);
   if (isMultipart) {
     appAssert(
       data.part,
-      new InvalidRequestError('part is required for multipart uploads')
+      new InvalidRequestError('Part is required for multipart uploads')
     );
 
     return await kIjxUtils.redlock().using(

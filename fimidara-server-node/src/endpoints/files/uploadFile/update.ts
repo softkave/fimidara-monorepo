@@ -71,18 +71,21 @@ export function getIntermediateMultipartFileUpdate(params: {
 
 export function getFinalFileUpdate(params: {
   agent: Agent;
-  file: Pick<File, 'version'>;
+  file: Pick<File, 'version' | 'size'>;
   data: Pick<File, 'description' | 'encoding' | 'mimetype'>;
   size: number;
+  append?: boolean;
 }) {
-  const {agent, file, data, size} = params;
+  const {agent, file, data, size, append} = params;
+  // For append operations, add new size to existing size
+  const finalSize = append ? (file.size || 0) + size : size;
   const update: Partial<File> = {
     lastUpdatedBy: agent,
     lastUpdatedAt: getTimestamp(),
     isWriteAvailable: true,
     isReadAvailable: true,
     version: file.version + 1,
-    size,
+    size: finalSize,
   };
 
   mergeData(
