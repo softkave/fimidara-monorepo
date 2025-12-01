@@ -13,5 +13,16 @@ export const uploadFileJoiSchema = Joi.object<UploadFileEndpointParams>()
     encoding: fileValidationSchemas.encoding.allow(null),
     clientMultipartId: fileValidationSchemas.clientMultipartId,
     part: fileValidationSchemas.part,
+    append: Joi.boolean().optional(),
+    onAppendCreateIfNotExists: Joi.boolean().optional().default(false),
+  })
+  .custom((value, helpers) => {
+    // Append cannot be used with multipart uploads
+    if (value.append === true && value.clientMultipartId) {
+      return helpers.error('any.invalid', {
+        message: 'Append operation cannot be used with multipart uploads',
+      });
+    }
+    return value;
   })
   .required();

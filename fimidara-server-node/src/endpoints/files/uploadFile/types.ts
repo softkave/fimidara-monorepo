@@ -19,6 +19,8 @@ export interface UploadFileEndpointParams extends FileMatcher {
   size: number;
   part?: number;
   clientMultipartId?: string;
+  append?: boolean;
+  onAppendCreateIfNotExists?: boolean;
 }
 
 export interface UploadFileEndpointResult {
@@ -48,6 +50,7 @@ export interface IPrepareFileQueueInput
     'filepath' | 'clientMultipartId' | 'fileId'
   > {
   workspaceId: string;
+  shouldCreate?: boolean; // defaults to true
 }
 
 export type IPrepareFileQueueOutput = FileWithRuntimeData;

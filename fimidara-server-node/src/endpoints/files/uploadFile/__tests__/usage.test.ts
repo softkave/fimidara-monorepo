@@ -23,6 +23,7 @@ import {completeTests} from '../../../testHelpers/helpers/testFns.js';
 import {initTests} from '../../../testHelpers/utils.js';
 import {getStringCostForUsage} from '../../../usageRecords/constants.js';
 import {getUsageRecordReportingPeriod} from '../../../usageRecords/utils.js';
+import {stringifyFilenamepath} from '../../utils.js';
 import {simpleRunUpload} from '../testutils/testUploadFns.js';
 import {UploadFileEndpointParams} from '../types.js';
 
@@ -310,3 +311,172 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
     });
   }
 );
+
+describe('usage.uploadFile append mode', () => {
+  // Append mode only works with non-multipart uploads
+  test('append mode: storage usage only increments by appended size (does not decrement old size)', async () => {
+    const {adminUserToken: userToken, workspace} = await getTestSessionAgent(
+      kFimidaraResourceType.User,
+      {
+        permissions: {
+          actions: [kFimidaraPermissionActions.readFile],
+        },
+      }
+    );
+
+    // Upload initial file (non-multipart)
+    const {dbFile: initialFile, dataBuffer: initialBuffer} =
+      await simpleRunUpload(false, {
+        userToken,
+        workspace,
+      });
+
+    assert.ok(initialBuffer);
+    const initialSize = initialBuffer.byteLength;
+
+    // Wait for usage to be committed
+    await waitTimeout(kUsageCommitIntervalMs * 2);
+
+    // Get initial storage usage
+    const initialStorageUsageL2 = await getUsageL2(
+      workspace.resourceId,
+      kUsageRecordCategory.storage
+    );
+    assert.ok(initialStorageUsageL2);
+    const initialStorageUsage = initialStorageUsageL2.usage;
+
+    // Append to the file (non-multipart)
+    const {dbFile: appendedFile, dataBuffer: appendBuffer} =
+      await simpleRunUpload(false, {
+        userToken,
+        workspace,
+        fileInput: {
+          filepath: stringifyFilenamepath(initialFile, workspace.rootname),
+          append: true,
+          onAppendCreateIfNotExists: false,
+        },
+      });
+
+    assert.ok(appendBuffer);
+    const appendSize = appendBuffer.byteLength;
+    const expectedFinalSize = initialSize + appendSize;
+
+    // Verify file size is sum of initial and appended
+    expect(appendedFile.size).toBe(expectedFinalSize);
+
+    // Wait for usage to be committed
+    await waitTimeout(kUsageCommitIntervalMs * 2);
+
+    // Get final storage usage
+    const finalStorageUsageL2 = await getUsageL2(
+      workspace.resourceId,
+      kUsageRecordCategory.storage
+    );
+    assert.ok(finalStorageUsageL2);
+
+    // For append: storage usage should only increase by appended size
+    // (not decrement old size first, then increment new size)
+    const storageUsageIncrease =
+      finalStorageUsageL2.usage - initialStorageUsage;
+    expect(storageUsageIncrease).toBe(appendSize);
+
+    // Verify storage usage equals the final file size
+    expect(finalStorageUsageL2.usage).toBe(expectedFinalSize);
+    expect(finalStorageUsageL2.usageCost.toFixed(2)).toBe(
+      getStringCostForUsage(kUsageRecordCategory.storage, expectedFinalSize)
+    );
+  });
+
+  test('append mode: bandwidth and storageEverConsumed increment normally', async () => {
+    const {adminUserToken: userToken, workspace} = await getTestSessionAgent(
+      kFimidaraResourceType.User,
+      {
+        permissions: {
+          actions: [kFimidaraPermissionActions.readFile],
+        },
+      }
+    );
+
+    // Upload initial file (non-multipart)
+    const {dbFile: initialFile, dataBuffer: initialBuffer} =
+      await simpleRunUpload(false, {
+        userToken,
+        workspace,
+      });
+
+    assert.ok(initialBuffer);
+    const initialSize = initialBuffer.byteLength;
+
+    // Wait for usage to be committed
+    await waitTimeout(kUsageCommitIntervalMs * 2);
+
+    // Get initial usage
+    const [initialBandwidthUsageL2, initialStorageEverConsumedUsageL2] =
+      await Promise.all([
+        getUsageL2(workspace.resourceId, kUsageRecordCategory.bandwidthIn),
+        getUsageL2(
+          workspace.resourceId,
+          kUsageRecordCategory.storageEverConsumed
+        ),
+      ]);
+
+    assert.ok(initialBandwidthUsageL2);
+    assert.ok(initialStorageEverConsumedUsageL2);
+    const initialBandwidthUsage = initialBandwidthUsageL2.usage;
+    const initialStorageEverConsumedUsage =
+      initialStorageEverConsumedUsageL2.usage;
+
+    // Append to the file (non-multipart)
+    const {dataBuffer: appendBuffer} = await simpleRunUpload(false, {
+      userToken,
+      workspace,
+      fileInput: {
+        filepath: stringifyFilenamepath(initialFile, workspace.rootname),
+        append: true,
+        onAppendCreateIfNotExists: false,
+      },
+    });
+
+    assert.ok(appendBuffer);
+    const appendSize = appendBuffer.byteLength;
+
+    // Wait for usage to be committed
+    await waitTimeout(kUsageCommitIntervalMs * 2);
+
+    // Get final usage
+    const [finalBandwidthUsageL2, finalStorageEverConsumedUsageL2] =
+      await Promise.all([
+        getUsageL2(workspace.resourceId, kUsageRecordCategory.bandwidthIn),
+        getUsageL2(
+          workspace.resourceId,
+          kUsageRecordCategory.storageEverConsumed
+        ),
+      ]);
+
+    assert.ok(finalBandwidthUsageL2);
+    assert.ok(finalStorageEverConsumedUsageL2);
+
+    // Bandwidth and storageEverConsumed should increment by appended size
+    // (same as regular upload)
+    expect(finalBandwidthUsageL2.usage - initialBandwidthUsage).toBe(
+      appendSize
+    );
+    expect(
+      finalStorageEverConsumedUsageL2.usage - initialStorageEverConsumedUsage
+    ).toBe(appendSize);
+
+    // Verify costs
+    expect(finalBandwidthUsageL2.usageCost.toFixed(2)).toBe(
+      getStringCostForUsage(
+        kUsageRecordCategory.bandwidthIn,
+        initialSize + appendSize
+      )
+    );
+    expect(finalStorageEverConsumedUsageL2.usageCost.toFixed(2)).toBe(
+      getStringCostForUsage(
+        kUsageRecordCategory.storageEverConsumed,
+        initialSize + appendSize
+      )
+    );
+  });
+});
