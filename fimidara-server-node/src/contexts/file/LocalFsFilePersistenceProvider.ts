@@ -8,6 +8,8 @@ import {noopAsync, pathJoin} from '../../utils/fns.js';
 import {AnyFn} from '../../utils/types.js';
 import {kIjxUtils} from '../ijx/injectables.js';
 import {
+  FilePersistenceAppendFileParams,
+  FilePersistenceAppendFileResult,
   FilePersistenceCleanupMultipartUploadParams,
   FilePersistenceCompleteMultipartUploadParams,
   FilePersistenceCompleteMultipartUploadResult,
@@ -65,6 +67,7 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
       case 'describeFolderContent':
       case 'readFile':
       case 'uploadFile':
+      case 'appendFile':
         return true;
     }
   };
@@ -92,6 +95,19 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
       await this.writeStreamToFile(nativePath, params);
       return {filepath, raw: undefined};
     }
+  };
+
+  appendFile = async (
+    params: FilePersistenceAppendFileParams
+  ): Promise<FilePersistenceAppendFileResult> => {
+    const {mount, filepath} = params;
+    const {nativePath} = this.toNativePath({
+      fimidaraPath: filepath,
+      mount: mount,
+    });
+
+    await this.appendStreamToFile(nativePath, params);
+    return {filepath, raw: undefined};
   };
 
   async completeMultipartUpload(
@@ -407,6 +423,23 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
       writeStream.on('close', resolve);
       writeStream.on('error', reject);
       params.body.pipe(writeStream);
+    });
+  }
+
+  protected async appendStreamToFile(
+    nativePath: string,
+    params: Pick<FilePersistenceAppendFileParams, 'body'>
+  ) {
+    await fse.ensureFile(nativePath);
+    return new Promise<void>((resolve, reject) => {
+      const appendStream = fse.createWriteStream(nativePath, {
+        flags: 'a', // append mode
+        autoClose: true,
+        emitClose: true,
+      });
+      appendStream.on('close', resolve);
+      appendStream.on('error', reject);
+      params.body.pipe(appendStream);
     });
   }
 

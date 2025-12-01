@@ -20,7 +20,12 @@ import {
 import {expectFileBodyEqual} from '../../../endpoints/testHelpers/helpers/file.js';
 import {completeTests} from '../../../endpoints/testHelpers/helpers/testFns.js';
 import {initTests} from '../../../endpoints/testHelpers/utils.js';
-import {loopAndCollate, pathJoin, pathSplit, streamToBuffer} from '../../../utils/fns.js';
+import {
+  loopAndCollate,
+  pathJoin,
+  pathSplit,
+  streamToBuffer,
+} from '../../../utils/fns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
 import {kIjxUtils} from '../../ijx/injectables.js';
 import {LocalFsFilePersistenceProvider} from '../LocalFsFilePersistenceProvider.js';
@@ -848,5 +853,142 @@ describe('LocalFsFilePersistenceProvider', () => {
       sortStringListLexicographically(childrenFolderpaths)
     );
     expect(resultFilepaths).not.toEqual(childrenDepth02Filepaths);
+  });
+
+  test('appendFile', async () => {
+    assert.ok(testDir);
+    assert.ok(testPartsDir);
+    const filepath = generateTestFilepathString({length: 3});
+    const initialBuffer = Buffer.from('Hello ');
+    const appendBuffer = Buffer.from('world!');
+    const initialData = Readable.from(initialBuffer);
+    const appendData = Readable.from(appendBuffer);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+
+    const backend = new LocalFsFilePersistenceProvider({
+      dir: testDir,
+      partsDir: testPartsDir,
+    });
+    // First upload the initial file
+    await backend.uploadFile({
+      mount,
+      workspaceId,
+      filepath,
+      body: initialData,
+      fileId,
+    });
+
+    // Then append to it
+    await backend.appendFile({
+      mount,
+      workspaceId,
+      filepath,
+      body: appendData,
+      fileId,
+    });
+
+    const {nativePath} = backend.toNativePath({mount, fimidaraPath: filepath});
+    const savedBuffer = await fse.readFile(nativePath);
+    const expectedBuffer = Buffer.concat([initialBuffer, appendBuffer]);
+    await expectFileBodyEqual(expectedBuffer, savedBuffer);
+  });
+
+  test('appendFile when file does not exist', async () => {
+    assert.ok(testDir);
+    assert.ok(testPartsDir);
+    const filepath = generateTestFilepathString({length: 3});
+    const appendBuffer = Buffer.from('Hello world!');
+    const appendData = Readable.from(appendBuffer);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+
+    const backend = new LocalFsFilePersistenceProvider({
+      dir: testDir,
+      partsDir: testPartsDir,
+    });
+    // Append to non-existent file (should create it)
+    await backend.appendFile({
+      mount,
+      workspaceId,
+      filepath,
+      body: appendData,
+      fileId,
+    });
+
+    const {nativePath} = backend.toNativePath({mount, fimidaraPath: filepath});
+    const savedBuffer = await fse.readFile(nativePath);
+    await expectFileBodyEqual(appendBuffer, savedBuffer);
+  });
+
+  test('appendFile multiple times', async () => {
+    assert.ok(testDir);
+    assert.ok(testPartsDir);
+    const filepath = generateTestFilepathString({length: 3});
+    const initialBuffer = Buffer.from('Hello');
+    const appendBuffer1 = Buffer.from(' ');
+    const appendBuffer2 = Buffer.from('world!');
+    const initialData = Readable.from(initialBuffer);
+    const appendData1 = Readable.from(appendBuffer1);
+    const appendData2 = Readable.from(appendBuffer2);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+
+    const backend = new LocalFsFilePersistenceProvider({
+      dir: testDir,
+      partsDir: testPartsDir,
+    });
+    // First upload the initial file
+    await backend.uploadFile({
+      mount,
+      workspaceId,
+      filepath,
+      body: initialData,
+      fileId,
+    });
+
+    // Append multiple times
+    await backend.appendFile({
+      mount,
+      workspaceId,
+      filepath,
+      body: appendData1,
+      fileId,
+    });
+    await backend.appendFile({
+      mount,
+      workspaceId,
+      filepath,
+      body: appendData2,
+      fileId,
+    });
+
+    const {nativePath} = backend.toNativePath({mount, fimidaraPath: filepath});
+    const savedBuffer = await fse.readFile(nativePath);
+    const expectedBuffer = Buffer.concat([
+      initialBuffer,
+      appendBuffer1,
+      appendBuffer2,
+    ]);
+    await expectFileBodyEqual(expectedBuffer, savedBuffer);
+  });
+
+  test('supportsFeature appendFile', () => {
+    assert.ok(testDir);
+    assert.ok(testPartsDir);
+    const backend = new LocalFsFilePersistenceProvider({
+      dir: testDir,
+      partsDir: testPartsDir,
+    });
+    expect(backend.supportsFeature('appendFile')).toBe(true);
   });
 });
