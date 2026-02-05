@@ -1,5 +1,5 @@
 import {Logger} from 'softkave-js-utils';
-import {fimidxConsoleLogger, fimidxLogger} from 'softkave-node-utils/common';
+import {fimidxConsoleLogger, fimidxLogger} from '../../utils/logger/index.js';
 import {kIjxUtils} from '../ijx/injectables.js';
 
 export class ConsoleLogger implements Logger {

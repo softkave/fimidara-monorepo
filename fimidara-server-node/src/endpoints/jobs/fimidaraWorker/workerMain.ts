@@ -1,5 +1,5 @@
-import {fimidxConsoleLogger} from 'softkave-node-utils/common';
 import {isMainThread} from 'worker_threads';
+import {fimidxConsoleLogger} from '../../../utils/logger/index.js';
 import {FimidaraWorker} from './FimidaraWorker.js';
 
 async function main() {
