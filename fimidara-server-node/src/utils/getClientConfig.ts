@@ -1,29 +1,22 @@
-import assert from 'assert';
+import {z} from 'zod';
+
+const fimidxProjectId = process.env.NEXT_PUBLIC_FIMIDX_LOGGER_PROJECT_ID;
+const fimidxClientToken = process.env.NEXT_PUBLIC_FIMIDX_LOGGER_CLIENT_TOKEN;
+const fimidxLoggerEnabled = process.env.NEXT_PUBLIC_FIMIDX_LOGGER_ENABLED;
+const fimidxServerUrl = process.env.NEXT_PUBLIC_FIMIDX_LOGGER_SERVER_URL;
+
+const clientConfigSchema = z.object({
+  fimidxProjectId: z.string(),
+  fimidxClientToken: z.string(),
+  fimidxLoggerEnabled: z.boolean().default(false),
+  fimidxServerUrl: z.string().url().optional(),
+});
 
 export const getClientConfig = () => {
-  const publicURL = process.env.NEXT_PUBLIC_URL;
-  const fimidxAppId = process.env.NEXT_PUBLIC_FIMIDX_LOGGER_PROJECT_ID;
-  const fimidxClientToken = process.env.NEXT_PUBLIC_FIMIDX_LOGGER_CLIENT_TOKEN;
-  const fimidxServerUrl = process.env.NEXT_PUBLIC_FIMIDX_LOGGER_SERVER_URL;
-  const nodeEnv = process.env.NEXT_PUBLIC_APP_ENV;
-  const fimidxLoggerEnabled =
-    process.env.NEXT_PUBLIC_FIMIDX_LOGGER_ENABLED === 'true';
-
-  // assert.ok(publicURL, 'NEXT_PUBLIC_URL is not set');
-  assert.ok(fimidxAppId, 'NEXT_PUBLIC_FIMIDX_LOGGER_PROJECT_ID is not set');
-  assert.ok(
+  return clientConfigSchema.parse({
+    fimidxProjectId,
     fimidxClientToken,
-    'NEXT_PUBLIC_FIMIDX_LOGGER_CLIENT_TOKEN is not set'
-  );
-  // assert.ok(fimidxServerUrl, "NEXT_PUBLIC_FIMIDX_LOGGER_SERVER_URL is not set");
-  assert.ok(nodeEnv, 'NEXT_PUBLIC_APP_ENV is not set');
-
-  return {
-    publicURL,
-    fimidxAppId,
-    fimidxClientToken,
+    fimidxLoggerEnabled: fimidxLoggerEnabled === 'true',
     fimidxServerUrl,
-    nodeEnv,
-    fimidxLoggerEnabled,
-  };
+  });
 };

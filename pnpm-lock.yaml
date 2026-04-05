@@ -410,8 +410,8 @@ importers:
         specifier: ^8.3.0
         version: 8.5.1
       fimidx:
-        specifier: ^0.5.0
-        version: 0.5.0(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0)
+        specifier: ^0.7.0
+        version: 0.7.0(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0)
       fs-extra:
         specifier: ^11.1.0
         version: 11.3.0
@@ -462,7 +462,7 @@ importers:
         version: 0.14.0(assert@2.1.0)(lodash-es@4.17.21)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0)
       softkave-node-utils:
         specifier: ^0.5.0
-        version: 0.5.0(@types/jsonwebtoken@9.0.10)(@types/lodash-es@4.17.12)(@types/node@22.15.34)(fimidx@0.5.0(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0))(jsonwebtoken@9.0.2)(lodash-es@4.17.21)(mongoose@8.15.1)(next@15.5.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(softkave-js-utils@0.14.0(assert@2.1.0)(lodash-es@4.17.21)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0))(typescript@5.8.3)(zod@3.25.67)
+        version: 0.5.0(@types/jsonwebtoken@9.0.10)(@types/lodash-es@4.17.12)(@types/node@22.15.34)(fimidx@0.7.0(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0))(jsonwebtoken@9.0.2)(lodash-es@4.17.21)(mongoose@8.15.1)(next@15.5.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(softkave-js-utils@0.14.0(assert@2.1.0)(lodash-es@4.17.21)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0))(typescript@5.8.3)(zod@3.25.67)
       stripe:
         specifier: ^8.222.0
         version: 8.222.0
@@ -481,6 +481,9 @@ importers:
       winston-daily-rotate-file:
         specifier: ^4.7.1
         version: 4.7.1(winston@3.17.0)
+      zod:
+        specifier: ^3.25.67
+        version: 3.25.67
       zx:
         specifier: ^7.2.3
         version: 7.2.4
@@ -4726,10 +4729,6 @@ packages:
     resolution: {integrity: sha512-JmMHuEQuloDOKqIYd4zf2n1pLVzOzNoOEMT3K4uCTiCrtAn8qhRkG4i+pe2pLVuJrPEPK3LUA1uS6p9XuBuI6Q==}
     engines: {node: '>=13'}
     hasBin: true
-
-  fimidx@0.5.0:
-    resolution: {integrity: sha512-GPQDpwaUuowHjvXeeQ8uOzssvc0j4PjinNYQBcsQihQufglOnOY9EoMSQDfh6vLvYu+f1R3r6PLNPQSIp0KEcQ==}
-    engines: {node: '>=13'}
 
   fimidx@0.7.0:
     resolution: {integrity: sha512-2yAy77LqGdhvwNIuyJpnJj0W8Cpg6bQ11xJCzvksONrsIeRo6BXMO1QHpyH1u9ZBYNRWI5TsslfV0nW1qgqCyA==}
@@ -12113,7 +12112,7 @@ snapshots:
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
       eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1)
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.57.1)
       eslint-plugin-react: 7.37.5(eslint@8.57.1)
       eslint-plugin-react-hooks: 5.0.0-canary-7118f5dd7-20230705(eslint@8.57.1)
@@ -12151,7 +12150,7 @@ snapshots:
       tinyglobby: 0.2.14
       unrs-resolver: 1.9.2
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -12184,7 +12183,7 @@ snapshots:
       eslint-utils: 2.1.0
       regexpp: 3.2.0
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
@@ -12721,18 +12720,6 @@ snapshots:
     transitivePeerDependencies:
       - debug
       - nanoid
-
-  fimidx@0.5.0(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0):
-    dependencies:
-      lodash-es: 4.17.21
-      mfdoc-js-sdk-base: 0.3.3(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0)
-      softkave-js-utils: 0.17.0(assert@2.1.0)(lodash-es@4.17.21)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0)
-    transitivePeerDependencies:
-      - assert
-      - debug
-      - nanoid
-      - path-browserify
-      - type-fest
 
   fimidx@0.7.0(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0):
     dependencies:
@@ -15259,13 +15246,13 @@ snapshots:
       uuid: 13.0.0
       zod: 3.25.67
 
-  softkave-node-utils@0.5.0(@types/jsonwebtoken@9.0.10)(@types/lodash-es@4.17.12)(@types/node@22.15.34)(fimidx@0.5.0(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0))(jsonwebtoken@9.0.2)(lodash-es@4.17.21)(mongoose@8.15.1)(next@15.5.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(softkave-js-utils@0.14.0(assert@2.1.0)(lodash-es@4.17.21)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0))(typescript@5.8.3)(zod@3.25.67):
+  softkave-node-utils@0.5.0(@types/jsonwebtoken@9.0.10)(@types/lodash-es@4.17.12)(@types/node@22.15.34)(fimidx@0.7.0(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0))(jsonwebtoken@9.0.2)(lodash-es@4.17.21)(mongoose@8.15.1)(next@15.5.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(softkave-js-utils@0.14.0(assert@2.1.0)(lodash-es@4.17.21)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0))(typescript@5.8.3)(zod@3.25.67):
     dependencies:
       '@types/jsonwebtoken': 9.0.10
       '@types/lodash-es': 4.17.12
       '@types/node': 22.15.34
       assert: 2.1.0
-      fimidx: 0.5.0(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0)
+      fimidx: 0.7.0(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0)
       jsonwebtoken: 9.0.2
       lodash-es: 4.17.21
       mongoose: 8.15.1

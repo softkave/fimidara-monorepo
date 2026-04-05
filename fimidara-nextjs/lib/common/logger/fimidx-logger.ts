@@ -1,5 +1,5 @@
 import { FimidxLogger } from "fimidx";
-import { getClientConfig } from "../getClientConfig.js";
+import { getClientConfig } from "../getClientConfig.ts";
 
 const { fimidxProjectId, fimidxClientToken, fimidxServerUrl } =
   getClientConfig();

@@ -1,3 +1,3 @@
-export * from './fimidx-auth-logger.js';
-export * from './fimidx-console-logger.js';
-export * from './fimidx-logger.js';
+export * from "./fimidx-auth-logger.ts";
+export * from "./fimidx-console-logger.ts";
+export * from "./fimidx-logger.ts";

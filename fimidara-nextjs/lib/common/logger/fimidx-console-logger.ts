@@ -1,8 +1,8 @@
-import {FimidxConsoleLikeLogger} from 'fimidx';
-import {getClientConfig} from '../getClientConfig.js';
-import {fimidxLogger} from './fimidx-logger.js';
+import { FimidxConsoleLikeLogger } from "fimidx";
+import { getClientConfig } from "../getClientConfig.ts";
+import { fimidxLogger } from "./fimidx-logger.ts";
 
-const {fimidxLoggerEnabled} = getClientConfig();
+const { fimidxLoggerEnabled } = getClientConfig();
 
 export const fimidxConsoleLogger = new FimidxConsoleLikeLogger({
   fimidxLogger: fimidxLogger,
