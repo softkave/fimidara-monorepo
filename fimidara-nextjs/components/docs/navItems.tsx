@@ -1,8 +1,8 @@
+import { fimidxConsoleLogger } from "@/lib/common/logger/fimidx-console-logger.ts";
 import { kAppDocPaths } from "@/lib/definitions/paths/docs.ts";
 import assert from "assert";
 import { first } from "lodash-es";
 import { MfdocEndpointsTableOfContent } from "mfdoc/endpointInfo.d.ts";
-import { fimidxConsoleLogger } from "softkave-node-utils/common";
 import { ValueOf } from "type-fest";
 import restApiTableOfContent from "../../../fimidara-mfdoc-out/public-endpoints/table-of-content.json";
 import { IRawNavItem } from "../utils/page/side-nav/types.ts";

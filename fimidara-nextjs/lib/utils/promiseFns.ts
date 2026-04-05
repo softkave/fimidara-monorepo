@@ -1,4 +1,4 @@
-import { fimidxConsoleLogger } from "softkave-node-utils/common";
+import { fimidxConsoleLogger } from "../common/logger";
 import { ServerError } from "./errors";
 import { cast } from "./fns";
 import OperationError from "./OperationError";

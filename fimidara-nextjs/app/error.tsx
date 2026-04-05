@@ -1,8 +1,8 @@
 "use client"; // Error components must be Client Components
 
 import { OwnError } from "@/lib/common/error.ts";
+import { fimidxConsoleLogger } from "@/lib/common/logger";
 import { useEffect } from "react";
-import { fimidxConsoleLogger } from "softkave-node-utils/common";
 
 export default function Error({
   error,

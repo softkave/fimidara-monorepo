@@ -2,6 +2,7 @@
 
 import { toast } from "@/hooks/use-toast.ts";
 import { callRmCookieEndpoint } from "@/lib/api/account/rm-cookie.ts";
+import { fimidxConsoleLogger } from "@/lib/common/logger/fimidx-console-logger.ts";
 import { kAppAccountPaths } from "@/lib/definitions/paths/account.ts";
 import { kDefaultRedirectingQueryKey } from "@/lib/definitions/paths/root.ts";
 import { useLogout } from "@/lib/hooks/session/useLogout.ts";
@@ -11,7 +12,6 @@ import { isNil } from "lodash-es";
 import { signOut } from "next-auth/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ReactElement, useEffect, useRef } from "react";
-import { fimidxConsoleLogger } from "softkave-node-utils/common";
 import { useStateHistory } from "./useStateHistory.tsx";
 
 const defaultOnRedirecting = (): ReactElement => <></>;

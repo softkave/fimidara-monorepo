@@ -1,4 +1,4 @@
-# Fimidara Server Node – Setup Guide
+# fimidara Server Node – Setup Guide
 
 ## Environment & Configuration
 

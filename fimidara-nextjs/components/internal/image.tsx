@@ -1,10 +1,10 @@
 import { useToast } from "@/hooks/use-toast.ts";
+import { fimidxConsoleLogger } from "@/lib/common/logger/fimidx-console-logger.ts";
 import { useRequest } from "ahooks";
 import assert from "assert";
 import { getFimidaraReadFileURL } from "fimidara";
 import { first } from "lodash-es";
 import React from "react";
-import { fimidxConsoleLogger } from "softkave-node-utils/common";
 import { getPublicFimidaraEndpointsUsingUserToken } from "../../lib/api/fimidaraEndpoints";
 import { systemConstants } from "../../lib/definitions/system";
 import { useKvStore } from "../../lib/hooks/kvStore";

@@ -99,7 +99,7 @@ export interface IMultipartUploadParams
     UploadFileEndpointParams,
     'description' | 'encoding' | 'mimetype' | 'fileId' | 'filepath'
   > {
-  /** Fimidara API endpoints instance */
+  /** fimidara API endpoints instance */
   endpoints: FimidaraEndpoints;
   /** Unique identifier for this multipart upload session */
   clientMultipartId: string;

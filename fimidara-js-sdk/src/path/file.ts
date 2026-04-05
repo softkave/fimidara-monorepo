@@ -81,7 +81,7 @@ import {fimidaraAddRootnameToPath} from './fimidaraAddRootnameToPath.js';
 // >;
 
 /**
- * Configuration for generating Fimidara file read URLs
+ * Configuration for generating fimidara file read URLs
  */
 export type GetFimidaraReadFileURLProps = {
   /** Filepath including workspace rootname OR file presigned path. */
@@ -160,7 +160,7 @@ function getFilepath(props: {
 }
 
 /**
- * Generates a URL for reading/downloading a file from Fimidara
+ * Generates a URL for reading/downloading a file from fimidara
  * @param props - Configuration for the file read URL
  * @returns The complete URL for reading the file
  * @example
@@ -197,7 +197,7 @@ export function getFimidaraReadFileURL(props: GetFimidaraReadFileURLProps) {
 }
 
 /**
- * Generates a URL for uploading a file to Fimidara
+ * Generates a URL for uploading a file to fimidara
  * @param props - Configuration for the file upload URL
  * @returns The complete URL for uploading the file
  * @example

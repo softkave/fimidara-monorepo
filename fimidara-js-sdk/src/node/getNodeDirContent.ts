@@ -5,7 +5,7 @@ import type {FimidaraDiffExternalFile} from '../diff/types.js';
 import {nodeFileToExternalFile} from './nodeFileToExternalFile.js';
 
 /**
- * Retrieves directory content and converts files to Fimidara external file format.
+ * Retrieves directory content and converts files to fimidara external file format.
  *
  * @param props - Configuration object
  * @param props.folderpath - Path to the directory to scan

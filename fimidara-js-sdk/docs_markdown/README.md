@@ -1,6 +1,6 @@
 **fimidara**
 
-***
+---
 
 # fimidara
 
@@ -306,8 +306,8 @@ fimidara sync [options]
 | `--direction`    | `-d`  | Sync direction: `up`, `down`, or `both`                          | Yes      | -                          |
 | `--recursive`    | `-r`  | Include folder children content (not just files)                 | No       | `true`                     |
 | `--matchTree`    | `-m`  | Match folder tree one-to-one (deletes files not found in source) | No       | `false`                    |
-| `--authToken`    | `-t`  | Fimidara auth token                                              | No       | -                          |
-| `--serverURL`    | `-u`  | Fimidara server URL                                              | No       | `https://api.fimidara.com` |
+| `--authToken`    | `-t`  | fimidara auth token                                              | No       | -                          |
+| `--serverURL`    | `-u`  | fimidara server URL                                              | No       | `https://api.fimidara.com` |
 | `--silent`       | `-s`  | Do not print logs                                                | No       | `false`                    |
 
 <br></br>

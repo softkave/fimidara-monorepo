@@ -18,11 +18,11 @@ function isExistingDirContent(
 }
 
 /**
- * Compares local Node.js filesystem content with Fimidara files to identify differences
+ * Compares local Node.js filesystem content with fimidara files to identify differences
  * @template TFimidaraFile - Type extending FimidaraFile with required properties
- * @param props - Configuration object containing folder path and Fimidara files
+ * @param props - Configuration object containing folder path and fimidara files
  * @param props.folderpath - Local filesystem path to compare
- * @param props.fimidaraFiles - Array or record of Fimidara files to compare against
+ * @param props.fimidaraFiles - Array or record of fimidara files to compare against
  * @param props.externalFilesRecord - Optional pre-fetched external files record
  * @param props.fileStatsRecord - Optional pre-fetched file stats record
  * @param props.folderStatsRecord - Optional pre-fetched folder stats record

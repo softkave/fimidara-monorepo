@@ -1,8 +1,8 @@
 import { callSetCookieEndpoint } from "@/lib/api/account/index.ts";
 import { getPrivateFimidaraEndpoints } from "@/lib/api/fimidaraEndpoints.ts";
+import { fimidxConsoleLogger } from "@/lib/common/logger/fimidx-console-logger.ts";
 import { kUserSessionStorageFns } from "@/lib/storage/UserSessionStorageFns.ts";
 import { LoginResult, RefreshUserToken } from "fimidara-private-js-sdk";
-import { fimidxConsoleLogger } from "softkave-node-utils/common";
 import { FetchSingleResourceData, FetchState } from "../fetchHooks/types.ts";
 import {
   UserSessionFetchStoreOther,

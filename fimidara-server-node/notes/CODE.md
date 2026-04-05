@@ -1,4 +1,4 @@
-# Fimidara Server Node – Code Structure
+# fimidara Server Node – Code Structure
 
 ## Overview
 

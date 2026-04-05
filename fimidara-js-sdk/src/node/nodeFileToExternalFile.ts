@@ -5,7 +5,7 @@ import path from 'path-browserify';
 import type {FimidaraDiffExternalFile} from '../diff/types.js';
 
 /**
- * Converts a Node.js file or directory to a Fimidara external file representation.
+ * Converts a Node.js file or directory to a fimidara external file representation.
  *
  * @param props - Configuration object containing either a dirent or filepath
  * @param props.dirent - Optional Node.js Dirent object with parentPath and name

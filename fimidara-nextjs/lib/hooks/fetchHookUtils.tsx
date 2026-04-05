@@ -2,7 +2,7 @@
 
 import { uniq } from "lodash-es";
 import React from "react";
-import { fimidxConsoleLogger } from "softkave-node-utils/common";
+import { fimidxConsoleLogger } from "../common/logger/fimidx-console-logger.ts";
 import { systemConstants } from "../definitions/system";
 import { toAppErrorList } from "../utils/errors";
 import { calculatePageSize } from "../utils/fns";

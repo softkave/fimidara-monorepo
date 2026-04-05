@@ -3,13 +3,13 @@
 import HttpEndpointDoc from "@/components/docs/HttpEndpointDoc";
 import { kDocNavRootKeysList } from "@/components/docs/navItems.tsx";
 import PageNothingFound from "@/components/utils/page/PageNothingFound";
+import { fimidxConsoleLogger } from "@/lib/common/logger";
 import { systemConstants } from "@/lib/definitions/system";
 import { promises } from "fs";
 import { last } from "lodash-es";
 import { MfdocHttpEndpointDefinitionTypePrimitive } from "mfdoc/mfdoc-core";
 import path from "path";
 import { use } from "react";
-import { fimidxConsoleLogger } from "softkave-node-utils/common";
 
 interface FimidaraRestApiEndpointDocPageProps {
   params: Promise<{ endpointPath: string }>;

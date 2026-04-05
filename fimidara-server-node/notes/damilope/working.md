@@ -22,8 +22,8 @@ The eventual goal is to move these to ChoreBuddy.
 - Fix file upload failures when updating existing files.
 - Add a web header to the error page.
 - Fix broken documentation pages.
-- Improve/speed up Fimidara sync.
-- Show percentage completion for Fimidara sync and upload APIs.
+- Improve/speed up fimidara sync.
+- Show percentage completion for fimidara sync and upload APIs.
 - Add timestamps to logs.
 - Ensure presigned single-use paths last for the duration of multipart uploads.
 - Investigate and resolve resource lock errors when only one consumer is present.

@@ -1,9 +1,9 @@
 import { AssertionError } from "assert";
 import { NextRequest } from "next/server";
 import { AnyFn, AnyObject } from "softkave-js-utils";
-import { fimidxConsoleLogger } from "softkave-node-utils/common";
 import { ZodError } from "zod";
 import { OwnError, OwnServerError } from "../common/error.ts";
+import { fimidxConsoleLogger } from "../common/logger/fimidx-console-logger.ts";
 
 export interface IRouteContext {
   params: Promise<AnyObject>;

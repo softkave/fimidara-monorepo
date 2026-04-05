@@ -1,5 +1,5 @@
 import { get } from "lodash-es";
-import { fimidxConsoleLogger } from "softkave-node-utils/common";
+import { fimidxConsoleLogger } from "../common/logger";
 
 function defaultIndexer(data: any, path: any) {
   if (path) {

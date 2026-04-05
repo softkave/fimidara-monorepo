@@ -4,21 +4,21 @@ import {
   InferMfdocFieldObjectType as InferFieldObjectType,
   mfdocConstruct,
 } from 'mfdoc';
-import {PublicAgentToken} from '../../definitions/agentToken.js';
+import { PublicAgentToken } from '../../definitions/agentToken.js';
 import {
   fReusables,
   mfdocEndpointHttpHeaderItems,
   mfdocEndpointHttpResponseItems,
 } from '../helpers.mfdoc.js';
-import {kEndpointTag} from '../types.js';
+import { kEndpointTag } from '../types.js';
 import {
   AddAgentTokenEndpointParams,
   AddAgentTokenEndpointResult,
   NewAgentTokenInput,
 } from './addToken/types.js';
-import {kAgentTokenConstants} from './constants.js';
-import {CountWorkspaceAgentTokensEndpointParams} from './countWorkspaceTokens/types.js';
-import {DeleteAgentTokenEndpointParams} from './deleteToken/types.js';
+import { kAgentTokenConstants } from './constants.js';
+import { CountWorkspaceAgentTokensEndpointParams } from './countWorkspaceTokens/types.js';
+import { DeleteAgentTokenEndpointParams } from './deleteToken/types.js';
 import {
   EncodeAgentTokenEndpointParams,
   EncodeAgentTokenEndpointResult,
@@ -463,7 +463,7 @@ export const addAgentTokenEndpointDefinition =
     tags: [kEndpointTag.public],
     name: 'fimidara/agentTokens/addToken',
     description:
-      'Create a new agent token for API authentication. Agent tokens allow external applications and services to authenticate with the Fimidara API.',
+      'Create a new agent token for API authentication. Agent tokens allow external applications and services to authenticate with the fimidara API.',
   });
 
 export const getAgentTokenEndpointDefinition =

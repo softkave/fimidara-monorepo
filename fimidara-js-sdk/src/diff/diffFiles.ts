@@ -5,12 +5,14 @@ import {stringifyFimidaraFilename} from '../path/index.js';
 import type {FimidaraDiffExternalFile} from './types.js';
 
 /**
- * Compares Fimidara files with external files to determine which files are new, updated, or unmodified.
+ * Compares fimidara files with external files to determine which files are new,
+ * updated, or unmodified.
  *
  * @param props - Configuration object containing file collections to compare
- * @param props.fimidaraFiles - Array or record of Fimidara files to compare
+ * @param props.fimidaraFiles - Array or record of fimidara files to compare
  * @param props.externalFiles - Array or record of external files to compare
- * @returns Object containing categorized files (new, updated, unmodified) for both Fimidara and external files
+ * @returns Object containing categorized files (new, updated, unmodified) for
+ * both fimidara and external files
  *
  * @example
  * ```typescript

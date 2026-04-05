@@ -2,8 +2,8 @@ import { toast } from "@/hooks/use-toast.ts";
 import { isArray, isFunction, isString } from "lodash-es";
 import { useCallback, useMemo } from "react";
 import { AnyFn, OrArray, convertToArray } from "softkave-js-utils";
-import { fimidxConsoleLogger } from "softkave-node-utils/common";
 import { Arguments, useSWRConfig } from "swr";
+import { fimidxConsoleLogger } from "../common/logger";
 
 export async function handleResponseError(res: Response) {
   if (res.status !== 200) {

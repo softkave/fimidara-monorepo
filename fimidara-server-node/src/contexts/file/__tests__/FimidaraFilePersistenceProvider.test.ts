@@ -953,13 +953,15 @@ describe.each(
   test('supportsFeature appendFile', () => {
     const {backend} = getTestMemoryInstance();
     const supportsAppend = backend.supportsFeature('appendFile');
-    // Memory provider supports appendFile, so Fimidara should too when using memory backend
+    // Memory provider supports appendFile, so fimidara should too when using
+    // memory backend
     if (provider === kFimidaraConfigFilePersistenceProvider.memory) {
       expect(supportsAppend).toBe(true);
     } else if (provider === kFimidaraConfigFilePersistenceProvider.fs) {
       expect(supportsAppend).toBe(true);
     }
-    // S3 is excluded from these tests, but if it were included, it should return false
+    // S3 is excluded from these tests, but if it were included, it should
+    // return false
   });
 });
 

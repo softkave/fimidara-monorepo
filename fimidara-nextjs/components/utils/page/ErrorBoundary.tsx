@@ -1,6 +1,6 @@
 import { cn } from "@/components/utils";
+import { fimidxConsoleLogger } from "@/lib/common/logger";
 import React from "react";
-import { fimidxConsoleLogger } from "softkave-node-utils/common";
 import PageError from "./PageError";
 
 export interface IErrorBoundaryProps {

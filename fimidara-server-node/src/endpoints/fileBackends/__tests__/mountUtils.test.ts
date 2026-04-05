@@ -119,7 +119,7 @@ describe('file backend mount utils', () => {
     );
   });
 
-  test.only('initBackendProvidersForMounts', async () => {
+  test('initBackendProvidersForMounts', async () => {
     await kIjxUtils.asyncLocalStorage().run(async () => {
       const {userToken} = await insertUserForTest();
       const {workspace} = await insertWorkspaceForTest(userToken);

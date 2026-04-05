@@ -90,7 +90,8 @@
     "type-fest": "^4.26.1",
     "uuid": "^11.0.5",
     "zod": "^3.23.8",
-    "zustand": "^4.5.4"
+    "zustand": "^4.5.4",
+    "fimidx": "^0.7.0"
   },
   "overrides": {
     "@radix-ui/react-dismissable-layer": "^1.1.4"
