@@ -136,11 +136,10 @@ export const kResourceTypeToPermittedActions: Record<
 > = {
   "*": { item: ["*"] },
   workspace: {
-    item: ["*", "updateWorkspace", "readWorkspace", "deleteWorkspace"],
+    item: ["updateWorkspace", "readWorkspace", "deleteWorkspace"],
   },
   collaborationRequest: {
     item: [
-      "*",
       "updateCollaborationRequest",
       "readCollaborationRequest",
       "revokeCollaborationRequest",
@@ -149,14 +148,18 @@ export const kResourceTypeToPermittedActions: Record<
     group: ["addCollaborator"],
   },
   agentToken: {
-    item: ["*", "updateAgentToken", "readAgentToken", "deleteAgentToken"],
+    item: [
+      "addAgentToken",
+      "updateAgentToken",
+      "readAgentToken",
+      "deleteAgentToken",
+    ],
     group: ["addAgentToken"],
   },
-  permissionGroup: { item: ["*", "updatePermission", "readPermission"] },
-  permissionItem: { item: ["*", "updatePermission", "readPermission"] },
+  permissionGroup: { item: ["updatePermission", "readPermission"] },
+  permissionItem: { item: ["updatePermission", "readPermission"] },
   folder: {
     item: [
-      "*",
       "addFolder",
       "updateFolder",
       "transferFolder",
@@ -164,16 +167,15 @@ export const kResourceTypeToPermittedActions: Record<
       "deleteFolder",
     ],
   },
-  file: { item: ["*", "uploadFile", "transferFile", "readFile", "deleteFile"] },
-  user: { item: ["*", "removeCollaborator", "readCollaborator"] },
+  file: { item: ["uploadFile", "transferFile", "readFile", "deleteFile"] },
+  user: { item: ["removeCollaborator", "readCollaborator"] },
   tag: {
-    item: ["*", "updateTag", "readTag", "deleteTag", "assignTag"],
+    item: ["updateTag", "readTag", "deleteTag", "assignTag"],
     group: ["addTag"],
   },
-  usageRecord: { item: ["*", "readUsageRecord"] },
+  usageRecord: { item: ["readUsageRecord"] },
   fileBackendConfig: {
     item: [
-      "*",
       "updateFileBackendConfig",
       "readFileBackendConfig",
       "deleteFileBackendConfig",
@@ -182,7 +184,6 @@ export const kResourceTypeToPermittedActions: Record<
   },
   fileBackendMount: {
     item: [
-      "*",
       "updateFileBackendMount",
       "readFileBackendMount",
       "deleteFileBackendMount",
