@@ -17,15 +17,16 @@ export interface PermissionActionInfo extends PermissionMapItemInfo {
 }
 
 export interface PermissionActionProps {
-  permitted: PermissionActionInfo;
+  disabledReason?: React.ReactNode;
+  access: boolean;
   disabled?: boolean;
   label: string;
-  onChange: (permitted: PermissionMapItemInfo) => void;
+  onChange: (access: boolean) => void;
   info?: React.ReactNode;
 }
 
 const PermissionAction: React.FC<PermissionActionProps> = (props) => {
-  const { permitted, label, disabled, info, onChange } = props;
+  const { access, disabledReason, disabled, label, info, onChange } = props;
 
   return (
     <Label>
@@ -33,29 +34,27 @@ const PermissionAction: React.FC<PermissionActionProps> = (props) => {
         <div
           className={cn(
             "flex items-center flex-1",
-            permitted.disabled ? "text-secondary" : undefined
+            disabled ? "text-secondary" : undefined
           )}
         >
           <span className="line-clamp-1">{label}</span>
         </div>
         <div className="space-x-2 flex">
-          {(permitted.disabledReason || info) && (
+          {(disabledReason || info) && (
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
                   <QuestionCircleOutlined />
                 </TooltipTrigger>
-                <TooltipContent>
-                  {permitted.disabledReason || info}
-                </TooltipContent>
+                <TooltipContent>{disabledReason || info}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           )}
           <Switch
-            disabled={permitted.disabled || disabled}
-            checked={permitted.access}
+            disabled={disabled}
+            checked={access}
             onCheckedChange={(value) => {
-              onChange({ ...permitted, access: value });
+              onChange(value);
             }}
           />
         </div>

@@ -168,18 +168,19 @@ function TargetGrantPermissionFormEntityList<T extends { resourceId: string }>(
   const handleChange = React.useCallback(
     (
       entity: T,
-      action: FimidaraPermissionAction,
-      permitted: PermissionMapItemInfo
+      entries: PermissionMapItemInfo | Array<PermissionMapItemInfo>
     ) => {
-      const key = resolvedPermissionToKey({
-        action,
-        entityId: entity.resourceId,
-      });
+      const entriesArray = Array.isArray(entries) ? entries : [entries];
       const updated: ResolvedPermissionsMap = {
         ...updatedPermissionsMap,
       };
-
-      set(updated, key, permitted);
+      entriesArray.forEach((entry) => {
+        const key = resolvedPermissionToKey({
+          action: entry.action,
+          entityId: entity.resourceId,
+        });
+        set(updated, key, entry);
+      });
       setUpdatedPermissionsMap(updated);
       onChange(updated, rpMap);
     },

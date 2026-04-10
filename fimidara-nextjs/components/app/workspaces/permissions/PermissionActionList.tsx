@@ -2,8 +2,7 @@
 
 import ItemList from "@/components/utils/list/ItemList";
 import { kActionLabel } from "@/lib/definitions/system";
-import { FimidaraPermissionAction } from "fimidara";
-import React from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import PermissionAction from "./PermissionAction";
 import { PermissionMapItemInfo } from "./types";
 
@@ -11,26 +10,76 @@ export interface PermissionActionListProps {
   disabled?: boolean;
   items: PermissionMapItemInfo[];
   onChange: (
-    action: FimidaraPermissionAction,
-    permitted: PermissionMapItemInfo
+    entries: PermissionMapItemInfo | Array<PermissionMapItemInfo>
   ) => void;
+  includeToggleAll?: boolean;
 }
 
 const PermissionActionList: React.FC<PermissionActionListProps> = (props) => {
-  const { disabled, onChange, items } = props;
+  const { disabled, onChange, items, includeToggleAll = true } = props;
+
+  const [toggleAllAccess, setToggleAllAccess] = useState(false);
+
+  const managedItems = useMemo(() => {
+    const itemsWithLabel = items.map((item) => {
+      return {
+        ...item,
+        label: kActionLabel[item.action],
+      };
+    });
+    return includeToggleAll
+      ? ["toggleAll" as const, ...itemsWithLabel]
+      : itemsWithLabel;
+  }, [items, includeToggleAll]);
+
+  const handleToggleAllChange = useCallback(
+    (access: boolean) => {
+      setToggleAllAccess(access);
+      const entries = items.map((item) => {
+        return {
+          action: item.action,
+          entityId: item.entityId,
+          access,
+        };
+      });
+      onChange(entries);
+    },
+    [items, onChange]
+  );
 
   return (
     <ItemList
       bordered
-      items={items}
+      items={managedItems}
       space="sm"
       renderItem={(p) => {
+        if (p === "toggleAll") {
+          return (
+            <PermissionAction
+              label="Toggle All"
+              access={toggleAllAccess}
+              disabled={disabled}
+              onChange={handleToggleAllChange}
+            />
+          );
+        }
+
         return (
           <PermissionAction
-            label={kActionLabel[p.action]}
-            permitted={p}
+            label={p.label}
+            access={p.access}
             disabled={disabled}
-            onChange={(change) => onChange(p.action, change)}
+            onChange={(change) => {
+              if (change === false && toggleAllAccess) {
+                handleToggleAllChange(false);
+              }
+
+              onChange({
+                action: p.action,
+                entityId: p.entityId,
+                access: change,
+              });
+            }}
           />
         );
       }}

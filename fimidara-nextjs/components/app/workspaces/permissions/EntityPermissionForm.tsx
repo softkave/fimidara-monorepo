@@ -13,8 +13,7 @@ export interface EntityPermissionFormProps<T extends { resourceId: string }> {
   everyAction: FimidaraPermissionAction[];
   onChange(
     entity: T,
-    action: FimidaraPermissionAction,
-    permitted: PermissionMapItemInfo
+    entries: PermissionMapItemInfo | Array<PermissionMapItemInfo>
   ): void;
 }
 
@@ -25,8 +24,9 @@ function EntityPermissionForm<T extends { resourceId: string }>(
     props;
 
   const handleChange = React.useCallback(
-    (action: FimidaraPermissionAction, permitted: PermissionMapItemInfo) => {
-      onChange(entity, action, permitted);
+    (entries: PermissionMapItemInfo | Array<PermissionMapItemInfo>) => {
+      const entriesArray = Array.isArray(entries) ? entries : [entries];
+      onChange(entity, entriesArray);
     },
     [entity, onChange]
   );
@@ -72,6 +72,7 @@ function EntityPermissionForm<T extends { resourceId: string }>(
 
   return (
     <PermissionActionList
+      includeToggleAll
       disabled={disabled}
       items={pList}
       onChange={handleChange}
