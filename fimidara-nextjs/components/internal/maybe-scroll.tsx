@@ -2,7 +2,7 @@
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import { ScrollArea } from "../ui/scroll-area";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 
 export function MaybeScroll({
   children,
@@ -15,8 +15,9 @@ export function MaybeScroll({
   return isMobile ? (
     <div className={cn("h-full overflow-y-auto", className)}>{children}</div>
   ) : (
-    <ScrollArea className={cn("h-[calc(100vh)]", className)}>
+    <ScrollArea className={className}>
       {children}
+      <ScrollBar orientation="horizontal" />
     </ScrollArea>
   );
 }

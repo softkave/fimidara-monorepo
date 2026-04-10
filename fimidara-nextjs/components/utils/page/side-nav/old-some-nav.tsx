@@ -25,7 +25,7 @@ export function SomeNav(props: ISomeNavProps) {
 
     let menuItemContentNode = (
       <div
-        className="space-x-2 flex items-center flex-1"
+        className="gap-x-2 grid grid-cols-[auto_1fr] items-center"
         onClick={() => someBehaviour.handleSelect(item)}
       >
         {item.icon && (
@@ -33,25 +33,24 @@ export function SomeNav(props: ISomeNavProps) {
             {item.icon}
           </span>
         )}
-        <span className="inline-flex items-center justify-start h-8 flex-1">
+        <div className="text-ellipsis overflow-hidden whitespace-nowrap">
           {item.label}
-        </span>
+        </div>
       </div>
     );
 
     if (item.href) {
-      menuItemContentNode = (
-        <Link href={item.href} className="flex flex-1">
-          {menuItemContentNode}
-        </Link>
-      );
+      menuItemContentNode = <Link href={item.href}>{menuItemContentNode}</Link>;
     }
 
     return (
-      <div key={item.key} className="flex flex-col">
+      <div
+        key={item.key}
+        className="grid grid-rows-[auto_1fr] w-full md:w-[300px]"
+      >
         <div
           className={cn(
-            "space-x-2 flex flex-1 items-center py-1 px-4 hover:bg-gray-100",
+            "space-x-2 grid grid-cols-[auto_1fr] items-center py-1 px-4 hover:bg-gray-100",
             someBehaviour.checkIsSelected(item.key) && "bg-gray-100 font-bold"
           )}
         >
@@ -87,7 +86,7 @@ export function SomeNav(props: ISomeNavProps) {
   });
 
   return (
-    <div className={cn(className, "flex flex-col flex-1")} style={style}>
+    <div className={cn(className, "grid grid-rows-[auto_1fr]")} style={style}>
       {navNodes}
     </div>
   );

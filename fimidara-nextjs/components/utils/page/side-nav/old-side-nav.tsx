@@ -40,7 +40,7 @@ export function SideNav(props: ISideNavProps) {
     }
 
     return (
-      <div className="h-full grid grid-rows-[auto_1fr] gap-0 max-w-[300px] w-full border-r">
+      <div className="h-screen grid grid-rows-[auto_1fr] gap-0 w-[300px] border-r">
         <AppTitle
           className={cn(
             "py-4",
@@ -50,9 +50,7 @@ export function SideNav(props: ISideNavProps) {
             "sticky top-0 bg-white z-50"
           )}
         />
-        <div className="overflow-hidden">
-          <MaybeScroll className="h-full">{menuNode}</MaybeScroll>
-        </div>
+        <MaybeScroll className="w-full max-w-full">{menuNode}</MaybeScroll>
       </div>
     );
   } else {
