@@ -25,11 +25,11 @@ export function SomeNav(props: ISomeNavProps) {
 
     let menuItemContentNode = (
       <div
-        className="gap-x-2 grid grid-cols-[auto_1fr] items-center"
+        className="gap-x-4 grid grid-cols-[auto_1fr] items-center"
         onClick={() => someBehaviour.handleSelect(item)}
       >
         {item.icon && (
-          <span className="inline-flex items-center justify-center h-8">
+          <span className="inline-flex items-center justify-center size-4">
             {item.icon}
           </span>
         )}
