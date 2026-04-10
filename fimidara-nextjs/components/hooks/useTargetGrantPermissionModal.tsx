@@ -6,7 +6,8 @@ import TargetGrantPermissionForm from "../app/workspaces/permissions/TargetGrant
 export interface UseTargetGrantPermissionModalProps {
   workspaceId: string;
   targetId: string;
-  targetType: FimidaraResourceType;
+  actionTargetType: FimidaraResourceType;
+  actionType: "item" | "group" | "both";
 }
 
 export enum GrantPermissionKey {
@@ -16,7 +17,7 @@ export enum GrantPermissionKey {
 export default function useTargetGrantPermissionModal(
   props: UseTargetGrantPermissionModalProps
 ) {
-  const { workspaceId, targetId, targetType } = props;
+  const { workspaceId, targetId, actionTargetType, actionType } = props;
   const [visible, toggleHook] = useToggle();
 
   const node = React.useMemo(() => {
@@ -25,14 +26,22 @@ export default function useTargetGrantPermissionModal(
         <TargetGrantPermissionForm
           workspaceId={workspaceId}
           targetId={targetId}
-          targetType={targetType}
+          actionTargetType={actionTargetType}
           onClose={toggleHook.toggle}
+          actionType={actionType}
         />
       );
     } else {
       return null;
     }
-  }, [visible, targetId, targetType, workspaceId, toggleHook.toggle]);
+  }, [
+    visible,
+    targetId,
+    actionTargetType,
+    workspaceId,
+    toggleHook.toggle,
+    actionType,
+  ]);
 
   return { node, toggle: toggleHook.toggle };
 }

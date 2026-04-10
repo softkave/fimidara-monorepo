@@ -18,7 +18,8 @@ const RootFilesMenu: React.FC<IRootFilesMenuProps> = (props) => {
   const permissionsHook = useTargetGrantPermissionModal({
     workspaceId,
     targetId: workspaceId,
-    targetType: "workspace",
+    actionTargetType: "folder",
+    actionType: "group",
   });
 
   const onSelectMenuItem = (key: string) => {

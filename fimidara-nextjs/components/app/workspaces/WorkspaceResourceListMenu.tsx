@@ -21,8 +21,9 @@ const WorkspaceResourceListMenu: React.FC<WorkspaceResourceListMenuProps> = (
   const { workspaceId, targetType } = props;
   const permissionsHook = useTargetGrantPermissionModal({
     workspaceId,
-    targetType,
+    actionTargetType: targetType,
     targetId: workspaceId,
+    actionType: "group",
   });
 
   const onSelectMenuItem = (key: string) => {

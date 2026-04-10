@@ -145,19 +145,31 @@ export const kResourceTypeToPermittedActions: Record<
       "revokeCollaborationRequest",
       "deleteCollaborationRequest",
     ],
-    group: ["addCollaborator"],
+    group: [
+      "addCollaborator",
+      "updateCollaborationRequest",
+      "readCollaborationRequest",
+      "revokeCollaborationRequest",
+      "deleteCollaborationRequest",
+    ],
   },
   agentToken: {
-    item: [
+    item: ["updateAgentToken", "readAgentToken", "deleteAgentToken"],
+    group: [
       "addAgentToken",
       "updateAgentToken",
       "readAgentToken",
       "deleteAgentToken",
     ],
-    group: ["addAgentToken"],
   },
-  permissionGroup: { item: ["updatePermission", "readPermission"] },
-  permissionItem: { item: ["updatePermission", "readPermission"] },
+  permissionGroup: {
+    item: ["updatePermission", "readPermission"],
+    group: ["updatePermission", "readPermission"],
+  },
+  permissionItem: {
+    item: ["updatePermission", "readPermission"],
+    group: ["updatePermission", "readPermission"],
+  },
   folder: {
     item: [
       "addFolder",
@@ -166,21 +178,39 @@ export const kResourceTypeToPermittedActions: Record<
       "readFolder",
       "deleteFolder",
     ],
+    group: [
+      "addFolder",
+      "updateFolder",
+      "transferFolder",
+      "readFolder",
+      "deleteFolder",
+    ],
   },
-  file: { item: ["uploadFile", "transferFile", "readFile", "deleteFile"] },
-  user: { item: ["removeCollaborator", "readCollaborator"] },
+  file: {
+    item: ["uploadFile", "transferFile", "readFile", "deleteFile"],
+    group: ["uploadFile", "transferFile", "readFile", "deleteFile"],
+  },
+  user: {
+    item: ["removeCollaborator", "readCollaborator"],
+    group: ["removeCollaborator", "readCollaborator"],
+  },
   tag: {
     item: ["updateTag", "readTag", "deleteTag", "assignTag"],
-    group: ["addTag"],
+    group: ["addTag", "updateTag", "readTag", "deleteTag", "assignTag"],
   },
-  usageRecord: { item: ["readUsageRecord"] },
+  usageRecord: { item: ["readUsageRecord"], group: ["readUsageRecord"] },
   fileBackendConfig: {
     item: [
       "updateFileBackendConfig",
       "readFileBackendConfig",
       "deleteFileBackendConfig",
     ],
-    group: ["addFileBackendConfig"],
+    group: [
+      "addFileBackendConfig",
+      "updateFileBackendConfig",
+      "readFileBackendConfig",
+      "deleteFileBackendConfig",
+    ],
   },
   fileBackendMount: {
     item: [
@@ -188,7 +218,12 @@ export const kResourceTypeToPermittedActions: Record<
       "readFileBackendMount",
       "deleteFileBackendMount",
     ],
-    group: ["addFileBackendMount"],
+    group: [
+      "addFileBackendMount",
+      "updateFileBackendMount",
+      "readFileBackendMount",
+      "deleteFileBackendMount",
+    ],
   },
   system: { item: [] },
   public: { item: [] },

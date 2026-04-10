@@ -39,7 +39,7 @@ export interface TargetGrantPermissionFormEntityListProps<
   disabled?: boolean;
   workspaceId: string;
   targetId: string;
-  targetType: FimidaraResourceType;
+  actionTargetType: FimidaraResourceType;
   entities: Array<T>;
   defaultUpdatedPermissions?: ResolvedPermissionsMap;
   getInfoFromItem(item: T): TargetGrantPermissionFormEntityInfo;
@@ -47,6 +47,7 @@ export interface TargetGrantPermissionFormEntityListProps<
     updated: ResolvedPermissionsMap,
     original: ResolvedPermissionsMap
   ): void;
+  actionType: "item" | "group" | "both";
 }
 
 const separator = "#";
@@ -76,12 +77,21 @@ function resolveChildrenTypes(type: FimidaraResourceType) {
   return children;
 }
 
-function resolveActions(types: FimidaraResourceType[]) {
+function resolveActions(
+  types: FimidaraResourceType[],
+  actionType: "item" | "group" | "both"
+) {
   return uniq(
     flatten(
       types.map((type) => {
         const actions = kResourceTypeToPermittedActions[type];
-        return actions.item.concat(actions.group ?? []);
+        if (actionType === "item") {
+          return actions.item;
+        } else if (actionType === "group") {
+          return actions.group ?? [];
+        } else {
+          return actions.item.concat(actions.group ?? []);
+        }
       })
     )
   );
@@ -94,16 +104,17 @@ function TargetGrantPermissionFormEntityList<T extends { resourceId: string }>(
     disabled,
     workspaceId,
     targetId,
-    targetType,
+    actionTargetType,
     entities,
     defaultUpdatedPermissions,
     getInfoFromItem,
     onChange,
+    actionType,
   } = props;
 
   const types = React.useMemo(
-    () => resolveChildrenTypes(targetType),
-    [targetType]
+    () => resolveChildrenTypes(actionTargetType),
+    [actionTargetType]
   );
 
   const everyAction = React.useMemo(
@@ -112,9 +123,18 @@ function TargetGrantPermissionFormEntityList<T extends { resourceId: string }>(
   );
 
   const actions = React.useMemo(() => {
-    const itemActions = kResourceTypeToPermittedActions[targetType];
-    return uniq(itemActions.item.concat(resolveActions(types)));
-  }, [targetType, types]);
+    const itemActions = kResourceTypeToPermittedActions[actionTargetType];
+    const childrenActions = resolveActions(types, "both");
+    const compiledActions = uniq(
+      (actionType === "item"
+        ? itemActions.item
+        : actionType === "group"
+        ? itemActions.group ?? []
+        : itemActions.item.concat(itemActions.group ?? [])
+      ).concat(childrenActions)
+    );
+    return compiledActions;
+  }, [actionTargetType, types, actionType]);
 
   const params = React.useMemo((): ResolveEntityPermissionsEndpointParams => {
     return {
@@ -184,7 +204,7 @@ function TargetGrantPermissionFormEntityList<T extends { resourceId: string }>(
           return (
             <AccordionItem key={entity.resourceId} value={entity.resourceId}>
               <AccordionTrigger>
-                <p>{info.name}</p>
+                <p className="text-left">{info.name}</p>
               </AccordionTrigger>
               <AccordionContent>
                 <MaybeScroll className="h-full max-h-80 overflow-y-auto">

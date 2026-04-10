@@ -43,8 +43,9 @@ import { ResolvedPermissionsMap, TargetIdPermissions } from "./types";
 export interface TargetGrantPermissionFormProps {
   workspaceId: string;
   targetId: string;
-  targetType: FimidaraResourceType;
+  actionTargetType: FimidaraResourceType;
   onClose: () => void;
+  actionType: "item" | "group" | "both";
 }
 
 enum TabKey {
@@ -56,7 +57,8 @@ enum TabKey {
 const TargetGrantPermissionForm: FC<TargetGrantPermissionFormProps> = (
   props
 ) => {
-  const { workspaceId, targetId, targetType, onClose } = props;
+  const { workspaceId, targetId, actionTargetType, onClose, actionType } =
+    props;
   const { toast } = useToast();
 
   const [activeKey] = useState(TabKey.PermissionGroup);
@@ -106,15 +108,16 @@ const TargetGrantPermissionForm: FC<TargetGrantPermissionFormProps> = (
   const renderPermissionGroupList = (items: PermissionGroup[]) => {
     return (
       <TargetGrantPermissionFormEntityList
-        key={targetType}
+        key={actionTargetType}
         workspaceId={workspaceId}
         entities={items}
         targetId={targetId}
-        targetType={targetType}
+        actionTargetType={actionTargetType}
         disabled={loading}
         defaultUpdatedPermissions={targetPermissions.updated}
         getInfoFromItem={(item) => ({ name: item.name })}
         onChange={handleTargetPermissionsOnChange}
+        actionType={actionType}
       />
     );
   };
@@ -122,15 +125,16 @@ const TargetGrantPermissionForm: FC<TargetGrantPermissionFormProps> = (
   const renderAgentTokenList = (items: AgentToken[]) => {
     return (
       <TargetGrantPermissionFormEntityList
-        key={targetType}
+        key={actionTargetType}
         workspaceId={workspaceId}
         entities={items}
         targetId={targetId}
-        targetType={targetType}
+        actionTargetType={actionTargetType}
         disabled={loading}
         defaultUpdatedPermissions={targetPermissions.updated}
         getInfoFromItem={(item) => ({ name: item.name ?? item.resourceId })}
         onChange={handleTargetPermissionsOnChange}
+        actionType={actionType}
       />
     );
   };
@@ -138,17 +142,18 @@ const TargetGrantPermissionForm: FC<TargetGrantPermissionFormProps> = (
   const renderCollaboratorList = (items: Collaborator[]) => {
     return (
       <TargetGrantPermissionFormEntityList
-        key={targetType}
+        key={actionTargetType}
         workspaceId={workspaceId}
         entities={items}
         targetId={targetId}
-        targetType={targetType}
+        actionTargetType={actionTargetType}
         disabled={loading}
         defaultUpdatedPermissions={targetPermissions.updated}
         getInfoFromItem={(item) => ({
           name: item.firstName + " " + item.lastName,
         })}
         onChange={handleTargetPermissionsOnChange}
+        actionType={actionType}
       />
     );
   };

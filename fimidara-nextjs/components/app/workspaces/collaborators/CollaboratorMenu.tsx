@@ -28,7 +28,8 @@ const CollaboratorMenu: React.FC<CollaboratorMenuProps> = (props) => {
   const permissionsHook = useTargetGrantPermissionModal({
     workspaceId,
     targetId: collaborator.resourceId,
-    targetType: "user",
+    actionTargetType: "user",
+    actionType: "item",
   });
   const deleteHook = useWorkspaceCollaboratorDeleteMutationHook({
     onSuccess(data, params) {

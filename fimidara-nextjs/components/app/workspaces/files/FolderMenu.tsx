@@ -30,7 +30,8 @@ const FolderMenu: React.FC<FolderMenuProps> = (props) => {
   const permissionsHook = useTargetGrantPermissionModal({
     workspaceId: folder.workspaceId,
     targetId: folder.resourceId,
-    targetType: "folder",
+    actionTargetType: "folder",
+    actionType: "item",
   });
   const deleteHook = useWorkspaceFolderDeleteMutationHook({
     onSuccess(data, params) {

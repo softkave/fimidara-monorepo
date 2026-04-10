@@ -35,7 +35,8 @@ const FileMenu: FC<FileMenuProps> = (props) => {
   const permissionsHook = useTargetGrantPermissionModal({
     workspaceId: file.workspaceId,
     targetId: file.resourceId,
-    targetType: "file",
+    actionTargetType: "file",
+    actionType: "item",
   });
   const deleteHook = useWorkspaceFileDeleteMutationHook({
     onSuccess(data, params) {

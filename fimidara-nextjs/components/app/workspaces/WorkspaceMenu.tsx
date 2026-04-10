@@ -24,12 +24,13 @@ enum MenuKeys {
 }
 
 const WorkspaceMenu: FC<WorkspaceMenuProps> = (props) => {
-  const { workspace, includeDeleteMenuOption, onCompleteDelete } = props;
+  const { workspace } = props;
   const { toast } = useToast();
   const permissionsHook = useTargetGrantPermissionModal({
     workspaceId: workspace.workspaceId,
     targetId: workspace.resourceId,
-    targetType: "workspace",
+    actionTargetType: "workspace",
+    actionType: "item",
   });
 
   const onSelectMenuItem = (key: string) => {

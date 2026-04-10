@@ -28,7 +28,8 @@ const AgentTokenMenu: React.FC<AgentTokenMenuProps> = (props) => {
   const permissionsHook = useTargetGrantPermissionModal({
     workspaceId: token.workspaceId,
     targetId: token.resourceId,
-    targetType: "agentToken",
+    actionTargetType: "agentToken",
+    actionType: "item",
   });
   const deleteHook = useWorkspaceAgentTokenDeleteMutationHook({
     onSuccess(data, params) {

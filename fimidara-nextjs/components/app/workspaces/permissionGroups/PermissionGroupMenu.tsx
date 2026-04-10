@@ -42,7 +42,8 @@ const PermissionGroupMenu: React.FC<PermissionGroupMenuProps> = (props) => {
   const permissionsHook = useTargetGrantPermissionModal({
     workspaceId: permissionGroup.workspaceId,
     targetId: permissionGroup.resourceId,
-    targetType: "permissionGroup",
+    actionTargetType: "permissionGroup",
+    actionType: "item",
   });
 
   const deleteHook = useWorkspacePermissionGroupDeleteMutationHook({
