@@ -40,7 +40,7 @@ export function SideNav(props: ISideNavProps) {
     }
 
     return (
-      <div className="h-full grid grid-rows-[auto_1fr] gap-0 max-w-[350px] w-full">
+      <div className="h-full grid grid-rows-[auto_1fr] gap-0 max-w-[300px] w-full border-r">
         <AppTitle
           className={cn(
             "py-4",
