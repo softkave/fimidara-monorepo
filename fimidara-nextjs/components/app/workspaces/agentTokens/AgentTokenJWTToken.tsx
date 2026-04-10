@@ -46,7 +46,7 @@ export function AgentTokenJWTToken(props: IAgentTokenJWTTokenProps) {
       />
       <LabeledNode
         direction="vertical"
-        label="EncodedJWT Token"
+        label="Encoded JWT Token"
         node={
           <ObfuscateText
             text={token.jwtToken || ""}
