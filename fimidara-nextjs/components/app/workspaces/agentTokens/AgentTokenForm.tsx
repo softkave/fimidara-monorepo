@@ -401,7 +401,7 @@ export default function AgentTokenForm(props: IAgentTokenFormProps) {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className={cn("space-y-8", className)}
+        className={cn("space-y-4", className)}
       >
         <FormAlert error={mergedHook.error} />
         {nameNode}
@@ -410,7 +410,7 @@ export default function AgentTokenForm(props: IAgentTokenFormProps) {
         {expiresNode}
         {shouldRefreshNode}
         {shouldRefresh ? refreshDurationNode : null}
-        <div className="!mt-4">
+        <div className="!mt-8">
           <Button type="submit" loading={mergedHook.loading} className="w-full">
             {agentToken ? "Update Token" : "Create Token"}
           </Button>

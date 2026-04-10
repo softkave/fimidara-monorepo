@@ -154,14 +154,14 @@ export default function Login(props: ILoginProps) {
       <div className={cn(styles.formContentWrapper, "p-4")}>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <div className="mb-4">
-              <h2 className="text-xl">Login</h2>
-            </div>
+            <h2 className="text-xl">Login</h2>
             <FormAlert error={loginHook.error} />
-            {emailNode}
-            {passwordNode}
-            {rememberNode}
-            <div className="mt-4">
+            <div className="space-y-4">
+              {emailNode}
+              {passwordNode}
+              {rememberNode}
+            </div>
+            <div>
               <Button
                 type="submit"
                 loading={loginHook.loading}

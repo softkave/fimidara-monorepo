@@ -182,16 +182,16 @@ export default function Signup(props: ISignupProps) {
       <div className={cn(styles.formContentWrapper, "p-4")}>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <div className="mb-4">
-              <h2 className="text-xl">Signup</h2>
-            </div>
+            <h2 className="text-xl">Signup</h2>
             <FormAlert error={signupHook.error} />
-            {firstNameNode}
-            {lastNameNode}
-            {emailNode}
-            {passwordNode}
-            {consentNode}
-            <div className="mt-4">
+            <div className="space-y-4">
+              {firstNameNode}
+              {lastNameNode}
+              {emailNode}
+              {passwordNode}
+              {consentNode}
+            </div>
+            <div>
               <Button
                 type="submit"
                 loading={signupHook.loading}

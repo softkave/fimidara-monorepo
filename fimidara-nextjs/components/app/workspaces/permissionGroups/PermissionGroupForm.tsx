@@ -171,10 +171,12 @@ export default function PermissionGroupForm(props: IPermissionGroupFormProps) {
         className={cn("space-y-8", className)}
       >
         <FormAlert error={mergedHook.error} />
-        {nameNode}
-        {descriptionNode}
-        <div className="!mt-4">
-          <Button type="submit" loading={mergedHook.loading}>
+        <div className="space-y-4">
+          {nameNode}
+          {descriptionNode}
+        </div>
+        <div>
+          <Button type="submit" loading={mergedHook.loading} className="w-full">
             {permissionGroup
               ? "Update Permission Group"
               : "Create Permission Group"}

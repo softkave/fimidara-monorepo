@@ -169,11 +169,17 @@ export default function UserProfile(props: IUserProfileProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormAlert error={updateUserHook.error} />
-            {firstNameNode}
-            {lastNameNode}
-            {emailNode}
-            <div className="!mt-4">
-              <Button type="submit" loading={updateUserHook.loading}>
+            <div className="space-y-4">
+              {firstNameNode}
+              {lastNameNode}
+              {emailNode}
+            </div>
+            <div>
+              <Button
+                type="submit"
+                loading={updateUserHook.loading}
+                className="w-full"
+              >
                 Update Profile
               </Button>
             </div>

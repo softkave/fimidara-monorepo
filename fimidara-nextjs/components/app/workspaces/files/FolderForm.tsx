@@ -408,15 +408,17 @@ export default function FolderForm(props: FolderFormProps) {
       >
         <FormAlert error={hookError} />
         {parentPath && <p>{parentPath}/</p>}
-        {nameNode}
-        {descriptionNode}
-        {selectFolderNode}
-        {selectedFilesNode}
+        <div className="space-y-4">
+          {nameNode}
+          {descriptionNode}
+          {selectFolderNode}
+          {selectedFilesNode}
+        </div>
         <FilesFormUploadProgress
           identifiers={progressHandlerHook.identifiers}
         />
-        <div className="!mt-4">
-          <Button type="submit" loading={hookLoading}>
+        <div>
+          <Button type="submit" loading={hookLoading} className="w-full">
             Submit
           </Button>
         </div>

@@ -215,6 +215,7 @@ const TargetGrantPermissionForm: FC<TargetGrantPermissionFormProps> = (
                 loading={loading}
                 onClick={() => handleOnSave()}
                 type="button"
+                className="w-full"
               >
                 Save Permissions
               </Button>

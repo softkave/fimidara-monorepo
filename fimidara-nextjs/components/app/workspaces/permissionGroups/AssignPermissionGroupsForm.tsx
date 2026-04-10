@@ -149,9 +149,9 @@ export default function AssignPermissionGroupsForm(
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormAlert error={mergedHook.error} />
-        {permissionGroupsNode}
-        <div className="!mt-4">
-          <Button type="submit" loading={mergedHook.loading}>
+        <div className="space-y-4">{permissionGroupsNode}</div>
+        <div>
+          <Button type="submit" loading={mergedHook.loading} className="w-full">
             Update
           </Button>
         </div>

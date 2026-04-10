@@ -193,11 +193,13 @@ export default function RequestForm(props: IRequestFormProps) {
         className={cn("space-y-8", className)}
       >
         <FormAlert error={mergedHook.error} />
-        {recipientEmailNode}
-        {messageNode}
-        {expiresNode}
-        <div className="!mt-4">
-          <Button type="submit" loading={mergedHook.loading}>
+        <div className="space-y-4">
+          {recipientEmailNode}
+          {messageNode}
+          {expiresNode}
+        </div>
+        <div>
+          <Button type="submit" loading={mergedHook.loading} className="w-full">
             {request ? "Update Request" : "Create Request"}
           </Button>
         </div>

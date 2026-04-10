@@ -217,11 +217,13 @@ export default function WorkspaceForm(props: WorkspaceFormProps) {
         style={style}
       >
         <FormAlert error={stateHook.error} />
-        {nameNode}
-        {rootnameNode}
-        {descriptionNode}
-        <div className="!mt-4">
-          <Button type="submit" loading={stateHook.loading}>
+        <div className="space-y-4">
+          {nameNode}
+          {rootnameNode}
+          {descriptionNode}
+        </div>
+        <div>
+          <Button type="submit" loading={stateHook.loading} className="w-full">
             {workspace ? "Update Workspace" : "Create Workspace"}
           </Button>
         </div>
