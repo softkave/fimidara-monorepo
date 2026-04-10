@@ -33,12 +33,12 @@ const HttpEndpointDoc: React.FC<HttpEndpointDocProps> = (props) => {
       )}
     >
       <div>
-        <h5 className="inline-block" style={{ margin: 0 }}>
-          <code>{endpoint.path}</code>
+        <h5 className="inline-block m-0">
+          <code className="text-base">{endpoint.path}</code>
         </h5>{" "}
         {htmlCharacterCodes.doubleDash}{" "}
-        <h5 className="inline-block" style={{ margin: 0 }}>
-          <code>{endpoint.method}</code>
+        <h5 className="inline-block m-0">
+          <code className="text-base uppercase">{endpoint.method}</code>
         </h5>
       </div>
       <div className="space-y-4">
