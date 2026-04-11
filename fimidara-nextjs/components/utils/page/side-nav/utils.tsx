@@ -7,6 +7,7 @@ export function renderToSideNavItem(item: IRawNavItem): ISomeNavItem {
   return {
     ...itemRest,
     label: item.label,
+    tooltip: item.tooltip,
     children: item.children
       ? renderToSideNavMenuItemList(item.children)
       : undefined,

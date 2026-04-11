@@ -1,4 +1,5 @@
 import { cn } from "@/components/utils.ts";
+import { isString } from "lodash-es";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { StyleableComponentProps } from "../../styling/types.ts";
@@ -33,7 +34,12 @@ export function SomeNav(props: ISomeNavProps) {
             {item.icon}
           </span>
         )}
-        <div className="text-ellipsis overflow-hidden whitespace-nowrap">
+        <div
+          className="text-ellipsis overflow-hidden whitespace-nowrap text-base"
+          title={
+            item.tooltip || (isString(item.label) ? item.label : undefined)
+          }
+        >
           {item.label}
         </div>
       </div>

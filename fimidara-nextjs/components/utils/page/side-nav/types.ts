@@ -1,6 +1,7 @@
 export interface IRawNavItem {
   key: string;
   label: React.ReactNode;
+  tooltip?: string;
   icon?: React.ReactNode;
   children?: IRawNavItem[];
   href?: string;
@@ -8,6 +9,7 @@ export interface IRawNavItem {
 }
 
 export interface ISomeNavItem {
+  tooltip?: string;
   icon?: React.ReactNode;
   label?: React.ReactNode;
   href?: string;
