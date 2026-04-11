@@ -108,7 +108,7 @@ import {
 
 export class AgentTokensEndpoints extends AbstractSdkEndpoints {
   /**
-   * Create a new agent token for API authentication. Agent tokens allow external applications and services to authenticate with the Fimidara API.
+   * Create a new agent token for API authentication. Agent tokens allow external applications and services to authenticate with the fimidara API.
    */
   addToken = async (
     props?: AddAgentTokenEndpointParams,

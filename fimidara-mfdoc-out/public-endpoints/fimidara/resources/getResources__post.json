@@ -10,15 +10,15 @@
             "workspaceId": "wrkspce_000000000000000000000",
             "resources": [
                 {
-                    "action": "read",
-                    "filepath": "/documents/report.pdf"
+                    "action": "readFile",
+                    "filepath": "rootname/documents/report.pdf"
                 },
                 {
-                    "action": "read",
-                    "folderpath": "/images"
+                    "action": "readFolder",
+                    "folderpath": "rootname/images"
                 },
                 {
-                    "action": "write",
+                    "action": "uploadFile",
                     "resourceId": "file000_000000000000000000000"
                 }
             ]
@@ -44,8 +44,8 @@
                         "name": "FetchResourceItem",
                         "description": "Specifies how to fetch a specific resource. You can identify resources by ID, filepath, or folderpath, combined with the action you want to perform.",
                         "example": {
-                            "action": "read",
-                            "filepath": "/documents/report.pdf"
+                            "action": "readFile",
+                            "filepath": "rootname/documents/report.pdf"
                         },
                         "fields": {
                             "resourceId": {
@@ -125,7 +125,8 @@
                                     ],
                                     "enumName": "FimidaraPermissionAction"
                                 },
-                                "description": "The action to perform on the resource. Common actions include \"read\", \"write\", \"delete\", etc."
+                                "description": "The action to perform on the resource. Common actions include \"readFile\", \"uploadFile\", \"deleteFile\", etc.",
+                                "example": "readFile"
                             },
                             "filepath": {
                                 "__id": "FieldObjectField",

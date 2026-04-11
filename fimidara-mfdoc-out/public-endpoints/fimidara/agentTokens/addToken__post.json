@@ -397,7 +397,7 @@
         "public"
     ],
     "name": "fimidara/agentTokens/addToken",
-    "description": "Create a new agent token for API authentication. Agent tokens allow external applications and services to authenticate with the Fimidara API.",
+    "description": "Create a new agent token for API authentication. Agent tokens allow external applications and services to authenticate with the fimidara API.",
     "errorResponseHeaders": {
         "__id": "FieldObject",
         "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",

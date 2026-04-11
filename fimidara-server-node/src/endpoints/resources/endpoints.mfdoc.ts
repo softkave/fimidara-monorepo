@@ -4,6 +4,7 @@ import {
   InferMfdocFieldObjectType as InferFieldObjectType,
   mfdocConstruct,
 } from 'mfdoc';
+import {kFimidaraPermissionActions} from '../../definitions/permissionItem.js';
 import {
   kFimidaraResourceType,
   PublicResource,
@@ -25,8 +26,8 @@ const fetchResourceItemInput =
     description:
       'Specifies how to fetch a specific resource. You can identify resources by ID, filepath, or folderpath, combined with the action you want to perform.',
     example: {
-      action: 'read',
-      filepath: '/documents/report.pdf',
+      action: kFimidaraPermissionActions.readFile,
+      filepath: 'rootname/documents/report.pdf',
     },
     fields: {
       resourceId: mfdocConstruct.constructObjectField({
@@ -39,7 +40,8 @@ const fetchResourceItemInput =
         required: true,
         data: fReusables.action,
         description:
-          'The action to perform on the resource. Common actions include "read", "write", "delete", etc.',
+          'The action to perform on the resource. Common actions include "readFile", "uploadFile", "deleteFile", etc.',
+        example: kFimidaraPermissionActions.readFile,
       }),
       filepath: mfdocConstruct.constructObjectField({
         required: false,
@@ -71,15 +73,15 @@ const getResourcesParams =
       workspaceId: fReusables.makeResourceId(kFimidaraResourceType.Workspace),
       resources: [
         {
-          action: 'read',
-          filepath: '/documents/report.pdf',
+          action: kFimidaraPermissionActions.readFile,
+          filepath: 'rootname/documents/report.pdf',
         },
         {
-          action: 'read',
-          folderpath: '/images',
+          action: kFimidaraPermissionActions.readFolder,
+          folderpath: 'rootname/images',
         },
         {
-          action: 'write',
+          action: kFimidaraPermissionActions.uploadFile,
           resourceId: fReusables.makeResourceId(kFimidaraResourceType.File),
         },
       ],

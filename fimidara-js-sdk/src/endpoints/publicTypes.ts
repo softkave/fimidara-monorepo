@@ -1814,8 +1814,8 @@ export type GetPresignedPathsForFilesEndpointResult = {
  * @example
  * ```json
  * {
- *   "action": "read",
- *   "filepath": "/documents/report.pdf"
+ *   "action": "readFile",
+ *   "filepath": "rootname/documents/report.pdf"
  * }
  * ```
  */
@@ -1829,10 +1829,10 @@ export type FetchResourceItem = {
    */
   resourceId?: string | Array<string>;
   /**
-   * The action to perform on the resource. Common actions include "read", "write", "delete", etc.
+   * The action to perform on the resource. Common actions include "readFile", "uploadFile", "deleteFile", etc.
    * @example
    * ```
-   * uploadFile
+   * readFile
    * ```
    */
   action: FimidaraPermissionAction;
@@ -1869,15 +1869,15 @@ export type FetchResourceItem = {
  *   "workspaceId": "wrkspce_000000000000000000000",
  *   "resources": [
  *     {
- *       "action": "read",
- *       "filepath": "/documents/report.pdf"
+ *       "action": "readFile",
+ *       "filepath": "rootname/documents/report.pdf"
  *     },
  *     {
- *       "action": "read",
- *       "folderpath": "/images"
+ *       "action": "readFolder",
+ *       "folderpath": "rootname/images"
  *     },
  *     {
- *       "action": "write",
+ *       "action": "uploadFile",
  *       "resourceId": "file000_000000000000000000000"
  *     }
  *   ]
@@ -1899,8 +1899,8 @@ export type GetResourcesEndpointParams = {
    * ```json
    * [
    *   {
-   *     "action": "read",
-   *     "filepath": "/documents/report.pdf"
+   *     "action": "readFile",
+   *     "filepath": "rootname/documents/report.pdf"
    *   }
    * ]
    * ```
