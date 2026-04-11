@@ -47,7 +47,7 @@
     "@radix-ui/react-scroll-area": "^1.2.2",
     "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-separator": "^1.1.6",
-    "@radix-ui/react-slot": "^1.1.1",
+    "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-switch": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.0",
     "@radix-ui/react-toast": "^1.2.5",
@@ -65,6 +65,7 @@
     "drizzle-orm": "^0.36.2",
     "fimidara": "^1.37.0",
     "fimidara-private-js-sdk": "workspace:*",
+    "fimidx": "^0.7.0",
     "immer": "^10.0.3",
     "isomorphic-form-data": "^2.0.0",
     "lodash-es": "^4.17.21",
@@ -90,8 +91,7 @@
     "type-fest": "^4.26.1",
     "uuid": "^11.0.5",
     "zod": "^3.23.8",
-    "zustand": "^4.5.4",
-    "fimidx": "^0.7.0"
+    "zustand": "^4.5.4"
   },
   "overrides": {
     "@radix-ui/react-dismissable-layer": "^1.1.4"

@@ -1,7 +1,9 @@
 "use client";
 
+import { Folder } from "fimidara";
 import { uniq } from "lodash-es";
 import React from "react";
+import { getPublicFimidaraEndpointsUsingUserToken } from "../api/fimidaraEndpoints";
 import { fimidxConsoleLogger } from "../common/logger/fimidx-console-logger.ts";
 import { systemConstants } from "../definitions/system";
 import { toAppErrorList } from "../utils/errors";
@@ -17,6 +19,7 @@ import {
   GetFetchSingleResourceFetchFnOther,
 } from "./fetchHooks/types.ts";
 import { ResourceZustandStore } from "./makeResourceListStore";
+import { useWorkspaceFoldersStore } from "./resourceListStores";
 import { useHandleServerRecommendedActions } from "./useHandleServerRecommendedActions";
 
 /** Fetch hook defining general purpose fetch behaviour. */
@@ -520,4 +523,33 @@ export function useFetchArbitraryFetchState<T>(
   const isLoading = fetchState?.loading || !fetchState;
 
   return { isLoading, error, data: fetchState?.data };
+}
+
+/** Loads folders by ID into `useWorkspaceFoldersStore` when not already
+ * present. */
+export async function fetchWorkspaceFoldersIntoStoreByIds(
+  workspaceId: string,
+  folderIds: string[]
+) {
+  const store = useWorkspaceFoldersStore.getState();
+  const missing = uniq(folderIds.filter((id) => id && !store.get(id)));
+  if (!missing.length) {
+    return;
+  }
+
+  const endpoints = await getPublicFimidaraEndpointsUsingUserToken();
+  const { resources } = await endpoints.resources.getResources({
+    workspaceId,
+    resources: missing.map((resourceId) => ({
+      action: "readFolder" as const,
+      resourceId,
+    })),
+  });
+
+  for (const wrapper of resources) {
+    if (wrapper.resourceType === "folder" && wrapper.resource) {
+      const folder = wrapper.resource as Folder;
+      useWorkspaceFoldersStore.getState().set(folder.resourceId, folder);
+    }
+  }
 }

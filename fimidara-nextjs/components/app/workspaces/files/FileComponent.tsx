@@ -1,14 +1,12 @@
 import ComponentHeader from "@/components/utils/ComponentHeader";
 import LabeledNode from "@/components/utils/LabeledNode";
-import IconButton from "@/components/utils/buttons/IconButton.tsx";
 import { addRootnameToPath } from "@/lib/definitions/folder";
 import { kAppWorkspacePaths } from "@/lib/definitions/paths/workspace.ts";
 import { formatDateTime } from "@/lib/utils/dateFns";
 import { File } from "fimidara";
 import { useRouter } from "next/navigation";
-import { FiArrowLeft } from "react-icons/fi";
 import FileMenu from "./FileMenu";
-import FolderParentLink from "./FolderParentLink";
+import NamepathBreadcrumb from "./NamepathBreadcrumb";
 
 export interface FileComponentProps {
   file: File;
@@ -23,14 +21,7 @@ function FileComponent(props: FileComponentProps) {
   return (
     <div>
       <div className="space-y-8">
-        <ComponentHeader
-          title={file.name + extension}
-          prefixNode={
-            <FolderParentLink workspaceId={file.workspaceId} folder={file}>
-              <IconButton icon={<FiArrowLeft />} />
-            </FolderParentLink>
-          }
-        >
+        <ComponentHeader title={file.name + extension}>
           <FileMenu
             file={file}
             workspaceRootname={workspaceRootname}
@@ -43,6 +34,15 @@ function FileComponent(props: FileComponentProps) {
             }}
           />
         </ComponentHeader>
+        <NamepathBreadcrumb
+          workspaceId={file.workspaceId}
+          workspaceRootname={workspaceRootname}
+          namepath={file.namepath}
+          idPath={file.idPath}
+          resourceId={file.resourceId}
+          resourceKind="file"
+          className="mb-2"
+        />
         <LabeledNode
           nodeIsText
           copyable

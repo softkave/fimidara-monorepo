@@ -2,10 +2,11 @@
 
 import { useToast } from "@/hooks/use-toast.ts";
 import { usePathname } from "next/navigation";
+import { useCallback } from "react";
+import { isFimidaraEndpointError } from "../api/fimidaraEndpointUtils.ts";
 import { kAppAccountPaths } from "../definitions/paths/account.ts";
 import { kUserSessionStorageFns } from "../storage/UserSessionStorageFns.ts";
 import { useRequestLogout } from "./session/useRequestLogout.ts";
-import { isFimidaraEndpointError } from "../api/fimidaraEndpointUtils.ts";
 
 const kTimeout = 3_000; // 3 seconds
 const kMessageDuration = 10_000; // seconds
@@ -14,7 +15,7 @@ export function useHandleRequiresPasswordChange() {
   const { toast } = useToast();
   const { requestLogout } = useRequestLogout();
 
-  const handleRequiresPasswordChange = () => {
+  const handleRequiresPasswordChange = useCallback(() => {
     setTimeout(() => {
       toast({
         title: "Logged Out",
@@ -28,7 +29,7 @@ export function useHandleRequiresPasswordChange() {
       kUserSessionStorageFns.clearData();
       requestLogout(kAppAccountPaths.forgotPassword);
     }, kTimeout);
-  };
+  }, [requestLogout, toast]);
 
   return { handleRequiresPasswordChange };
 }
@@ -38,7 +39,7 @@ export function useHandleLoginAgain() {
   const { requestLogout } = useRequestLogout();
   const pathname = usePathname();
 
-  const handleLoginAgain = () => {
+  const handleLoginAgain = useCallback(() => {
     setTimeout(() => {
       toast({
         title: "Logged Out",
@@ -49,7 +50,7 @@ export function useHandleLoginAgain() {
       kUserSessionStorageFns.clearData();
       requestLogout(kAppAccountPaths.loginWithReturnPath(pathname));
     }, kTimeout);
-  };
+  }, [requestLogout, toast, pathname]);
 
   return { handleLoginAgain };
 }
@@ -58,20 +59,25 @@ export function useHandleServerRecommendedActions() {
   const { handleRequiresPasswordChange } = useHandleRequiresPasswordChange();
   const { handleLoginAgain } = useHandleLoginAgain();
 
-  const handleServerRecommendedActions = (error: unknown) => {
-    if (!isFimidaraEndpointError(error)) return;
+  const handleServerRecommendedActions = useCallback(
+    (error: unknown) => {
+      if (!isFimidaraEndpointError(error)) return;
 
-    const actions = error.errors.map((e) => e.action);
-    const hasLogout = actions.includes("logout");
-    const hasLoginAgain = actions.includes("loginAgain");
-    const hasRequestPasswordChange = actions.includes("requestChangePassword");
+      const actions = error.errors.map((e) => e.action);
+      const hasLogout = actions.includes("logout");
+      const hasLoginAgain = actions.includes("loginAgain");
+      const hasRequestPasswordChange = actions.includes(
+        "requestChangePassword"
+      );
 
-    if (hasLogout || hasLoginAgain) {
-      handleLoginAgain();
-    } else if (hasRequestPasswordChange) {
-      handleRequiresPasswordChange();
-    }
-  };
+      if (hasLogout || hasLoginAgain) {
+        handleLoginAgain();
+      } else if (hasRequestPasswordChange) {
+        handleRequiresPasswordChange();
+      }
+    },
+    [handleRequiresPasswordChange, handleLoginAgain]
+  );
 
   return { handleServerRecommendedActions };
 }

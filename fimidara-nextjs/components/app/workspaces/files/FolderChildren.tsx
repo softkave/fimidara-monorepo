@@ -20,7 +20,7 @@ import { ReactNode, useMemo } from "react";
 import AppFileList from "./AppFileList.tsx";
 import FileListContainerHeader from "./FileListContainerHeader";
 import FolderList from "./FolderList.tsx";
-import FolderParentLink from "./FolderParentLink";
+import NamepathBreadcrumb from "./NamepathBreadcrumb";
 
 export interface FolderChildrenProps extends StyleableComponentProps {
   folder?: Folder;
@@ -67,6 +67,7 @@ function FolderChildren(props: FolderChildrenProps) {
     () => (folder ? stringifyFimidaraFolderpath(folder) : undefined),
     [folder]
   );
+
   const fileFormHook = useFileForm({
     workspaceId,
     workspaceRootname,
@@ -158,9 +159,14 @@ function FolderChildren(props: FolderChildrenProps) {
         }}
       />
       <div className="space-y-4">
-        <FolderParentLink workspaceId={workspaceId} folder={folder}>
-          <span style={{ fontSize: "24px" }}>..</span>
-        </FolderParentLink>
+        <NamepathBreadcrumb
+          workspaceId={workspaceId}
+          workspaceRootname={workspaceRootname}
+          namepath={folder?.namepath}
+          idPath={folder?.idPath}
+          resourceId={folder?.resourceId ?? ""}
+          resourceKind="folder"
+        />
         {foldersNode}
         {filesNode}
       </div>
