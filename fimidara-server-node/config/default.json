@@ -72,5 +72,14 @@
   "interServerAuthSecret": "",
   "heartbeatIntervalMs": 300000,
   "activeAppHeartbeatDelayFactor": 3,
-  "serverId": "default"
+  "serverId": "default",
+  "fimidxProjectId": "",
+  "fimidxClientToken": "",
+  "fimidxServerUrl": "",
+  "fimidxLoggerEnabled": false,
+  "fimidxLoggerMetadata": {
+    "app": "",
+    "repo": "",
+    "version": ""
+  }
 }

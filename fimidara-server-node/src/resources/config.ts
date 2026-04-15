@@ -1,5 +1,5 @@
 import config from 'config';
-import {AnyObject, LoggerType} from 'softkave-js-utils';
+import {LoggerType} from 'softkave-js-utils';
 import {ValueOf} from 'type-fest';
 
 /** Added after the app initialization phase. */
@@ -56,6 +56,12 @@ export interface AWSConfig {
   accessKeyId: string;
   secretAccessKey: string;
   region: string;
+}
+
+export interface FimidxLoggerMetadata {
+  app: string;
+  version: string;
+  repo: string;
 }
 
 export type FimidaraSuppliedConfig = Partial<{
@@ -212,8 +218,12 @@ export type FimidaraSuppliedConfig = Partial<{
   // Internal server communication
   interServerAuthSecret: string;
 
-  // Logs metadata
-  loggerMetadata: AnyObject;
+  // Fimidx
+  fimidxProjectId: string;
+  fimidxClientToken: string;
+  fimidxLoggerEnabled: boolean;
+  fimidxServerUrl: string;
+  fimidxLoggerMetadata: FimidxLoggerMetadata;
 }>;
 
 export type FimidaraConfig = FimidaraSuppliedConfig & FimidaraRuntimeConfig;

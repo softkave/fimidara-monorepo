@@ -34,5 +34,13 @@
   "redisURL": "REDIS_URL",
   "redisDatabase": "REDIS_DATABASE",
   "resendApiKey": "RESEND_API_KEY",
-  "interServerAuthSecret": "INTER_SERVER_AUTH_SECRET"
+  "interServerAuthSecret": "INTER_SERVER_AUTH_SECRET",
+  "fimidxProjectId": "FIMIDX_PROJECT_ID",
+  "fimidxClientToken": "FIMIDX_CLIENT_TOKEN",
+  "fimidxServerUrl": "FIMIDX_SERVER_URL",
+  "fimidxLoggerMetadata": {
+    "app": "FIMIDX_LOGGER_METADATA_APP",
+    "repo": "FIMIDX_SYMBOLICATION_REPO",
+    "version": "FIMIDX_SYMBOLICATION_VERSION"
+  }
 }

@@ -36,7 +36,9 @@
     "gen:private:endpoints-info": "mfdoc gen-http-api-endpoints-info ./src/endpoints/endpoints.mfdoc.ts --output-path ../fimidara-mfdoc-out/private-endpoints --include-tags private --ignore-tags ignoreForEndpointsInfo",
     "gen:private:js-sdk": "mfdoc gen-js-sdk ./src/endpoints/endpoints.mfdoc.ts --output-path ../fimidara-private-js-sdk --include-tags private --filename-prefix private --ignore-tags ignoreForJsSdk",
     "setup:sdk-test:public": "npx env-cmd -f \".env.unit-test\" npx tsx src/tools/sdk-test-setup/index.ts",
-    "setup:sdk-test:private": "npx env-cmd -f \".env.unit-test\" npx tsx src/tools/sdk-test-setup/index.ts ../fimidara-private-js-sdk/.env.test"
+    "setup:sdk-test:private": "npx env-cmd -f \".env.unit-test\" npx tsx src/tools/sdk-test-setup/index.ts ../fimidara-private-js-sdk/.env.test",
+    "upload-source-maps": "npx --yes -- fimidx@latest source-maps upload --client-token \"$FIMIDX_SYMBOLICATION_AUTH_TOKEN\" --project-id \"$FIMIDX_PROJECT_ID\" --repo \"$FIMIDX_SYMBOLICATION_REPO\" --version \"$FIMIDX_SYMBOLICATION_VERSION\" --path build",
+    "delete-source-maps": "find build -name '*.map' -type f -delete"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.705.0",

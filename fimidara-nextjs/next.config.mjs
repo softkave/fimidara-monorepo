@@ -53,6 +53,14 @@ const baseNextConfig = {
     "rc-upload",
     "geist",
   ],
+  productionBrowserSourceMaps: true,
+  webpack: (config, { isServer, dev }) => {
+    // Only generate source maps for production builds
+    if (isServer && !dev) {
+      config.devtool = "source-map";
+    }
+    return config;
+  },
 };
 
 const nextConfig = withPlugins(

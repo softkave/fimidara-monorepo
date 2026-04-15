@@ -1,5 +1,5 @@
 import {isMainThread} from 'worker_threads';
-import {fimidxConsoleLogger} from '../../../utils/logger/index.js';
+import {fimidxConsoleLogger} from '../../../utils/logger/fimidxConsoleLogger.js';
 import {FimidaraWorker} from './FimidaraWorker.js';
 
 async function main() {
@@ -9,6 +9,9 @@ async function main() {
 
 if (!isMainThread) {
   main().catch(error => {
-    fimidxConsoleLogger.error(error);
+    fimidxConsoleLogger.error({
+      message: 'FimidaraWorker workerMain error',
+      reason: error,
+    });
   });
 }

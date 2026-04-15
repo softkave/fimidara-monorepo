@@ -5,10 +5,8 @@ import {
   CollaborationRequestForWorkspace,
   Collaborator,
   File,
-  FileBackendConfig,
   Folder,
   GetEntityAssignedPermissionGroupsParams,
-  GetFileBackendConfigsEndpointParams,
   GetUsageCostsEndpointResult,
   GetWorkspaceAgentTokensEndpointParams,
   GetWorkspaceCollaborationRequestsEndpointParams,
@@ -60,7 +58,6 @@ import {
   getCollaboratorStoreKey,
   useUserCollaborationRequestsStore,
   useWorkspaceAgentTokensStore,
-  useWorkspaceBackendConfigsStore,
   useWorkspaceCollaborationRequestsStore,
   useWorkspaceCollaboratorsStore,
   useWorkspaceFilesStore,
@@ -172,16 +169,16 @@ async function workspacePermissionGroupsInputFetchFn(
   return { count: count.count, resourceList: data.permissionGroups };
 }
 
-async function workspaceBackendConfigsInputFetchFn(
-  params: GetFileBackendConfigsEndpointParams
-): Promise<FetchPaginatedResourceListReturnedData<FileBackendConfig>> {
-  const endpoints = await getPublicFimidaraEndpointsUsingUserToken();
-  const data = await endpoints.fileBackends.getConfigs(params);
-  const count = await endpoints.permissionGroups.countWorkspacePermissionGroups(
-    omitPagination(params)
-  );
-  return { count: count.count, resourceList: data.configs };
-}
+// async function workspaceBackendConfigsInputFetchFn(
+//   params: GetFileBackendConfigsEndpointParams
+// ): Promise<FetchPaginatedResourceListReturnedData<FileBackendConfig>> {
+//   const endpoints = await getPublicFimidaraEndpointsUsingUserToken();
+//   const data = await endpoints.fileBackends.getConfigs(params);
+//   const count = await endpoints.permissionGroups.countWorkspacePermissionGroups(
+//     omitPagination(params)
+//   );
+//   return { count: count.count, resourceList: data.configs };
+// }
 
 async function workspaceUsageRecordsInputFetchFn(
   params: GetWorkspaceSummedUsageEndpointParams
@@ -389,15 +386,15 @@ export const {
   checkIsEqualOmittingPageAndPageSize
 );
 
-export const {
-  useFetchStore: useWorkspaceBackendConfigsFetchStore,
-  useFetchHook: useWorkspaceBackendConfigsFetchHook,
-} = makePaginatedFetchHookAndStore(
-  "backendConfigsFetch",
-  useWorkspaceBackendConfigsStore,
-  workspaceBackendConfigsInputFetchFn,
-  checkIsEqualOmittingPageAndPageSize
-);
+// export const {
+//   useFetchStore: useWorkspaceBackendConfigsFetchStore,
+//   useFetchHook: useWorkspaceBackendConfigsFetchHook,
+// } = makePaginatedFetchHookAndStore(
+//   "backendConfigsFetch",
+//   useWorkspaceBackendConfigsStore,
+//   workspaceBackendConfigsInputFetchFn,
+//   checkIsEqualOmittingPageAndPageSize
+// );
 
 export const {
   useFetchStore: useWorkspaceUsageRecordsFetchStore,

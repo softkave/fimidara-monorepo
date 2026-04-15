@@ -11,18 +11,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start:dev": "next dev -p $PORT",
     "start": "next start -p $PORT",
     "build": "next build",
-    "dev": "env-cmd -f \".env.development\" npm run start:dev",
-    "build:dev": "env-cmd -f \".env.development\" npm run build",
-    "dev:prod": "env-cmd -f \".env.production\" npm run start:dev",
-    "build:prod": "env-cmd -f \".env.production\" npm run build",
-    "start:prod": "env-cmd -f \".env.production\" npm run start",
+    "dev": "next dev",
     "lint": "next lint",
-    "db:generate": "env-cmd -f \".env.development\" npx drizzle-kit generate",
-    "db:migrate:dev": "env-cmd -f \".env.development\" npx drizzle-kit migrate",
-    "db:migrate:prod": "env-cmd -f \".env.production\" npx drizzle-kit migrate"
+    "db:generate": "npx --yes -- softkave-forerunner@latest run-env -- npx drizzle-kit generate",
+    "db:migrate": "npx --yes -- softkave-forerunner@latest run-env -- npx drizzle-kit migrate",
+    "upload-source-maps": "npx --yes -- fimidx@latest source-maps upload --client-token \"$FIMIDX_SYMBOLICATION_AUTH_TOKEN\" --project-id \"$NEXT_PUBLIC_FIMIDX_PROJECT_ID\" --repo \"$NEXT_PUBLIC_FIMIDX_SYMBOLICATION_REPO\" --version \"$NEXT_PUBLIC_FIMIDX_SYMBOLICATION_VERSION\" --path .next",
+    "delete-source-maps": "find .next -name '*.map' -type f -delete"
   },
   "dependencies": {
     "@ant-design/icons": "^5.3.3",
