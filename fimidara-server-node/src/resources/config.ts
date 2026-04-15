@@ -1,5 +1,5 @@
 import config from 'config';
-import {LoggerType} from 'softkave-js-utils';
+import {AnyObject, LoggerType} from 'softkave-js-utils';
 import {ValueOf} from 'type-fest';
 
 /** Added after the app initialization phase. */
@@ -217,6 +217,9 @@ export type FimidaraSuppliedConfig = Partial<{
 
   // Internal server communication
   interServerAuthSecret: string;
+
+  // Logging
+  loggerMetadata: AnyObject;
 
   // Fimidx
   fimidxProjectId: string;
