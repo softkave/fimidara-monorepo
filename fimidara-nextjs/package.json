@@ -17,7 +17,7 @@
     "lint": "next lint",
     "db:generate": "npx --yes -- softkave-forerunner@latest run-env -- npx drizzle-kit generate",
     "db:migrate": "npx --yes -- softkave-forerunner@latest run-env -- npx drizzle-kit migrate",
-    "upload-source-maps": "npx --yes -- fimidx@latest source-maps upload --client-token \"$FIMIDX_SYMBOLICATION_AUTH_TOKEN\" --project-id \"$NEXT_PUBLIC_FIMIDX_PROJECT_ID\" --repo \"$NEXT_PUBLIC_FIMIDX_SYMBOLICATION_REPO\" --version \"$NEXT_PUBLIC_FIMIDX_SYMBOLICATION_VERSION\" --path .next",
+    "upload-source-maps": "npx --yes -- fimidx@latest source-maps upload --client-token \"$FIMIDX_SYMBOLICATION_AUTH_TOKEN\" --project-id \"$NEXT_PUBLIC_FIMIDX_LOGGER_PROJECT_ID\" --repo \"$NEXT_PUBLIC_FIMIDX_SYMBOLICATION_REPO\" --version \"$NEXT_PUBLIC_FIMIDX_SYMBOLICATION_VERSION\" --path .next",
     "delete-source-maps": "find .next -name '*.map' -type f -delete"
   },
   "dependencies": {
