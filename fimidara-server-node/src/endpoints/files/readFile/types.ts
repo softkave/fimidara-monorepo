@@ -80,6 +80,8 @@ export type ReadFileEndpointParams = {
   imageFormat?: ImageFormatEnum;
   /** Used by HTTP layer to add `"Content-Disposition: attachment"` if `true` */
   download?: boolean;
+  /** Custom filename for `"Content-Disposition: attachment"` responses */
+  downloadName?: string;
   /** Array of byte ranges to request. For single range, array has one element.
    * For multipart ranges, array has multiple elements. */
   ranges?: Array<{start: number; end: number}>;
@@ -120,4 +122,5 @@ export type ReadFileEndpointHttpQuery = {
   withoutEnlargement?: boolean;
   format?: ImageFormatEnum;
   download?: boolean;
+  downloadName?: string;
 };

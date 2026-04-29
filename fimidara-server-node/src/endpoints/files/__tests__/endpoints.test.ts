@@ -176,6 +176,24 @@ describe('endpoints', () => {
       expect(result.download).toBe('true');
     });
 
+    test('extracts downloadName query parameter', () => {
+      const endpoints = getFilesHttpEndpoints();
+      const getDataFromReq = endpoints.readFile[0].getDataFromReq!;
+
+      const req = {
+        path: `/api/v1/files/readFile/workspace-rootname/file.txt`,
+        query: {
+          downloadName: 'my-download.txt',
+        },
+        headers: {},
+        body: {},
+      } as unknown as Request;
+
+      const result = getDataFromReq(req) as ReadFileEndpointParams;
+
+      expect(result.downloadName).toBe('my-download.txt');
+    });
+
     test('extracts image resize parameters from query', () => {
       const endpoints = getFilesHttpEndpoints();
       const getDataFromReq = endpoints.readFile[0].getDataFromReq!;
@@ -776,11 +794,45 @@ describe('endpoints', () => {
 
       expect(res.setHeader).toHaveBeenCalledWith(
         'Content-Disposition',
-        'attachment; filename="test.txt"'
+        `attachment; filename="test.txt"; filename*=UTF-8''test.txt`
       );
       expect(res.setHeader).toHaveBeenCalledWith(
         'Cross-Origin-Resource-Policy',
         'cross-origin'
+      );
+    });
+
+    test('uses downloadName when provided', async () => {
+      const endpoints = getFilesHttpEndpoints();
+      const handleResponse = endpoints.readFile[2].handleResponse!;
+
+      const res = {
+        setHeader: vi.fn(),
+        set: vi.fn().mockReturnThis(),
+        status: vi.fn().mockReturnThis(),
+        end: vi.fn(),
+      } as unknown as Response;
+
+      const result = {
+        contentLength: 1000,
+        mimetype: 'text/plain',
+        name: 'test',
+        ext: 'txt',
+        stream: Readable.from(['']),
+      };
+
+      const input: ReadFileEndpointParams = {
+        filepath: 'workspace-rootname/file.txt',
+        download: true,
+        downloadName: 'custom name',
+      };
+
+      await handleResponse(res, result, {} as Request, input);
+
+      // If no extension is provided, the endpoint appends the actual file extension.
+      expect(res.setHeader).toHaveBeenCalledWith(
+        'Content-Disposition',
+        `attachment; filename="custom name.txt"; filename*=UTF-8''custom%20name.txt`
       );
     });
 
@@ -810,7 +862,7 @@ describe('endpoints', () => {
 
       expect(res.setHeader).toHaveBeenCalledWith(
         'Content-Disposition',
-        'attachment; filename="test"'
+        `attachment; filename="test"; filename*=UTF-8''test`
       );
     });
   });
@@ -971,11 +1023,53 @@ describe('endpoints', () => {
 
       expect(res.setHeader).toHaveBeenCalledWith(
         'Content-Disposition',
-        'attachment; filename="test.txt"'
+        `attachment; filename="test.txt"; filename*=UTF-8''test.txt`
       );
       expect(res.setHeader).toHaveBeenCalledWith(
         'Cross-Origin-Resource-Policy',
         'cross-origin'
+      );
+    });
+
+    test('uses downloadName when provided', async () => {
+      const endpoints = getFilesHttpEndpoints();
+      const handleResponse = endpoints.readFile[0].handleResponse!;
+
+      const mockStream = Readable.from(['test data']);
+      const mockResponseStream = new PassThrough();
+      const res = {
+        setHeader: vi.fn(),
+        set: vi.fn().mockReturnThis(),
+        status: vi.fn().mockReturnThis(),
+        pipe: vi.fn(),
+        writable: true,
+        on: mockResponseStream.on.bind(mockResponseStream),
+        once: mockResponseStream.once.bind(mockResponseStream),
+        emit: mockResponseStream.emit.bind(mockResponseStream),
+        end: vi.fn(),
+        destroy: vi.fn(),
+      } as unknown as Response;
+
+      const result = {
+        contentLength: 1000,
+        mimetype: 'text/plain',
+        name: 'test',
+        ext: 'txt',
+        stream: mockStream,
+      };
+
+      const input: ReadFileEndpointParams = {
+        filepath: 'workspace-rootname/file.txt',
+        download: true,
+        downloadName: 'nested/path/custom.txt',
+      };
+
+      await handleResponse(res, result, {} as Request, input);
+
+      // If a path is supplied, only the basename is used.
+      expect(res.setHeader).toHaveBeenCalledWith(
+        'Content-Disposition',
+        `attachment; filename="custom.txt"; filename*=UTF-8''custom.txt`
       );
     });
   });

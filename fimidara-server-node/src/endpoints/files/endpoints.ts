@@ -96,6 +96,66 @@ const handleReadFileError: ExportedHttpEndpoint_HandleErrorFn = (
   return handleNotFoundError(res, processedErrors, caughtErrors);
 };
 
+function sanitizeContentDispositionFilename(name: string) {
+  return (
+    name
+      // Prevent response-splitting and header injection
+      .replace(/[\r\n]/g, '')
+      // Quote is a delimiter in filename="..."
+      .replace(/"/g, "'")
+      .trim()
+  );
+}
+
+function resolveDownloadFilename(
+  input: ReadFileEndpointParams,
+  result: Awaited<ReturnType<ReadFileEndpoint>>
+) {
+  const baseFromResult =
+    result.name +
+    (result.ext ? `${kFileConstants.nameExtSeparator}${result.ext}` : '');
+
+  const requested = input.downloadName?.trim();
+  if (!requested) return baseFromResult;
+
+  // Use the last path segment if the caller accidentally supplied a path.
+  const requestedBasename = requested.split(/[\\/]/).filter(Boolean).pop();
+  if (!requestedBasename) return baseFromResult;
+
+  if (!result.ext) return requestedBasename;
+
+  const normalizedExt = `.${result.ext}`;
+  if (requestedBasename.toLowerCase().endsWith(normalizedExt.toLowerCase())) {
+    return requestedBasename;
+  }
+
+  // If no extension provided, append the actual file extension.
+  return requestedBasename.includes('.')
+    ? requestedBasename
+    : `${requestedBasename}${normalizedExt}`;
+}
+
+function setDownloadHeaders(
+  res: Response,
+  input: ReadFileEndpointParams,
+  result: Awaited<ReturnType<ReadFileEndpoint>>
+) {
+  if (!input.download) return;
+
+  const filename = sanitizeContentDispositionFilename(
+    resolveDownloadFilename(input, result)
+  );
+
+  // Provide both a basic filename and an RFC 5987 filename* for better
+  // cross-browser UTF-8 support.
+  const encodedFilename = encodeURIComponent(filename);
+  res.setHeader(
+    'Content-Disposition',
+    `attachment; filename="${filename}"; filename*=UTF-8''${encodedFilename}`
+  );
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+}
+
 async function handleReadFileHEADResponse(
   res: Response,
   result: Awaited<ReturnType<ReadFileEndpoint>>,
@@ -117,14 +177,7 @@ async function handleReadFileHEADResponse(
     res.setHeader('ETag', result.etag);
   }
 
-  if (input.download) {
-    const filename =
-      result.name +
-      (result.ext ? `${kFileConstants.nameExtSeparator}${result.ext}` : '');
-
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-  }
+  setDownloadHeaders(res, input, result);
 
   responseHeaders['Content-Length'] = result.contentLength;
 
@@ -142,17 +195,7 @@ async function handleReadFileResponse(
   req: Request,
   input: ReadFileEndpointParams
 ) {
-  if (input.download) {
-    const filename =
-      result.name +
-      (result.ext ? `${kFileConstants.nameExtSeparator}${result.ext}` : '');
-
-    // TODO: correctly set filename and filename* based on
-    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition#as_a_response_header_for_the_main_body
-    // res.setHeader('Content-Disposition', `attachment; filename*="${filename}"`);
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-  }
+  setDownloadHeaders(res, input, result);
 
   const responseHeaders: AnyObject = {};
 
@@ -280,6 +323,7 @@ function extractReadFileParamsFromReq(req: Request): ReadFileEndpointParams {
     },
     imageFormat: endpointDecodeURIComponent(query.format),
     download: query.download,
+    downloadName: endpointDecodeURIComponent(query.downloadName),
     rangeHeader,
     ifRangeHeader,
     ...req.body,
