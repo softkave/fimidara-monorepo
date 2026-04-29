@@ -3707,6 +3707,14 @@ export type ReadFileEndpointParams = {
    * ```
    */
   ifRangeHeader?: string;
+  /**
+   * Custom filename for "Content-Disposition: attachment" responses
+   * @example
+   * ```
+   * my-download.txt
+   * ```
+   */
+  downloadName?: string;
 };
 /**
  * Parameters for refreshing an agent token to get a new JWT

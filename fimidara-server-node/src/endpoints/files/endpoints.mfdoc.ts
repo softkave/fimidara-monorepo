@@ -183,7 +183,11 @@ const ifRangeHeader = mfdocConstruct.constructString({
     'HTTP If-Range header value (ETag or Last-Modified date) for conditional range requests',
   example: '"etag-value"',
 });
-
+const downloadName = mfdocConstruct.constructString({
+  description:
+    'Custom filename for "Content-Disposition: attachment" responses',
+  example: 'my-download.txt',
+});
 const file = mfdocConstruct.constructObject<PublicFile>({
   name: 'File',
   description: 'File resource with metadata and location information',
@@ -389,6 +393,10 @@ const readFileParams = mfdocConstruct.constructObject<ReadFileEndpointParams>({
       required: false,
       data: ifRangeHeader,
     }),
+    downloadName: mfdocConstruct.constructObjectField({
+      required: false,
+      data: downloadName,
+    }),
   },
 });
 const readFileQuery = mfdocConstruct.constructObject<ReadFileEndpointHttpQuery>(
@@ -418,6 +426,10 @@ const readFileQuery = mfdocConstruct.constructObject<ReadFileEndpointHttpQuery>(
       download: mfdocConstruct.constructObjectField({
         required: false,
         data: downloadQueryParam,
+      }),
+      downloadName: mfdocConstruct.constructObjectField({
+        required: false,
+        data: downloadName,
       }),
     },
   }
