@@ -124,6 +124,8 @@ export type GetFimidaraReadFileURLProps = {
    * which forces browsers to download files like HTML, JPEG, etc. which it'll
    * otherwise open in the browser */
   download?: boolean;
+  /** Custom filename for "Content-Disposition: attachment" responses */
+  downloadName?: string;
 };
 
 const kReadFileQueryMap: Partial<
@@ -136,6 +138,7 @@ const kReadFileQueryMap: Partial<
   // background: 'bg',
   // withoutEnlargement: 'withoutEnlargement',
   download: 'download',
+  downloadName: 'downloadName',
 };
 
 function getFilepath(props: {
@@ -167,8 +170,11 @@ function getFilepath(props: {
  * ```typescript
  * const url = getFimidaraReadFileURL({
  *   filepath: '/workspace/path/to/file.jpg',
- *   download: true
+ *   download: true,
+ *   downloadName: 'my-download.txt'
  * });
+ *
+ * // Returns: https://fimidara.com/v1/files/readFile/workspace/path/to/file.jpg?download=true&downloadName=my-download.txt
  * ```
  */
 export function getFimidaraReadFileURL(props: GetFimidaraReadFileURLProps) {
