@@ -184,7 +184,7 @@ export function getFimidaraReadFileURL(props: GetFimidaraReadFileURLProps) {
     map(props, (v, k) => {
       const qk = kReadFileQueryMap[k as keyof GetFimidaraReadFileURLProps];
       if (!qk) return undefined;
-      return `${qk}=${String(v)}`;
+      return `${qk}=${encodeURIComponent(String(v))}`;
     })
   );
 
