@@ -323,7 +323,9 @@ function extractReadFileParamsFromReq(req: Request): ReadFileEndpointParams {
     },
     imageFormat: endpointDecodeURIComponent(query.format),
     download: query.download,
-    downloadName: endpointDecodeURIComponent(query.downloadName),
+    downloadName: query.downloadName
+      ? endpointDecodeURIComponent(query.downloadName)?.trim()
+      : undefined,
     rangeHeader,
     ifRangeHeader,
     ...req.body,
