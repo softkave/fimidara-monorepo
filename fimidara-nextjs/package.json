@@ -17,6 +17,7 @@
     "lint": "next lint",
     "db:generate": "npx --yes -- softkave-forerunner@latest run-env --cmd \"npx drizzle-kit generate\"",
     "db:migrate": "npx --yes -- softkave-forerunner@latest run-env --cmd \"npx drizzle-kit migrate\"",
+    "db:migrate-auth-sqlite-to-postgres": "npx --yes -- softkave-forerunner@latest run-env --cmd \"tsx scripts/migrate-auth-sqlite-to-postgres.ts\"",
     "upload-source-maps": "npx --yes -- fimidx@latest source-maps upload --client-token \"$FIMIDX_SYMBOLICATION_AUTH_TOKEN\" --project-id \"$NEXT_PUBLIC_FIMIDX_LOGGER_PROJECT_ID\" --repo \"$NEXT_PUBLIC_FIMIDX_SYMBOLICATION_REPO\" --version \"$NEXT_PUBLIC_FIMIDX_SYMBOLICATION_VERSION\" --path .next",
     "delete-source-maps": "find .next -name '*.map' -type f -delete"
   },
@@ -72,6 +73,7 @@
     "next-mdx-remote": "^5.0.0",
     "nextjs-toploader": "^1.6.12",
     "path-browserify": "^1.0.1",
+    "pg": "^8.16.3",
     "pretty-bytes": "^6.0.0",
     "rc-upload": "^4.9.2",
     "react": "^18.2.0",
@@ -98,6 +100,7 @@
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^20",
     "@types/path-browserify": "^1.0.0",
+    "@types/pg": "^8.20.0",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.4.19",
@@ -109,6 +112,7 @@
     "next-compose-plugins": "^2.2.1",
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.4",
+    "tsx": "^4.20.5",
     "typescript": "^5.1.3"
   }
 }
