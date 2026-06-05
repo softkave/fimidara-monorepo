@@ -12,7 +12,7 @@ export const kEmailMessageType = {
   confirmEmailAddress: 'confirmEmailAddress',
   forgotPassword: 'forgotPassword',
   upgradedFromWaitlist: 'upgradedFromWaitlist',
-  // usageExceeded: 'usageExceeded',
+  usageExceeded: 'usageExceeded',
 } as const;
 
 export type EmailMessageType = ValueOf<typeof kEmailMessageType>;

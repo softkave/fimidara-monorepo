@@ -123,7 +123,15 @@ async function setup() {
   );
   kIjxUtils.logger().log('Server initialization');
 
-  // Run scripts here
+  // Run scripts here (server should be off for destructive scripts), e.g.:
+  // import {runScript} from './scripts/runScript.js';
+  // import SCRIPT_rebuildUsageRecordsFromFiles from './scripts/SCRIPT_rebuildUsageRecordsFromFiles.js';
+  // await runScript({
+  //   name: 'rebuildUsageRecordsFromFiles',
+  //   isUnique: true,
+  //   isMandatory: true,
+  //   fn: SCRIPT_rebuildUsageRecordsFromFiles,
+  // });
   // End of scripts
 
   const defaultWorkspace = await initFimidara();

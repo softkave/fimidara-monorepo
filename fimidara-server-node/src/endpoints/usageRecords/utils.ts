@@ -25,9 +25,14 @@ export function getUsageRecordReportingPeriod() {
 export function getUsageRecordPreviousReportingPeriod(
   reportingPeriod: ReturnType<typeof getUsageRecordReportingPeriod>
 ) {
-  return sub(new Date(reportingPeriod.year, reportingPeriod.month), {
+  const previous = sub(new Date(reportingPeriod.year, reportingPeriod.month), {
     months: 1,
   });
+
+  return {
+    month: previous.getMonth(),
+    year: previous.getFullYear(),
+  };
 }
 
 export function isUsageRecordPersistent(

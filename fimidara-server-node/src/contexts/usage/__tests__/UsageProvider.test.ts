@@ -7,6 +7,7 @@ import {
   waitTimeout,
 } from 'softkave-js-utils';
 import {afterEach, beforeEach, describe, expect, test, vi} from 'vitest';
+import * as notifyUsageExceededModule from '../notifyUsageExceeded.js';
 import {
   UsageRecord,
   UsageRecordCategory,
@@ -268,6 +269,10 @@ describe.each(usageWithoutTotalList)(
       test.each([category, kUsageRecordCategory.total])(
         'usage exceeded %s',
         async exceededCategory => {
+          const notifySpy = vi
+            .spyOn(notifyUsageExceededModule, 'notifyWorkspaceUsageExceeded')
+            .mockResolvedValue(undefined);
+
           const usageThreshold = faker.number.int();
           const threshold: UsageThreshold | undefined = {
             budget: getCostForUsage(category, usageThreshold),
@@ -324,6 +329,18 @@ describe.each(usageWithoutTotalList)(
             month,
             year,
           });
+
+          await waitUntilUsageIsCommitted();
+          await vi.waitFor(() => {
+            expect(notifySpy).toHaveBeenCalledWith(
+              expect.objectContaining({
+                workspaceId: workspace.resourceId,
+                exceededCategory,
+                month,
+                year,
+              })
+            );
+          });
         }
       );
 
@@ -355,6 +372,49 @@ describe.each(usageWithoutTotalList)(
           usage,
           year,
         });
+      });
+
+      test('storage month record carries over bytes from previous month', async () => {
+        const carriedUsage = faker.number.int({min: 100, max: 500});
+        const [workspace] = await generateAndInsertWorkspaceListForTest(1);
+        const {month, year} = getUsageRecordReportingPeriod();
+        const previous = getUsageRecordPreviousReportingPeriod({month, year});
+
+        await generateAndInsertUsageRecordList(1, {
+          ...previous,
+          status: kUsageRecordFulfillmentStatus.fulfilled,
+          summationType: kUsageSummationType.month,
+          workspaceId: workspace.resourceId,
+          category: kUsageRecordCategory.storage,
+          usage: carriedUsage,
+          usageCost: getCostForUsage(
+            kUsageRecordCategory.storage,
+            carriedUsage
+          ),
+        });
+
+        const incrementUsage = faker.number.int({min: 1, max: 10});
+        const result = await kIjxUtils.usage().increment(kSystemSessionAgent, {
+          workspaceId: workspace.resourceId,
+          category: kUsageRecordCategory.storage,
+          usage: incrementUsage,
+        });
+
+        assert.ok(result.permitted);
+        await waitUntilUsageIsCommitted();
+
+        const usageL2 = await kIjxSemantic.usageRecord().getOneByQuery({
+          year,
+          month,
+          category: kUsageRecordCategory.storage,
+          workspaceId: workspace.resourceId,
+          summationType: kUsageSummationType.month,
+          status: kUsageRecordFulfillmentStatus.fulfilled,
+        });
+
+        assert.ok(usageL2);
+        expect(usageL2.usage).toBe(carriedUsage + incrementUsage);
+        expect(usageL2.persistent).toBe(true);
       });
 
       test.each([category, kUsageRecordCategory.total])(

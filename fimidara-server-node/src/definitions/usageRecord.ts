@@ -8,10 +8,18 @@ import {
 } from './system.js';
 
 export const kUsageRecordCategory = {
+  /** Total usage in USD */
   total: 'total',
+  /** Storage currently used in bytes. Carries over from month to month.
+   * Different from storageEverConsumed in that it does not include the storage
+   * that has been deleted. */
   storage: 'storage',
+  /** Storage ever consumed usage in bytes. Does not carry over from month to
+   * month. Includes the storage that has been deleted. */
   storageEverConsumed: 'storageEver',
+  /** Bandwidth in usage in bytes. Does not carry over from month to month. */
   bandwidthIn: 'bin',
+  /** Bandwidth out usage in bytes. Does not carry over from month to month. */
   bandwidthOut: 'bout',
   // Request : 'request',
   // DatabaseObject : 'dbObject',

@@ -2,6 +2,7 @@ import {AnyFn, AnyObject, OmitFrom, PartialRecord} from 'softkave-js-utils';
 import {ValueOf} from 'type-fest';
 import {NewSignupsOnWaitlistEmailProps} from '../emailTemplates/newSignupsOnWaitlist.js';
 import {BaseEmailTemplateProps} from '../emailTemplates/types.js';
+import {UsageRecordCategory} from './usageRecord.js';
 import {FimidaraConfigEmailProvider} from '../resources/config.js';
 import {AppShardId} from './app.js';
 import {Agent, FimidaraResourceType, Resource} from './system.js';
@@ -160,7 +161,7 @@ export const kEmailJobType = {
   forgotPassword: 'forgotPassword',
   upgradedFromWaitlist: 'upgradedFromWaitlist',
   newSignupsOnWaitlist: 'newSignupsOnWaitlist',
-  // usageExceeded: 'usageExceeded',
+  usageExceeded: 'usageExceeded',
 } as const;
 
 export type EmailJobType = ValueOf<typeof kEmailJobType>;
@@ -199,11 +200,14 @@ export type EmailJobParams = {
         keyof BaseEmailTemplateProps | 'upgradeWaitlistURL'
       >;
     }
+  | {
+      type: typeof kEmailJobType.usageExceeded;
+      params: {
+        workspaceId: string;
+        exceededCategory: UsageRecordCategory;
+      };
+    }
 );
-// | {
-//     type: typeof kEmailJobType.usageExceeded;
-//     params: UsageExceededEmailProps;
-//   }
 
 export interface EmailJobMeta {
   emailProvider: FimidaraConfigEmailProvider;
