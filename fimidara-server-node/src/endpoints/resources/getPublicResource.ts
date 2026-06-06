@@ -18,7 +18,10 @@ import {
   fileBackendMountExtractor,
   resolvedEntryExtractor,
 } from '../fileBackends/utils.js';
-import {fileExtractor, presignedPathExtractor} from '../files/utils.js';
+import {
+  extractPublicFileWithoutAgent,
+  presignedPathExtractor,
+} from '../files/utils.js';
 import {folderExtractor} from '../folders/utils.js';
 import {permissionGroupExtractor} from '../permissionGroups/utils.js';
 import {permissionItemExtractor} from '../permissionItems/utils.js';
@@ -51,7 +54,7 @@ const kResourceTypeToExtractorMap: Record<
   [kFimidaraResourceType.PermissionGroup]: permissionGroupExtractor,
   [kFimidaraResourceType.PermissionItem]: permissionItemExtractor,
   [kFimidaraResourceType.Folder]: folderExtractor,
-  [kFimidaraResourceType.File]: fileExtractor,
+  [kFimidaraResourceType.File]: extractPublicFileWithoutAgent,
   [kFimidaraResourceType.User]: collaboratorExtractor,
   [kFimidaraResourceType.Tag]: tagExtractor,
   [kFimidaraResourceType.UsageRecord]: usageRecordExtractor,

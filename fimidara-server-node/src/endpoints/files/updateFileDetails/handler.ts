@@ -9,8 +9,9 @@ import {validate} from '../../../utils/validate.js';
 import {assertWorkspace} from '../../workspaces/utils.js';
 import {
   assertFile,
-  fileExtractor,
+  extractPublicFile,
   getAndCheckFileAuthorization,
+  resolveUploadActorId,
 } from '../utils.js';
 import {UpdateFileDetailsEndpoint} from './types.js';
 import {updateFileDetailsJoiSchema} from './validation.js';
@@ -60,7 +61,9 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async reqData => {
     return file;
   });
 
-  return {file: fileExtractor(file)};
+  return {
+    file: extractPublicFile(file, resolveUploadActorId(undefined, agent)),
+  };
 };
 
 export default updateFileDetails;

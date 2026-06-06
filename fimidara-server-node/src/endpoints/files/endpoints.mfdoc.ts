@@ -9,7 +9,12 @@ import {
   mfdocConstruct,
 } from 'mfdoc';
 import {EmptyObject} from 'type-fest';
-import {FileMatcher, PublicFile, PublicPart} from '../../definitions/file.js';
+import {
+  FileMatcher,
+  PublicFile,
+  PublicPart,
+  ResourceAvailability,
+} from '../../definitions/file.js';
 import {kFimidaraResourceType} from '../../definitions/system.js';
 import {
   fReusables,
@@ -23,6 +28,7 @@ import {
   CompleteMultipartUploadInputPart,
 } from './completeMultipartUpload/types.js';
 import {kFileConstants} from './constants.js';
+import {AbortUploadEndpointParams} from './abortUpload/types.js';
 import {DeleteFileEndpointParams} from './deleteFile/types.js';
 import {
   GetFileDetailsEndpointParams,
@@ -45,6 +51,7 @@ import {
   StartMultipartUploadEndpointResult,
 } from './startMultipartUpload/types.js';
 import {
+  AbortUploadHttpEndpoint,
   CompleteMultipartUploadHttpEndpoint,
   DeleteFileHttpEndpoint,
   FileMatcherPathParameters,
@@ -188,6 +195,49 @@ const downloadName = mfdocConstruct.constructString({
     'Custom filename for "Content-Disposition: attachment" responses',
   example: 'my-download.txt',
 });
+const resourceAvailability = mfdocConstruct.constructObject<ResourceAvailability>(
+  {
+    name: 'ResourceAvailability',
+    description:
+      'Whether a read or write operation is available on a file or part, ' +
+      'including whether it is available for the current requester',
+    fields: {
+      available: mfdocConstruct.constructObjectField({
+        required: true,
+        data: mfdocConstruct.constructBoolean({
+          description:
+            'Whether the operation is available to any caller right now',
+          example: true,
+        }),
+      }),
+      availableForYou: mfdocConstruct.constructObjectField({
+        required: true,
+        data: mfdocConstruct.constructBoolean({
+          description:
+            'Whether the operation is available to the current requester. ' +
+            'This is true when available is true, or when the requester is the uploader that holds the lock',
+          example: true,
+        }),
+      }),
+      lockedBy: mfdocConstruct.constructObjectField({
+        required: false,
+        data: mfdocConstruct.constructString({
+          description:
+            'The uploadSessionId or authenticated user/token id of the uploader holding the lock. ' +
+            'Present only when available is false',
+          example: 'user-abc123',
+        }),
+      }),
+    },
+  }
+);
+const uploadSessionId = mfdocConstruct.constructString({
+  description:
+    'Optional client-provided identifier for the uploader/session performing the upload. ' +
+    'When omitted, the authenticated user id or client token id is used. ' +
+    'Pass the same value on retry after a failed upload to resume writing to a locked file or part',
+  example: 'my-upload-session-001',
+});
 const file = mfdocConstruct.constructObject<PublicFile>({
   name: 'File',
   description: 'File resource with metadata and location information',
@@ -226,6 +276,14 @@ const file = mfdocConstruct.constructObject<PublicFile>({
     version: mfdocConstruct.constructObjectField({
       required: true,
       data: version,
+    }),
+    read: mfdocConstruct.constructObjectField({
+      required: true,
+      data: resourceAvailability,
+    }),
+    write: mfdocConstruct.constructObjectField({
+      required: true,
+      data: resourceAvailability,
     }),
   },
 });
@@ -296,7 +354,13 @@ const getFileDetailsParams =
   mfdocConstruct.constructObject<GetFileDetailsEndpointParams>({
     name: 'GetFileDetailsEndpointParams',
     description: 'Parameters for retrieving file details',
-    fields: {...fileMatcherParts},
+    fields: {
+      ...fileMatcherParts,
+      uploadSessionId: mfdocConstruct.constructObjectField({
+        required: false,
+        data: uploadSessionId,
+      }),
+    },
   });
 const getFileDetailsResponseBody =
   mfdocConstruct.constructObject<GetFileDetailsEndpointResult>({
@@ -310,26 +374,9 @@ const getFileDetailsResponseBody =
 const deleteFileParams =
   mfdocConstruct.constructObject<DeleteFileEndpointParams>({
     name: 'DeleteFileEndpointParams',
-    description:
-      'Parameters for deleting a file or specific multipart upload parts',
+    description: 'Parameters for deleting a file',
     fields: {
       ...fileMatcherParts,
-      clientMultipartId: mfdocConstruct.constructObjectField({
-        required: false,
-        data: mfdocConstruct.constructString({
-          description:
-            'Client generated unique identifier for multipart uploads. ' +
-            'It is used to identify the same multipart upload across multiple requests',
-          example: 'upload-123e4567-e89b-12d3-a456-426614174000',
-        }),
-      }),
-      part: mfdocConstruct.constructObjectField({
-        required: false,
-        data: mfdocConstruct.constructNumber({
-          description: 'Part number of the multipart upload',
-          example: 1,
-        }),
-      }),
     },
   });
 
@@ -588,6 +635,27 @@ const onAppendCreateIfNotExists = mfdocConstruct.constructBoolean({
   example: true,
 });
 
+const abortUploadParams =
+  mfdocConstruct.constructObject<AbortUploadEndpointParams>({
+    name: 'AbortUploadEndpointParams',
+    description:
+      'Parameters for clearing a stuck upload lock or multipart upload state. ' +
+      'Omit clientMultipartId to unlock a stuck single or multipart upload. ' +
+      'Provide clientMultipartId to target a specific multipart session. ' +
+      'Provide clientMultipartId and part to delete one uploaded part',
+    fields: {
+      ...fileMatcherParts,
+      clientMultipartId: mfdocConstruct.constructObjectField({
+        required: false,
+        data: clientMultipartId,
+      }),
+      part: mfdocConstruct.constructObjectField({
+        required: false,
+        data: part,
+      }),
+    },
+  });
+
 const uploadFileSdkParamsDef =
   mfdocConstruct.constructObject<UploadFileEndpointSdkParams>({
     name: 'UploadFileEndpointParams',
@@ -627,6 +695,10 @@ const uploadFileSdkParamsDef =
       onAppendCreateIfNotExists: mfdocConstruct.constructObjectField({
         required: false,
         data: onAppendCreateIfNotExists,
+      }),
+      uploadSessionId: mfdocConstruct.constructObjectField({
+        required: false,
+        data: uploadSessionId,
       }),
     },
   });
@@ -668,6 +740,8 @@ const updloadFileSdkParams = mfdocConstruct.constructSdkParamsBody<
           'header',
           kFileConstants.headers['x-fimidara-on-append-create-if-not-exists'],
         ];
+      case 'uploadSessionId':
+        return ['header', kFileConstants.headers['x-fimidara-upload-session-id']];
       default:
         throw new Error(`unknown key ${String(key)}`);
     }
@@ -753,6 +827,10 @@ const uploadFileEndpointHTTPHeaders =
             example: 'true',
           }),
         }),
+      'x-fimidara-upload-session-id': mfdocConstruct.constructObjectField({
+        required: false,
+        data: uploadSessionId,
+      }),
     },
   });
 const uploadFileResponseBody =
@@ -1020,7 +1098,49 @@ export const deleteFileEndpointDefinition =
     responseBody: mfdocEndpointHttpResponseItems.longRunningJobResponseBody,
     name: 'fimidara/files/deleteFile',
     description:
-      'Delete a file or cancel/delete specific parts of a multipart upload',
+      'Delete a file. To clear stuck upload locks or abort multipart uploads, use abortUpload instead',
+    tags: [kEndpointTag.public],
+  });
+
+export const abortUploadEndpointDefinition =
+  mfdocConstruct.constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      AbortUploadHttpEndpoint['mfdocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      AbortUploadHttpEndpoint['mfdocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<
+      AbortUploadHttpEndpoint['mfdocHttpDefinition']['query']
+    >,
+    InferFieldObjectOrMultipartType<
+      AbortUploadHttpEndpoint['mfdocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      AbortUploadHttpEndpoint['mfdocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      AbortUploadHttpEndpoint['mfdocHttpDefinition']['responseBody']
+    >
+  >({
+    path: kFileConstants.routes.abortUpload,
+    method: HttpEndpointMethod.Post,
+    requestBody: abortUploadParams,
+    requestHeaders:
+      mfdocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType,
+    responseHeaders:
+      mfdocEndpointHttpHeaderItems.responseHeaders_JsonContentType,
+    responseBody: mfdocConstruct.constructObject({
+      name: 'AbortUploadEndpointResult',
+      description: 'Empty response when the upload lock or multipart state is cleared',
+      fields: {},
+    }),
+    name: 'fimidara/files/abortUpload',
+    description:
+      'Clear a stuck upload lock or multipart upload state. ' +
+      'Omit clientMultipartId to unlock a stuck single or multipart upload. ' +
+      'Provide clientMultipartId to abort a specific multipart session (must match the active one). ' +
+      'Provide clientMultipartId and part to delete one uploaded part and release its part lock',
     tags: [kEndpointTag.public],
   });
 
@@ -1153,6 +1273,10 @@ export const startMultipartUploadEndpointDefinition =
                 'Client generated unique identifier for the multipart upload',
               example: 'upload-123e4567-e89b-12d3-a456-426614174000',
             }),
+          }),
+          uploadSessionId: mfdocConstruct.constructObjectField({
+            required: false,
+            data: uploadSessionId,
           }),
         },
       }),

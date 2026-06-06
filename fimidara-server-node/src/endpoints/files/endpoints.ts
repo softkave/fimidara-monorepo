@@ -13,10 +13,12 @@ import {populateMountUnsupportedOpNoteInNotFoundError} from '../fileBackends/mou
 import {kFolderConstants} from '../folders/constants.js';
 import {ExportedHttpEndpoint_HandleErrorFn, kEndpointTag} from '../types.js';
 import {endpointDecodeURIComponent} from '../utils.js';
+import abortUpload from './abortUpload/handler.js';
 import completeMultipartUpload from './completeMultipartUpload/handler.js';
 import {kFileConstants} from './constants.js';
 import deleteFile from './deleteFile/handler.js';
 import {
+  abortUploadEndpointDefinition,
   completeMultipartUploadEndpointDefinition,
   deleteFileEndpointDefinition,
   getFileDetailsEndpointDefinition,
@@ -347,6 +349,8 @@ async function extractUploadFileParamsFromReq(
     req.headers[kFileConstants.headers['x-fimidara-file-mimetype']];
   const clientMultipartId =
     req.headers[kFileConstants.headers['x-fimidara-multipart-id']];
+  const uploadSessionId =
+    req.headers[kFileConstants.headers['x-fimidara-upload-session-id']];
   const part = parseInt(
     req.headers[kFileConstants.headers['x-fimidara-multipart-part']] as string
   );
@@ -407,6 +411,9 @@ async function extractUploadFileParamsFromReq(
         clientMultipartId: isString(clientMultipartId)
           ? clientMultipartId
           : undefined,
+        uploadSessionId: isString(uploadSessionId)
+          ? uploadSessionId
+          : undefined,
         part: isNumber(part) && !isNaN(part) ? part : undefined,
         append: append || undefined,
         onAppendCreateIfNotExists: onAppendCreateIfNotExists ? true : undefined,
@@ -439,6 +446,9 @@ async function extractUploadFileParamsFromReq(
         part: isNumber(part) && !isNaN(part) ? part : undefined,
         clientMultipartId: isString(clientMultipartId)
           ? clientMultipartId
+          : undefined,
+        uploadSessionId: isString(uploadSessionId)
+          ? uploadSessionId
           : undefined,
         append: append || undefined,
         onAppendCreateIfNotExists: onAppendCreateIfNotExists ? true : undefined,
@@ -554,6 +564,12 @@ export function getFilesHttpEndpoints() {
       mfdocHttpDefinition: completeMultipartUploadEndpointDefinition,
       handleError: handleNotFoundError,
       fn: completeMultipartUpload,
+    },
+    abortUpload: {
+      tag: [kEndpointTag.public],
+      mfdocHttpDefinition: abortUploadEndpointDefinition,
+      handleError: handleNotFoundError,
+      fn: abortUpload,
     },
   };
   return filesExportedEndpoints;

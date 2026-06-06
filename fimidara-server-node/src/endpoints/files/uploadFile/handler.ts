@@ -10,7 +10,7 @@ import RequestData from '../../RequestData.js';
 import {InvalidRequestError} from '../../errors.js';
 import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils.js';
 import {UnsupportedOperationError} from '../errors.js';
-import {fileExtractor} from '../utils.js';
+import {extractPublicFile, resolveUploadActorId} from '../utils.js';
 import {prepareMountFilepath} from '../utils/prepareMountFilepath.js';
 import {
   completeFileUpload,
@@ -118,7 +118,12 @@ async function handleUploadFile(params: {
     }
 
     appAssert(file, new InvalidRequestError('File is required'));
-    return {file: fileExtractor(file)};
+    return {
+      file: extractPublicFile(
+        file,
+        resolveUploadActorId(data.uploadSessionId, agent)
+      ),
+    };
   } catch (error) {
     if (!isMultipart) {
       kIjxUtils
@@ -148,17 +153,19 @@ const uploadFile: UploadFileEndpoint = async reqData => {
 
   const {file} = await prepareFileForUpload({data, agent, shouldCreate});
   const isMultipart = isString(data.clientMultipartId);
+  const uploadActorId = resolveUploadActorId(data.uploadSessionId, agent);
+
   if (isMultipart) {
     appAssert(
       data.part,
       new InvalidRequestError('Part is required for multipart uploads')
     );
 
-    return await kIjxUtils.redlock().using(
-      `upload-file-${file.resourceId}-${data.part}`,
-      /** durationMs */ 10 * 60 * 1000, // 10 minutes
-      () => handleUploadFile({file, data, agent, reqData})
-    );
+    return await kIjxUtils
+      .partUploadLock()
+      .using(file.resourceId, data.part, uploadActorId, () =>
+        handleUploadFile({file, data, agent, reqData})
+      );
   } else {
     return handleUploadFile({file, data, agent, reqData});
   }

@@ -1,6 +1,8 @@
+import {faker} from '@faker-js/faker';
 import {invokeEndpoint} from 'mfdoc-js-sdk-base';
+import {PassThrough} from 'node:stream';
 import {describe, expect, test} from 'vitest';
-import {getFimidaraReadFileURL} from '../path/index.js';
+import {fimidaraAddRootnameToPath, getFimidaraReadFileURL} from '../path/index.js';
 import {getTestFilepath} from '../testutils/execFns/file.js';
 import {
   fimidaraTestInstance,
@@ -170,7 +172,7 @@ describe('file', () => {
     expect(uploadedParts.parts[0].part).toBe(1);
     expect(uploadedParts.parts[0].size).toBe(buf.length);
 
-    await fimidaraTestInstance.files.deleteFile({
+    await fimidaraTestInstance.files.abortUpload({
       fileId: file.resourceId,
       clientMultipartId: 'test',
       part: 1,
@@ -181,6 +183,61 @@ describe('file', () => {
     });
 
     expect(uploadedParts.parts).toHaveLength(0);
+  });
+
+  test('abort single upload', async () => {
+    const uploadSessionId = 'abort-single-upload-test';
+    const filepath = fimidaraAddRootnameToPath(
+      faker.system.filePath(),
+      fimidaraTestVars.workspaceRootname
+    );
+    const content = Buffer.from('abort single upload test content');
+    const pausedStream = new PassThrough();
+    pausedStream.write(content.subarray(0, 1));
+
+    const stalledUpload = fimidaraTestInstance.files.uploadFile({
+      filepath,
+      data: pausedStream,
+      size: content.length,
+      uploadSessionId,
+      mimetype: 'application/octet-stream',
+    });
+
+    await expect
+      .poll(
+        async () => {
+          try {
+            const details =
+              await fimidaraTestInstance.files.getFileDetails({filepath});
+            return details.file.write.available === false;
+          } catch {
+            return false;
+          }
+        },
+        {timeout: 15_000}
+      )
+      .toBe(true);
+
+    pausedStream.destroy(new Error('upload cancelled'));
+    await expect(stalledUpload).rejects.toThrow();
+
+    await fimidaraTestInstance.files.abortUpload({filepath});
+
+    const detailsAfterAbort =
+      await fimidaraTestInstance.files.getFileDetails({filepath});
+    expect(detailsAfterAbort.file.write.availableForYou).toBe(true);
+
+    const result = await fimidaraTestInstance.files.uploadFile({
+      filepath,
+      data: content,
+      size: content.length,
+      uploadSessionId,
+      mimetype: 'application/octet-stream',
+    });
+
+    expect(result.file.write.available).toBe(true);
+    expect(result.file.read.available).toBe(true);
+    expect(result.file.size).toBe(content.length);
   });
 
   test('delete multipart upload', async () => {
@@ -208,7 +265,7 @@ describe('file', () => {
     expect(uploadedParts.parts[0].part).toBe(1);
     expect(uploadedParts.parts[0].size).toBe(buf.length);
 
-    await fimidaraTestInstance.files.deleteFile({
+    await fimidaraTestInstance.files.abortUpload({
       fileId: file.resourceId,
       clientMultipartId: 'test',
     });

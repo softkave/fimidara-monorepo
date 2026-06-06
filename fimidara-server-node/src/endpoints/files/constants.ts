@@ -22,6 +22,7 @@ export const kFileConstants = {
   maxFileHeight: 5000, // px
   uploadedFileFieldName: 'data',
   maxClientMultipartIdLength: 100,
+  maxUploadSessionIdLength: 100,
   routes: {
     readFile: `${kEndpointConstants.apiv1}/files/readFile`,
     readFile_get: `${kEndpointConstants.apiv1}/files/readFile/:filepathOrId`,
@@ -34,6 +35,7 @@ export const kFileConstants = {
     listParts: `${kEndpointConstants.apiv1}/files/listParts`,
     startMultipartUpload: `${kEndpointConstants.apiv1}/files/startMultipartUpload`,
     completeMultipartUpload: `${kEndpointConstants.apiv1}/files/completeMultipartUpload`,
+    abortUpload: `${kEndpointConstants.apiv1}/files/abortUpload`,
   },
   headers: {
     'x-fimidara-file-encoding': 'x-fimidara-file-encoding',
@@ -44,7 +46,10 @@ export const kFileConstants = {
     'x-fimidara-multipart-part': 'x-fimidara-multipart-part',
     'x-fimidara-append': 'x-fimidara-append',
     'x-fimidara-on-append-create-if-not-exists': 'x-fimidara-on-append-create-if-not-exists',
+    'x-fimidara-upload-session-id': 'x-fimidara-upload-session-id',
   } as const,
+  getPartUploadLockKey: (fileId: string, part: number) =>
+    `upload-file-${fileId}-${part}`,
   multipartLockTimeoutSeconds: 60 * 60 * 24, // 24 hours
   partResultCacheKeyPrefix: 'mpr_', // + multipartId + part hash
   getPartCacheKey: (multipartId: string, part: number) => {

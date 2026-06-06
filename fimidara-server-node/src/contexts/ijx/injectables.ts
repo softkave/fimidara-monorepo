@@ -51,6 +51,7 @@ import {IEmailProviderContext} from '../email/types.js';
 import {FileProviderResolver} from '../file/types.js';
 import {IPubSubContext} from '../pubsub/types.js';
 import {IQueueContext} from '../queue/types.js';
+import {IPartUploadLockContext} from '../partUploadLock/types.js';
 import {IRedlockContext} from '../redlock/types.js';
 import {IServerRuntimeState} from '../runtime.js';
 import {SecretsManagerProvider} from '../secrets/types.js';
@@ -248,6 +249,8 @@ export const kIjxUtils = {
   pubsub: () => container.resolve<IPubSubContext>(kIjxKeys.pubsub),
   cache: () => container.resolve<ICacheContext>(kIjxKeys.cache),
   redlock: () => container.resolve<IRedlockContext>(kIjxKeys.redlock),
+  partUploadLock: () =>
+    container.resolve<IPartUploadLockContext>(kIjxKeys.partUploadLock),
   redis: () =>
     container.resolve<[RedisClientType, RedisClientType, ...RedisClientType[]]>(
       kIjxKeys.redis

@@ -20,6 +20,29 @@ describe('MemoryCacheProvider', () => {
     expect(value).toEqual({test: 'value'});
   });
 
+  test('setJsonNx', async () => {
+    const cache = new MemoryCacheProvider();
+    const key = 'test' + Math.random();
+    const acquired = await cache.setJsonNx(key, {lockedBy: 'actor-a'});
+    expect(acquired).toBe(true);
+
+    const acquiredAgain = await cache.setJsonNx(key, {lockedBy: 'actor-b'});
+    expect(acquiredAgain).toBe(false);
+    expect(await cache.getJson<{lockedBy: string}>(key)).toEqual({
+      lockedBy: 'actor-a',
+    });
+  });
+
+  test('deleteJsonIfOwner', async () => {
+    const cache = new MemoryCacheProvider();
+    const key = 'test' + Math.random();
+    await cache.setJson(key, {lockedBy: 'actor-a'});
+
+    expect(await cache.deleteJsonIfOwner(key, 'actor-b')).toBe(false);
+    expect(await cache.deleteJsonIfOwner(key, 'actor-a')).toBe(true);
+    expect(await cache.getJson<{lockedBy: string}>(key)).toBeNull();
+  });
+
   test('setJson with ttl', async () => {
     const cache = new MemoryCacheProvider();
     const key = 'test' + Math.random();

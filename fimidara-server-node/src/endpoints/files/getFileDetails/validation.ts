@@ -4,5 +4,8 @@ import {GetFileDetailsEndpointParams} from './types.js';
 
 export const getFileDetailsJoiSchema =
   Joi.object<GetFileDetailsEndpointParams>()
-    .keys(fileValidationSchemas.fileMatcherParts)
+    .keys({
+      ...fileValidationSchemas.fileMatcherParts,
+      uploadSessionId: fileValidationSchemas.uploadSessionId,
+    })
     .required();

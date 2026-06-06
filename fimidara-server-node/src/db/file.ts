@@ -15,6 +15,7 @@ const fileSchema = ensureMongoTypeFields<File>({
   mimetype: {type: String},
   isReadAvailable: {type: Boolean},
   isWriteAvailable: {type: Boolean},
+  writeLockedBy: {type: String},
   version: {type: Number},
   clientMultipartId: {type: String},
   internalMultipartId: {type: String},

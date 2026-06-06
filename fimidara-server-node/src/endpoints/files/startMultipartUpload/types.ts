@@ -3,6 +3,7 @@ import {Endpoint} from '../../types.js';
 
 export interface StartMultipartUploadEndpointParams extends FileMatcher {
   clientMultipartId: string;
+  uploadSessionId?: string;
 }
 
 export interface StartMultipartUploadEndpointResult {

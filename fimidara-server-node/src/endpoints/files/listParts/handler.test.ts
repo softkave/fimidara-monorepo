@@ -3,7 +3,7 @@ import {getRandomInt} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
-import {File, PublicPart} from '../../../definitions/file.js';
+import {File} from '../../../definitions/file.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import RequestData from '../../RequestData.js';
 import {expectContainsEveryItemIn} from '../../testHelpers/helpers/assertion.js';
@@ -97,7 +97,7 @@ async function callGetParts(params: {
   userToken: AgentToken;
   file: File;
   workspace: Workspace;
-  parts: PublicPart[];
+  parts: InputFilePart[];
   clientMultipartId: string;
   page?: number;
   pageSize?: number;
@@ -127,7 +127,7 @@ async function callGetParts(params: {
   const pParts = partDetailsListExtractor(parts);
   expectContainsEveryItemIn(
     pParts,
-    result.parts,
+    result.parts.map(({part, size}) => ({part, size})),
     part => part.part.toString() + part.size
   );
 

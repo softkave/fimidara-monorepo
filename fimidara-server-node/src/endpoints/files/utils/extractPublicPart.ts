@@ -1,8 +1,10 @@
 import {makeExtract, makeListExtract} from 'softkave-js-utils';
-import {PublicPart} from '../../../definitions/file.js';
+import {FilePart} from '../../../definitions/file.js';
 import {getFields} from '../../../utils/extract.js';
 
-const extractPartDetailFields = getFields<PublicPart>({
+type PublicPartFields = Pick<FilePart, 'part' | 'size'>;
+
+const extractPartDetailFields = getFields<PublicPartFields>({
   part: true,
   size: true,
 });

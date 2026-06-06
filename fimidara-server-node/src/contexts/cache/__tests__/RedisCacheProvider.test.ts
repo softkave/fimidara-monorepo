@@ -69,6 +69,42 @@ describe('RedisCacheProvider', () => {
     expect(value).toBe('{"test":"value"}');
   });
 
+  test('setJsonNx', async () => {
+    const [redis] = kIjxUtils.redis();
+    const cache = new RedisCacheProvider(redis);
+    const key = 'test' + Math.random();
+    const acquired = await cache.setJsonNx(key, {lockedBy: 'actor-a'}, {ttlMs: 1000});
+    expect(acquired).toBe(true);
+    expect(await cache.getJson<{lockedBy: string}>(key)).toEqual({
+      lockedBy: 'actor-a',
+    });
+
+    const acquiredAgain = await cache.setJsonNx(
+      key,
+      {lockedBy: 'actor-b'},
+      {ttlMs: 1000}
+    );
+    expect(acquiredAgain).toBe(false);
+    expect(await cache.getJson<{lockedBy: string}>(key)).toEqual({
+      lockedBy: 'actor-a',
+    });
+  });
+
+  test('deleteJsonIfOwner', async () => {
+    const [redis] = kIjxUtils.redis();
+    const cache = new RedisCacheProvider(redis);
+    const key = 'test' + Math.random();
+    await cache.setJson(key, {lockedBy: 'actor-a'});
+
+    expect(await cache.deleteJsonIfOwner(key, 'actor-b')).toBe(false);
+    expect(await cache.getJson<{lockedBy: string}>(key)).toEqual({
+      lockedBy: 'actor-a',
+    });
+
+    expect(await cache.deleteJsonIfOwner(key, 'actor-a')).toBe(true);
+    expect(await cache.getJson<{lockedBy: string}>(key)).toBeNull();
+  });
+
   test('setJson with ttl', async () => {
     const [redis] = kIjxUtils.redis();
     const cache = new RedisCacheProvider(redis);

@@ -1,11 +1,11 @@
 {
     "__id": "HttpEndpointDefinition",
-    "path": "/v1/files/deleteFile",
-    "method": "delete",
+    "path": "/v1/files/abortUpload",
+    "method": "post",
     "requestBody": {
         "__id": "FieldObject",
-        "name": "DeleteFileEndpointParams",
-        "description": "Parameters for deleting a file",
+        "name": "AbortUploadEndpointParams",
+        "description": "Parameters for clearing a stuck upload lock, aborting a multipart upload, or deleting a specific uploaded part",
         "fields": {
             "filepath": {
                 "__id": "FieldObjectField",
@@ -23,6 +23,24 @@
                     "__id": "FieldString",
                     "description": "File ID",
                     "example": "file000_000000000000000000000"
+                }
+            },
+            "clientMultipartId": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Client generated unique identifier for multipart uploads. It is used to identify the same multipart upload across multiple requests. Cannot be used with append mode.",
+                    "example": "upload-123e4567-e89b-12d3-a456-426614174000"
+                }
+            },
+            "part": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldNumber",
+                    "description": "Part number of the multipart upload. -1 can be used to signify the end of a multipart upload.",
+                    "example": 1
                 }
             }
         }
@@ -77,22 +95,12 @@
     },
     "responseBody": {
         "__id": "FieldObject",
-        "name": "LongRunningJobResult",
-        "description": "Response for operations that run asynchronously in the background",
-        "fields": {
-            "jobId": {
-                "__id": "FieldObjectField",
-                "required": false,
-                "data": {
-                    "__id": "FieldString",
-                    "description": "Long-running job ID",
-                    "example": "job0000_000000000000000000000"
-                }
-            }
-        }
+        "name": "AbortUploadEndpointResult",
+        "description": "Empty response when the upload lock or multipart state is cleared",
+        "fields": {}
     },
-    "name": "fimidara/files/deleteFile",
-    "description": "Delete a file. To clear stuck upload locks or abort multipart uploads, use abortUpload instead",
+    "name": "fimidara/files/abortUpload",
+    "description": "Clear a stuck single-file upload lock, abort an entire multipart upload, or delete a specific uploaded part and release its part lock. Omit clientMultipartId to unlock a stuck single upload. Provide only clientMultipartId to abort the whole multipart upload. Provide clientMultipartId and part to clear one uploaded part",
     "tags": [
         "public"
     ],

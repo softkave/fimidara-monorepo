@@ -50,6 +50,7 @@ describe('endpoints', () => {
       expect(endpoints).toHaveProperty('uploadFile');
       expect(endpoints).toHaveProperty('startMultipartUpload');
       expect(endpoints).toHaveProperty('completeMultipartUpload');
+      expect(endpoints).toHaveProperty('abortUpload');
 
       // Check readFile is an array with 3 endpoints (POST, GET, HEAD)
       expect(Array.isArray(endpoints.readFile)).toBe(true);

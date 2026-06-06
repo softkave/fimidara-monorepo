@@ -139,6 +139,8 @@ import {getPubSubContext} from '../pubsub/utils.js';
 import {IQueueContext} from '../queue/types.js';
 import {getQueueContext} from '../queue/utils.js';
 import {getIoRedis, getRedis} from '../redis.js';
+import {PartUploadLockProvider} from '../partUploadLock/PartUploadLockProvider.js';
+import {IPartUploadLockContext} from '../partUploadLock/types.js';
 import {IRedlockContext} from '../redlock/types.js';
 import {getRedlockContext} from '../redlock/utils.js';
 import {IServerRuntimeState} from '../runtime.js';
@@ -355,6 +357,8 @@ export const kRegisterIjxUtils = {
   pubsub: (item: IPubSubContext) => registerToken(kIjxKeys.pubsub, item),
   cache: (item: ICacheContext) => registerToken(kIjxKeys.cache, item),
   redlock: (item: IRedlockContext) => registerToken(kIjxKeys.redlock, item),
+  partUploadLock: (item: IPartUploadLockContext) =>
+    registerToken(kIjxKeys.partUploadLock, item),
   redis: (item: [RedisClientType, RedisClientType, ...RedisClientType[]]) =>
     registerToken(kIjxKeys.redis, item),
   ioredis: (item: [Redis, ...Redis[]]) => registerToken(kIjxKeys.ioredis, item),
@@ -602,6 +606,7 @@ export async function registerIjxUtils(
   kRegisterIjxUtils.pubsub(await getPubSubContext(suppliedConfig));
   kRegisterIjxUtils.cache(await getCacheContext(suppliedConfig));
   kRegisterIjxUtils.redlock(await getRedlockContext(suppliedConfig));
+  kRegisterIjxUtils.partUploadLock(new PartUploadLockProvider());
   kRegisterIjxUtils.dset(await getDSetContext(suppliedConfig));
   kRegisterIjxUtils.usage(new UsageProvider());
 }

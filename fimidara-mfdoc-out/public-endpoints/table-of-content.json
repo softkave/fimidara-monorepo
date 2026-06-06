@@ -5,6 +5,125 @@
             "fimidara"
         ],
         "children": {
+            "files": {
+                "basename": "files",
+                "names": [
+                    "fimidara",
+                    "files"
+                ],
+                "children": {
+                    "abortUpload__post": {
+                        "basename": "abortUpload__post",
+                        "filepath": "fimidara/files/abortUpload__post.json",
+                        "names": [
+                            "fimidara",
+                            "files",
+                            "abortUpload__post"
+                        ],
+                        "children": {}
+                    },
+                    "completeMultipartUpload__post": {
+                        "basename": "completeMultipartUpload__post",
+                        "filepath": "fimidara/files/completeMultipartUpload__post.json",
+                        "names": [
+                            "fimidara",
+                            "files",
+                            "completeMultipartUpload__post"
+                        ],
+                        "children": {}
+                    },
+                    "deleteFile__delete": {
+                        "basename": "deleteFile__delete",
+                        "filepath": "fimidara/files/deleteFile__delete.json",
+                        "names": [
+                            "fimidara",
+                            "files",
+                            "deleteFile__delete"
+                        ],
+                        "children": {}
+                    },
+                    "getFileDetails__post": {
+                        "basename": "getFileDetails__post",
+                        "filepath": "fimidara/files/getFileDetails__post.json",
+                        "names": [
+                            "fimidara",
+                            "files",
+                            "getFileDetails__post"
+                        ],
+                        "children": {}
+                    },
+                    "listParts__post": {
+                        "basename": "listParts__post",
+                        "filepath": "fimidara/files/listParts__post.json",
+                        "names": [
+                            "fimidara",
+                            "files",
+                            "listParts__post"
+                        ],
+                        "children": {}
+                    },
+                    "readFile__get": {
+                        "basename": "readFile__get",
+                        "filepath": "fimidara/files/readFile__get.json",
+                        "names": [
+                            "fimidara",
+                            "files",
+                            "readFile__get"
+                        ],
+                        "children": {}
+                    },
+                    "readFile__head": {
+                        "basename": "readFile__head",
+                        "filepath": "fimidara/files/readFile__head.json",
+                        "names": [
+                            "fimidara",
+                            "files",
+                            "readFile__head"
+                        ],
+                        "children": {}
+                    },
+                    "readFile__post": {
+                        "basename": "readFile__post",
+                        "filepath": "fimidara/files/readFile__post.json",
+                        "names": [
+                            "fimidara",
+                            "files",
+                            "readFile__post"
+                        ],
+                        "children": {}
+                    },
+                    "startMultipartUpload__post": {
+                        "basename": "startMultipartUpload__post",
+                        "filepath": "fimidara/files/startMultipartUpload__post.json",
+                        "names": [
+                            "fimidara",
+                            "files",
+                            "startMultipartUpload__post"
+                        ],
+                        "children": {}
+                    },
+                    "updateFileDetails__post": {
+                        "basename": "updateFileDetails__post",
+                        "filepath": "fimidara/files/updateFileDetails__post.json",
+                        "names": [
+                            "fimidara",
+                            "files",
+                            "updateFileDetails__post"
+                        ],
+                        "children": {}
+                    },
+                    "uploadFile__post": {
+                        "basename": "uploadFile__post",
+                        "filepath": "fimidara/files/uploadFile__post.json",
+                        "names": [
+                            "fimidara",
+                            "files",
+                            "uploadFile__post"
+                        ],
+                        "children": {}
+                    }
+                }
+            },
             "agentTokens": {
                 "basename": "agentTokens",
                 "names": [
@@ -296,115 +415,6 @@
                             "fimidara",
                             "permissionItems",
                             "resolveEntityPermissions__post"
-                        ],
-                        "children": {}
-                    }
-                }
-            },
-            "files": {
-                "basename": "files",
-                "names": [
-                    "fimidara",
-                    "files"
-                ],
-                "children": {
-                    "completeMultipartUpload__post": {
-                        "basename": "completeMultipartUpload__post",
-                        "filepath": "fimidara/files/completeMultipartUpload__post.json",
-                        "names": [
-                            "fimidara",
-                            "files",
-                            "completeMultipartUpload__post"
-                        ],
-                        "children": {}
-                    },
-                    "deleteFile__delete": {
-                        "basename": "deleteFile__delete",
-                        "filepath": "fimidara/files/deleteFile__delete.json",
-                        "names": [
-                            "fimidara",
-                            "files",
-                            "deleteFile__delete"
-                        ],
-                        "children": {}
-                    },
-                    "getFileDetails__post": {
-                        "basename": "getFileDetails__post",
-                        "filepath": "fimidara/files/getFileDetails__post.json",
-                        "names": [
-                            "fimidara",
-                            "files",
-                            "getFileDetails__post"
-                        ],
-                        "children": {}
-                    },
-                    "listParts__post": {
-                        "basename": "listParts__post",
-                        "filepath": "fimidara/files/listParts__post.json",
-                        "names": [
-                            "fimidara",
-                            "files",
-                            "listParts__post"
-                        ],
-                        "children": {}
-                    },
-                    "readFile__get": {
-                        "basename": "readFile__get",
-                        "filepath": "fimidara/files/readFile__get.json",
-                        "names": [
-                            "fimidara",
-                            "files",
-                            "readFile__get"
-                        ],
-                        "children": {}
-                    },
-                    "readFile__head": {
-                        "basename": "readFile__head",
-                        "filepath": "fimidara/files/readFile__head.json",
-                        "names": [
-                            "fimidara",
-                            "files",
-                            "readFile__head"
-                        ],
-                        "children": {}
-                    },
-                    "readFile__post": {
-                        "basename": "readFile__post",
-                        "filepath": "fimidara/files/readFile__post.json",
-                        "names": [
-                            "fimidara",
-                            "files",
-                            "readFile__post"
-                        ],
-                        "children": {}
-                    },
-                    "startMultipartUpload__post": {
-                        "basename": "startMultipartUpload__post",
-                        "filepath": "fimidara/files/startMultipartUpload__post.json",
-                        "names": [
-                            "fimidara",
-                            "files",
-                            "startMultipartUpload__post"
-                        ],
-                        "children": {}
-                    },
-                    "updateFileDetails__post": {
-                        "basename": "updateFileDetails__post",
-                        "filepath": "fimidara/files/updateFileDetails__post.json",
-                        "names": [
-                            "fimidara",
-                            "files",
-                            "updateFileDetails__post"
-                        ],
-                        "children": {}
-                    },
-                    "uploadFile__post": {
-                        "basename": "uploadFile__post",
-                        "filepath": "fimidara/files/uploadFile__post.json",
-                        "names": [
-                            "fimidara",
-                            "files",
-                            "uploadFile__post"
                         ],
                         "children": {}
                     }

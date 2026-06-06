@@ -525,6 +525,82 @@
                                     "description": "File version, representing how many times a file has been uploaded",
                                     "example": 1
                                 }
+                            },
+                            "read": {
+                                "__id": "FieldObjectField",
+                                "required": true,
+                                "data": {
+                                    "__id": "FieldObject",
+                                    "name": "ResourceAvailability",
+                                    "description": "Whether a read or write operation is available on a file or part, including whether it is available for the current requester",
+                                    "fields": {
+                                        "available": {
+                                            "__id": "FieldObjectField",
+                                            "required": true,
+                                            "data": {
+                                                "__id": "FieldBoolean",
+                                                "description": "Whether the operation is available to any caller right now",
+                                                "example": true
+                                            }
+                                        },
+                                        "availableForYou": {
+                                            "__id": "FieldObjectField",
+                                            "required": true,
+                                            "data": {
+                                                "__id": "FieldBoolean",
+                                                "description": "Whether the operation is available to the current requester. This is true when available is true, or when the requester is the uploader that holds the lock",
+                                                "example": true
+                                            }
+                                        },
+                                        "lockedBy": {
+                                            "__id": "FieldObjectField",
+                                            "required": false,
+                                            "data": {
+                                                "__id": "FieldString",
+                                                "description": "The uploadSessionId or authenticated user/token id of the uploader holding the lock. Present only when available is false",
+                                                "example": "user-abc123"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "write": {
+                                "__id": "FieldObjectField",
+                                "required": true,
+                                "data": {
+                                    "__id": "FieldObject",
+                                    "name": "ResourceAvailability",
+                                    "description": "Whether a read or write operation is available on a file or part, including whether it is available for the current requester",
+                                    "fields": {
+                                        "available": {
+                                            "__id": "FieldObjectField",
+                                            "required": true,
+                                            "data": {
+                                                "__id": "FieldBoolean",
+                                                "description": "Whether the operation is available to any caller right now",
+                                                "example": true
+                                            }
+                                        },
+                                        "availableForYou": {
+                                            "__id": "FieldObjectField",
+                                            "required": true,
+                                            "data": {
+                                                "__id": "FieldBoolean",
+                                                "description": "Whether the operation is available to the current requester. This is true when available is true, or when the requester is the uploader that holds the lock",
+                                                "example": true
+                                            }
+                                        },
+                                        "lockedBy": {
+                                            "__id": "FieldObjectField",
+                                            "required": false,
+                                            "data": {
+                                                "__id": "FieldString",
+                                                "description": "The uploadSessionId or authenticated user/token id of the uploader holding the lock. Present only when available is false",
+                                                "example": "user-abc123"
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

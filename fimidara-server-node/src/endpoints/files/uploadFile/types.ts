@@ -19,6 +19,7 @@ export interface UploadFileEndpointParams extends FileMatcher {
   size: number;
   part?: number;
   clientMultipartId?: string;
+  uploadSessionId?: string;
   append?: boolean;
   onAppendCreateIfNotExists?: boolean;
 }
@@ -47,7 +48,7 @@ export type IInternalMultipartIdQueueOutput =
 export interface IPrepareFileQueueInput
   extends Pick<
     UploadFileEndpointParams,
-    'filepath' | 'clientMultipartId' | 'fileId'
+    'filepath' | 'clientMultipartId' | 'fileId' | 'uploadSessionId'
   > {
   workspaceId: string;
   shouldCreate?: boolean; // defaults to true
