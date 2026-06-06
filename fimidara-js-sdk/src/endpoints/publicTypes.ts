@@ -4,6 +4,47 @@
 import type {Readable} from 'stream';
 
 /**
+ * Parameters for clearing a stuck upload lock or multipart upload state. Omit clientMultipartId to unlock a stuck single or multipart upload. Provide clientMultipartId to target a specific multipart session. Provide clientMultipartId and part to delete one uploaded part
+ */
+export type AbortUploadEndpointParams = {
+  /**
+   * File path, with each folder name separated by a forward slash. The first item must be the workspace rootname, and must include the file extension. e.g /workspace-rootname/my-folder/my-file.txt.
+   * @example
+   * ```
+   * /workspace-rootname/my-folder/my-file.txt
+   * ```
+   */
+  filepath?: string;
+  /**
+   * File ID
+   * @example
+   * ```
+   * file000_000000000000000000000
+   * ```
+   */
+  fileId?: string;
+  /**
+   * Client generated unique identifier for multipart uploads. It is used to identify the same multipart upload across multiple requests. Cannot be used with append mode.
+   * @example
+   * ```
+   * upload-123e4567-e89b-12d3-a456-426614174000
+   * ```
+   */
+  clientMultipartId?: string;
+  /**
+   * Part number of the multipart upload. -1 can be used to signify the end of a multipart upload.
+   * @example
+   * ```
+   * 1
+   * ```
+   */
+  part?: number;
+};
+/**
+ * Empty response when the upload lock or multipart state is cleared
+ */
+export type AbortUploadEndpointResult = {};
+/**
  * Parameters for creating a new agent token
  */
 export type AddAgentTokenEndpointParams = {
@@ -709,6 +750,35 @@ export type CompleteMultipartUploadEndpointParams = {
   parts: Array<CompleteMultipartUploadInputPart>;
 };
 /**
+ * Whether a read or write operation is available on a file or part, including whether it is available for the current requester
+ */
+export type ResourceAvailability = {
+  /**
+   * Whether the operation is available to any caller right now
+   * @example
+   * ```
+   * true
+   * ```
+   */
+  available: boolean;
+  /**
+   * Whether the operation is available to the current requester. For read, this is true when available is true or the caller matches the lock holder (uploadSessionId from the request when provided, otherwise the authenticated user id or agent token id). For write, this is true when available is true or uploadSessionId from the request matches lockedBy
+   * @example
+   * ```
+   * true
+   * ```
+   */
+  availableForYou: boolean;
+  /**
+   * The uploadSessionId or authenticated user/token id of the uploader holding the lock. Present only when available is false
+   * @example
+   * ```
+   * user-abc123
+   * ```
+   */
+  lockedBy?: string;
+};
+/**
  * File resource with metadata and location information
  */
 export type File = {
@@ -850,6 +920,14 @@ export type File = {
    * ```
    */
   version: number;
+  /**
+   * Whether a read or write operation is available on a file or part, including whether it is available for the current requester
+   */
+  read: ResourceAvailability;
+  /**
+   * Whether a read or write operation is available on a file or part, including whether it is available for the current requester
+   */
+  write: ResourceAvailability;
 };
 /**
  * Response containing the completed file and optional job information
@@ -1124,7 +1202,7 @@ export type DeleteCollaborationRequestEndpointParams = {
   requestId: string;
 };
 /**
- * Parameters for deleting a file or specific multipart upload parts
+ * Parameters for deleting a file
  */
 export type DeleteFileEndpointParams = {
   /**
@@ -1143,22 +1221,6 @@ export type DeleteFileEndpointParams = {
    * ```
    */
   fileId?: string;
-  /**
-   * Client generated unique identifier for multipart uploads. It is used to identify the same multipart upload across multiple requests
-   * @example
-   * ```
-   * upload-123e4567-e89b-12d3-a456-426614174000
-   * ```
-   */
-  clientMultipartId?: string;
-  /**
-   * Part number of the multipart upload
-   * @example
-   * ```
-   * 1
-   * ```
-   */
-  part?: number;
 };
 /**
  * Parameters for deleting a folder and optionally its contents
@@ -1628,6 +1690,14 @@ export type GetFileDetailsEndpointParams = {
    * ```
    */
   fileId?: string;
+  /**
+   * Optional client-provided identifier for the uploader/session performing the upload. When omitted, the authenticated user id or client token id is recorded as the lock owner. Pass the same uploadSessionId on retry after a failed upload to resume writing to a locked file or part
+   * @example
+   * ```
+   * my-upload-session-001
+   * ```
+   */
+  uploadSessionId?: string;
 };
 /**
  * Response containing the requested file details
@@ -2331,6 +2401,82 @@ export type ResourceWrapper = {
  *               "__id": "FieldNumber",
  *               "description": "File version, representing how many times a file has been uploaded",
  *               "example": 1
+ *             }
+ *           },
+ *           "read": {
+ *             "__id": "FieldObjectField",
+ *             "required": true,
+ *             "data": {
+ *               "__id": "FieldObject",
+ *               "name": "ResourceAvailability",
+ *               "description": "Whether a read or write operation is available on a file or part, including whether it is available for the current requester",
+ *               "fields": {
+ *                 "available": {
+ *                   "__id": "FieldObjectField",
+ *                   "required": true,
+ *                   "data": {
+ *                     "__id": "FieldBoolean",
+ *                     "description": "Whether the operation is available to any caller right now",
+ *                     "example": true
+ *                   }
+ *                 },
+ *                 "availableForYou": {
+ *                   "__id": "FieldObjectField",
+ *                   "required": true,
+ *                   "data": {
+ *                     "__id": "FieldBoolean",
+ *                     "description": "Whether the operation is available to the current requester. For read, this is true when available is true or the caller matches the lock holder (uploadSessionId from the request when provided, otherwise the authenticated user id or agent token id). For write, this is true when available is true or uploadSessionId from the request matches lockedBy",
+ *                     "example": true
+ *                   }
+ *                 },
+ *                 "lockedBy": {
+ *                   "__id": "FieldObjectField",
+ *                   "required": false,
+ *                   "data": {
+ *                     "__id": "FieldString",
+ *                     "description": "The uploadSessionId or authenticated user/token id of the uploader holding the lock. Present only when available is false",
+ *                     "example": "user-abc123"
+ *                   }
+ *                 }
+ *               }
+ *             }
+ *           },
+ *           "write": {
+ *             "__id": "FieldObjectField",
+ *             "required": true,
+ *             "data": {
+ *               "__id": "FieldObject",
+ *               "name": "ResourceAvailability",
+ *               "description": "Whether a read or write operation is available on a file or part, including whether it is available for the current requester",
+ *               "fields": {
+ *                 "available": {
+ *                   "__id": "FieldObjectField",
+ *                   "required": true,
+ *                   "data": {
+ *                     "__id": "FieldBoolean",
+ *                     "description": "Whether the operation is available to any caller right now",
+ *                     "example": true
+ *                   }
+ *                 },
+ *                 "availableForYou": {
+ *                   "__id": "FieldObjectField",
+ *                   "required": true,
+ *                   "data": {
+ *                     "__id": "FieldBoolean",
+ *                     "description": "Whether the operation is available to the current requester. For read, this is true when available is true or the caller matches the lock holder (uploadSessionId from the request when provided, otherwise the authenticated user id or agent token id). For write, this is true when available is true or uploadSessionId from the request matches lockedBy",
+ *                     "example": true
+ *                   }
+ *                 },
+ *                 "lockedBy": {
+ *                   "__id": "FieldObjectField",
+ *                   "required": false,
+ *                   "data": {
+ *                     "__id": "FieldString",
+ *                     "description": "The uploadSessionId or authenticated user/token id of the uploader holding the lock. Present only when available is false",
+ *                     "example": "user-abc123"
+ *                   }
+ *                 }
+ *               }
  *             }
  *           }
  *         }
@@ -4036,6 +4182,14 @@ export type StartMultipartUploadEndpointParams = {
    * ```
    */
   clientMultipartId: string;
+  /**
+   * Optional client-provided identifier for the uploader/session performing the upload. When omitted, the authenticated user id or client token id is recorded as the lock owner. Pass the same uploadSessionId on retry after a failed upload to resume writing to a locked file or part
+   * @example
+   * ```
+   * my-upload-session-001
+   * ```
+   */
+  uploadSessionId?: string;
 };
 /**
  * Response containing the file resource created for the multipart upload
@@ -4521,6 +4675,14 @@ export type UploadFileEndpointParams = {
    * ```
    */
   onAppendCreateIfNotExists?: boolean;
+  /**
+   * Optional client-provided identifier for the uploader/session performing the upload. When omitted, the authenticated user id or client token id is recorded as the lock owner. Pass the same uploadSessionId on retry after a failed upload to resume writing to a locked file or part
+   * @example
+   * ```
+   * my-upload-session-001
+   * ```
+   */
+  uploadSessionId?: string;
 };
 /**
  * Response containing the uploaded file information

@@ -10,6 +10,7 @@ import {appAssert} from '../../../utils/assertion.js';
 export function getCleanupMultipartFileUpdate(): Partial<File> {
   return {
     isWriteAvailable: true,
+    writeLockedBy: null,
     internalMultipartId: null,
     clientMultipartId: null,
     multipartTimeout: null,

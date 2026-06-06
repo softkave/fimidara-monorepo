@@ -17,6 +17,8 @@ export interface File extends WorkspaceResource {
   description?: string;
   isWriteAvailable?: boolean;
   isReadAvailable?: boolean;
+  /** uploadSessionId or agent id of the uploader that holds the write lock */
+  writeLockedBy?: string | null;
   version: number;
 
   // multipart uploads
@@ -25,6 +27,12 @@ export interface File extends WorkspaceResource {
   /** timestamp in ms */
   multipartTimeout?: number | null;
 }
+
+export type ResourceAvailability = {
+  available: boolean;
+  availableForYou: boolean;
+  lockedBy?: string;
+};
 
 export interface FilePart
   extends WorkspaceResource,
@@ -54,7 +62,10 @@ export type PublicFile = PublicWorkspaceResource &
       | 'description'
       | 'version'
     >
-  >;
+  > & {
+    read: ResourceAvailability;
+    write: ResourceAvailability;
+  };
 
 export type FileMatcher = {
   /** file path with workspace rootname e.g rootname/folder/file.txt */

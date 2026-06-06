@@ -6,6 +6,7 @@ import {
   HttpEndpointRequestHeaders_AuthOptional_ContentType,
   HttpEndpointResponseHeaders_ContentType_ContentLength,
 } from '../types.js';
+import {AbortUploadEndpoint} from './abortUpload/types.js';
 import {CompleteMultipartUploadEndpoint} from './completeMultipartUpload/types.js';
 import {DeleteFileEndpoint} from './deleteFile/types.js';
 import {GetFileDetailsEndpoint} from './getFileDetails/types.js';
@@ -19,6 +20,7 @@ import {StartMultipartUploadEndpoint} from './startMultipartUpload/types.js';
 import {UpdateFileDetailsEndpoint} from './updateFileDetails/types.js';
 import {
   UploadFileEndpoint,
+  UploadFileEndpointHttpQuery,
   UploadFileEndpointParams,
   UploadFileEndpointResult,
 } from './uploadFile/types.js';
@@ -33,6 +35,7 @@ export type UploadFileEndpointHTTPHeaders =
     'x-fimidara-multipart-part'?: number;
     'x-fimidara-append'?: string;
     'x-fimidara-on-append-create-if-not-exists'?: string;
+    'x-fimidara-upload-session-id'?: string;
     'content-length': number;
   };
 
@@ -100,7 +103,7 @@ export type UploadFileHttpEndpoint = ExportedHttpEndpointWithMfdocDefinition<
   /** TEndpoint */ UploadFileEndpoint,
   /** TRequestHeaders */ UploadFileEndpointHTTPHeaders,
   /** TPathParameters */ FileMatcherPathParameters,
-  /** TQuery */ EmptyObject,
+  /** TQuery */ UploadFileEndpointHttpQuery,
   /** TRequestBody */ Pick<UploadFileEndpointParams, 'data'>,
   /** TResponseHeaders */ HttpEndpointResponseHeaders_ContentType_ContentLength,
   /** TResponseBody */ UploadFileEndpointResult,
@@ -110,6 +113,8 @@ export type StartMultipartUploadHttpEndpoint =
   ExportedHttpEndpointWithMfdocDefinition<StartMultipartUploadEndpoint>;
 export type CompleteMultipartUploadHttpEndpoint =
   ExportedHttpEndpointWithMfdocDefinition<CompleteMultipartUploadEndpoint>;
+export type AbortUploadHttpEndpoint =
+  ExportedHttpEndpointWithMfdocDefinition<AbortUploadEndpoint>;
 
 export type FilesExportedEndpoints = {
   readFile: [
@@ -124,6 +129,7 @@ export type FilesExportedEndpoints = {
   listParts: ListPartsHttpEndpoint;
   startMultipartUpload: StartMultipartUploadHttpEndpoint;
   completeMultipartUpload: CompleteMultipartUploadHttpEndpoint;
+  abortUpload: AbortUploadHttpEndpoint;
 };
 
 export type FileMatcherPathParameters = {

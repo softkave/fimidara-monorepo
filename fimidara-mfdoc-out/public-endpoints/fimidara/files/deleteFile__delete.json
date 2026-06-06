@@ -5,7 +5,7 @@
     "requestBody": {
         "__id": "FieldObject",
         "name": "DeleteFileEndpointParams",
-        "description": "Parameters for deleting a file or specific multipart upload parts",
+        "description": "Parameters for deleting a file",
         "fields": {
             "filepath": {
                 "__id": "FieldObjectField",
@@ -23,24 +23,6 @@
                     "__id": "FieldString",
                     "description": "File ID",
                     "example": "file000_000000000000000000000"
-                }
-            },
-            "clientMultipartId": {
-                "__id": "FieldObjectField",
-                "required": false,
-                "data": {
-                    "__id": "FieldString",
-                    "description": "Client generated unique identifier for multipart uploads. It is used to identify the same multipart upload across multiple requests",
-                    "example": "upload-123e4567-e89b-12d3-a456-426614174000"
-                }
-            },
-            "part": {
-                "__id": "FieldObjectField",
-                "required": false,
-                "data": {
-                    "__id": "FieldNumber",
-                    "description": "Part number of the multipart upload",
-                    "example": 1
                 }
             }
         }
@@ -110,7 +92,7 @@
         }
     },
     "name": "fimidara/files/deleteFile",
-    "description": "Delete a file or cancel/delete specific parts of a multipart upload",
+    "description": "Delete a file. To clear stuck upload locks or abort multipart uploads, use abortUpload instead",
     "tags": [
         "public"
     ],

@@ -19,6 +19,7 @@ export interface UploadFileEndpointParams extends FileMatcher {
   size: number;
   part?: number;
   clientMultipartId?: string;
+  uploadSessionId?: string;
   append?: boolean;
   onAppendCreateIfNotExists?: boolean;
 }
@@ -26,6 +27,18 @@ export interface UploadFileEndpointParams extends FileMatcher {
 export interface UploadFileEndpointResult {
   file: PublicFile;
 }
+
+export type UploadFileEndpointHttpQuery = {
+  description?: string;
+  encoding?: string;
+  size?: string;
+  mimetype?: string;
+  clientMultipartId?: string;
+  uploadSessionId?: string;
+  part?: string;
+  append?: string;
+  onAppendCreateIfNotExists?: string;
+};
 
 export type UploadFileEndpoint = Endpoint<
   UploadFileEndpointParams,
@@ -47,7 +60,7 @@ export type IInternalMultipartIdQueueOutput =
 export interface IPrepareFileQueueInput
   extends Pick<
     UploadFileEndpointParams,
-    'filepath' | 'clientMultipartId' | 'fileId'
+    'filepath' | 'clientMultipartId' | 'fileId' | 'uploadSessionId'
   > {
   workspaceId: string;
   shouldCreate?: boolean; // defaults to true

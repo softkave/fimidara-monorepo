@@ -2,6 +2,18 @@ import { RedisClientType } from 'redis';
 import { convertToArray } from 'softkave-js-utils';
 import { ICacheContext } from './types.js';
 
+const kDeleteJsonIfOwnerScript = `
+local existing = redis.call('GET', KEYS[1])
+if not existing then
+  return 0
+end
+local data = cjson.decode(existing)
+if data.lockedBy == ARGV[1] then
+  return redis.call('DEL', KEYS[1])
+end
+return 0
+`;
+
 export class RedisCacheProvider implements ICacheContext {
   constructor(protected redis: RedisClientType) {}
 
@@ -45,6 +57,26 @@ export class RedisCacheProvider implements ICacheContext {
     opts?: {ttlMs?: number}
   ): Promise<void> {
     await this.redis.set(key, JSON.stringify(value), {PX: opts?.ttlMs});
+  }
+
+  async setJsonNx<T>(
+    key: string,
+    value: T,
+    opts?: {ttlMs?: number}
+  ): Promise<boolean> {
+    const result = await this.redis.set(key, JSON.stringify(value), {
+      NX: true,
+      ...(opts?.ttlMs ? {PX: opts.ttlMs} : {}),
+    });
+    return result === 'OK';
+  }
+
+  async deleteJsonIfOwner(key: string, ownerId: string): Promise<boolean> {
+    const result = await this.redis.eval(kDeleteJsonIfOwnerScript, {
+      keys: [key],
+      arguments: [ownerId],
+    });
+    return result === 1;
   }
 
   async setList(

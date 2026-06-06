@@ -16,7 +16,11 @@ export async function setFileWritable(fileId: string) {
   await kIjxSemantic.utils().withTxn(async opts => {
     await kIjxSemantic
       .file()
-      .getAndUpdateOneById(fileId, {isWriteAvailable: true}, opts);
+      .getAndUpdateOneById(
+        fileId,
+        {isWriteAvailable: true, writeLockedBy: null},
+        opts
+      );
   });
 }
 

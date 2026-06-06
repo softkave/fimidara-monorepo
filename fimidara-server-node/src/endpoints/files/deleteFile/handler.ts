@@ -4,10 +4,8 @@ import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {Job} from '../../../definitions/job.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {validate} from '../../../utils/validate.js';
-import {InvalidRequestError} from '../../errors.js';
 import {getAndCheckFileAuthorization} from '../utils.js';
 import {beginDeleteFile} from './beginDeleteFile.js';
-import {deleteMultipartUpload} from './deleteMultipartUpload.js';
 import {DeleteFileEndpoint} from './types.js';
 import {deleteFileJoiSchema} from './validation.js';
 import {appAssert} from '../../../utils/assertion.js';
@@ -33,32 +31,15 @@ const deleteFile: DeleteFileEndpoint = async reqData => {
     });
   });
 
-  let job: Job | undefined;
-  if (data.clientMultipartId) {
-    appAssert(
-      file.internalMultipartId,
-      new InvalidRequestError('File is not a multipart upload.')
-    );
+  const jobs = await beginDeleteFile({
+    agent,
+    workspaceId: file.workspaceId,
+    resources: [file],
+  });
 
-    await deleteMultipartUpload({
-      file,
-      multipartId: file.internalMultipartId,
-      part: data.part,
-      shouldCleanupFile: true,
-    });
-
-    return {};
-  } else {
-    const jobs = await beginDeleteFile({
-      agent,
-      workspaceId: file.workspaceId,
-      resources: [file],
-    });
-
-    job = first(jobs);
-    appAssert(job);
-    return {jobId: job.resourceId};
-  }
+  const job = first(jobs);
+  appAssert(job);
+  return {jobId: job.resourceId};
 };
 
 export default deleteFile;

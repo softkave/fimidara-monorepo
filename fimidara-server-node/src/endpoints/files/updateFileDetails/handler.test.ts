@@ -13,7 +13,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testHelpers/utils.js';
-import {fileExtractor, stringifyFilenamepath} from '../utils.js';
+import {extractPublicFile, stringifyFilenamepath} from '../utils.js';
 import updateFileDetails from './handler.js';
 import {
   UpdateFileDetailsEndpointParams,
@@ -30,7 +30,7 @@ afterAll(async () => {
 
 describe('updateFileDetails', () => {
   test('file updated', async () => {
-    const {userToken} = await insertUserForTest();
+    const {userToken, sessionAgent} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
     const updateInput: UpdateFileDetailsInput = {
@@ -59,7 +59,9 @@ describe('updateFileDetails', () => {
           EndpointReusableQueries.getByResourceId(file.resourceId)
         )
     );
-    expect(fileExtractor(updatedFile)).toMatchObject(result.file);
+    expect(extractPublicFile(updatedFile, sessionAgent.agentId)).toMatchObject(
+      result.file
+    );
     expect(updatedFile).toMatchObject(updateInput);
   });
 });

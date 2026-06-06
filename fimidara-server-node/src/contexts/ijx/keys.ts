@@ -85,6 +85,7 @@ export const kIjxKeys = {
   pubsub: 'pubsub',
   cache: 'cache',
   redlock: 'redlock',
+  partUploadLock: 'partUploadLock',
   redis: 'redis',
   ioredis: 'ioredis',
   dset: 'dset',

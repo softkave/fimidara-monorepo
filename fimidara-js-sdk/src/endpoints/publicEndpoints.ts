@@ -9,12 +9,28 @@ import {
 } from 'mfdoc-js-sdk-base';
 import {AbstractSdkEndpoints} from './AbstractSdkEndpoints.js';
 import {
+  type AbortUploadEndpointParams,
+  type AbortUploadEndpointResult,
+  type CompleteMultipartUploadEndpointParams,
+  type CompleteMultipartUploadEndpointResult,
+  type DeleteFileEndpointParams,
+  type LongRunningJobResult,
+  type GetFileDetailsEndpointParams,
+  type GetFileDetailsEndpointResult,
+  type ListPartsEndpointParams,
+  type ListPartsEndpointResult,
+  type ReadFileEndpointParams,
+  type StartMultipartUploadEndpointParams,
+  type StartMultipartUploadEndpointResult,
+  type UpdateFileDetailsEndpointParams,
+  type UpdateFileDetailsEndpointResult,
+  type UploadFileEndpointParams,
+  type UploadFileEndpointResult,
   type AddAgentTokenEndpointParams,
   type AddAgentTokenEndpointResult,
   type CountWorkspaceAgentTokensEndpointParams,
   type CountItemsResult,
   type DeleteAgentTokenEndpointParams,
-  type LongRunningJobResult,
   type EncodeAgentTokenEndpointParams,
   type EncodeAgentTokenEndpointResult,
   type GetAgentTokenEndpointParams,
@@ -56,20 +72,6 @@ import {
   type MultipleLongRunningJobResult,
   type ResolveEntityPermissionsEndpointParams,
   type ResolveEntityPermissionsEndpointResult,
-  type CompleteMultipartUploadEndpointParams,
-  type CompleteMultipartUploadEndpointResult,
-  type DeleteFileEndpointParams,
-  type GetFileDetailsEndpointParams,
-  type GetFileDetailsEndpointResult,
-  type ListPartsEndpointParams,
-  type ListPartsEndpointResult,
-  type ReadFileEndpointParams,
-  type StartMultipartUploadEndpointParams,
-  type StartMultipartUploadEndpointResult,
-  type UpdateFileDetailsEndpointParams,
-  type UpdateFileDetailsEndpointResult,
-  type UploadFileEndpointParams,
-  type UploadFileEndpointResult,
   type CountWorkspaceCollaborationRequestsEndpointParams,
   type DeleteCollaborationRequestEndpointParams,
   type GetWorkspaceCollaborationRequestEndpointParams,
@@ -106,6 +108,156 @@ import {
   type UpdateWorkspaceEndpointResult,
 } from './publicTypes.js';
 
+export class FilesEndpoints extends AbstractSdkEndpoints {
+  /**
+   * Clear a stuck upload lock or multipart upload state. Omit clientMultipartId to unlock a stuck single or multipart upload. Provide clientMultipartId to abort a specific multipart session (must match the active one). Provide clientMultipartId and part to delete one uploaded part and release its part lock
+   */
+  abortUpload = async (
+    props?: AbortUploadEndpointParams,
+    opts?: MfdocEndpointOpts
+  ): Promise<AbortUploadEndpointResult> => {
+    return this.executeJson(
+      {
+        data: props,
+        path: '/v1/files/abortUpload',
+        method: 'POST',
+      },
+      opts
+    );
+  };
+  completeMultipartUpload = async (
+    props: CompleteMultipartUploadEndpointParams,
+    opts?: MfdocEndpointOpts
+  ): Promise<CompleteMultipartUploadEndpointResult> => {
+    return this.executeJson(
+      {
+        data: props,
+        path: '/v1/files/completeMultipartUpload',
+        method: 'POST',
+      },
+      opts
+    );
+  };
+  deleteFile = async (
+    props?: DeleteFileEndpointParams,
+    opts?: MfdocEndpointOpts
+  ): Promise<LongRunningJobResult> => {
+    return this.executeJson(
+      {
+        data: props,
+        path: '/v1/files/deleteFile',
+        method: 'DELETE',
+      },
+      opts
+    );
+  };
+  getFileDetails = async (
+    props?: GetFileDetailsEndpointParams,
+    opts?: MfdocEndpointOpts
+  ): Promise<GetFileDetailsEndpointResult> => {
+    return this.executeJson(
+      {
+        data: props,
+        path: '/v1/files/getFileDetails',
+        method: 'POST',
+      },
+      opts
+    );
+  };
+  listParts = async (
+    props?: ListPartsEndpointParams,
+    opts?: MfdocEndpointOpts
+  ): Promise<ListPartsEndpointResult> => {
+    return this.executeJson(
+      {
+        data: props,
+        path: '/v1/files/listParts',
+        method: 'POST',
+      },
+      opts
+    );
+  };
+  readFile = async <TResponseType extends 'blob' | 'stream'>(
+    props?: ReadFileEndpointParams,
+    opts: MfdocEndpointDownloadBinaryOpts<TResponseType> = {
+      responseType: 'blob',
+    } as MfdocEndpointDownloadBinaryOpts<TResponseType>
+  ): Promise<MfdocEndpointResultWithBinaryResponse<TResponseType>> => {
+    const mapping = {
+      filepath: ['path', 'filepathOrId'],
+      fileId: ['path', 'filepathOrId'],
+      rangeHeader: ['header', 'Range'],
+      ifRangeHeader: ['header', 'If-Range'],
+    } as const;
+    return this.executeRaw(
+      {
+        responseType: opts.responseType,
+        data: props,
+        path: '/v1/files/readFile/:filepathOrId',
+        method: 'POST',
+      },
+      opts,
+      mapping
+    );
+  };
+  startMultipartUpload = async (
+    props: StartMultipartUploadEndpointParams,
+    opts?: MfdocEndpointOpts
+  ): Promise<StartMultipartUploadEndpointResult> => {
+    return this.executeJson(
+      {
+        data: props,
+        path: '/v1/files/startMultipartUpload',
+        method: 'POST',
+      },
+      opts
+    );
+  };
+  updateFileDetails = async (
+    props: UpdateFileDetailsEndpointParams,
+    opts?: MfdocEndpointOpts
+  ): Promise<UpdateFileDetailsEndpointResult> => {
+    return this.executeJson(
+      {
+        data: props,
+        path: '/v1/files/updateFileDetails',
+        method: 'POST',
+      },
+      opts
+    );
+  };
+  uploadFile = async (
+    props: UploadFileEndpointParams,
+    opts?: MfdocEndpointUploadBinaryOpts
+  ): Promise<UploadFileEndpointResult> => {
+    const mapping = {
+      filepath: ['path', 'filepathOrId'],
+      fileId: ['path', 'filepathOrId'],
+      data: ['body', 'data'],
+      description: ['header', 'x-fimidara-file-description'],
+      size: ['header', 'x-fimidara-file-size'],
+      encoding: ['header', 'x-fimidara-file-encoding'],
+      mimetype: ['header', 'x-fimidara-file-mimetype'],
+      clientMultipartId: ['header', 'x-fimidara-multipart-id'],
+      part: ['header', 'x-fimidara-multipart-part'],
+      append: ['header', 'x-fimidara-append'],
+      onAppendCreateIfNotExists: [
+        'header',
+        'x-fimidara-on-append-create-if-not-exists',
+      ],
+      uploadSessionId: ['header', 'x-fimidara-upload-session-id'],
+    } as const;
+    return this.executeJson(
+      {
+        formdata: props,
+        path: '/v1/files/uploadFile/:filepathOrId',
+        method: 'POST',
+      },
+      opts,
+      mapping
+    );
+  };
+}
 export class AgentTokensEndpoints extends AbstractSdkEndpoints {
   /**
    * Create a new agent token for API authentication. Agent tokens allow external applications and services to authenticate with the fimidara API.
@@ -464,142 +616,6 @@ export class PermissionItemsEndpoints extends AbstractSdkEndpoints {
     );
   };
 }
-export class FilesEndpoints extends AbstractSdkEndpoints {
-  /**
-   * Complete a multipart upload by assembling all uploaded parts into a single file
-   */
-  completeMultipartUpload = async (
-    props: CompleteMultipartUploadEndpointParams,
-    opts?: MfdocEndpointOpts
-  ): Promise<CompleteMultipartUploadEndpointResult> => {
-    return this.executeJson(
-      {
-        data: props,
-        path: '/v1/files/completeMultipartUpload',
-        method: 'POST',
-      },
-      opts
-    );
-  };
-  deleteFile = async (
-    props?: DeleteFileEndpointParams,
-    opts?: MfdocEndpointOpts
-  ): Promise<LongRunningJobResult> => {
-    return this.executeJson(
-      {
-        data: props,
-        path: '/v1/files/deleteFile',
-        method: 'DELETE',
-      },
-      opts
-    );
-  };
-  getFileDetails = async (
-    props?: GetFileDetailsEndpointParams,
-    opts?: MfdocEndpointOpts
-  ): Promise<GetFileDetailsEndpointResult> => {
-    return this.executeJson(
-      {
-        data: props,
-        path: '/v1/files/getFileDetails',
-        method: 'POST',
-      },
-      opts
-    );
-  };
-  listParts = async (
-    props?: ListPartsEndpointParams,
-    opts?: MfdocEndpointOpts
-  ): Promise<ListPartsEndpointResult> => {
-    return this.executeJson(
-      {
-        data: props,
-        path: '/v1/files/listParts',
-        method: 'POST',
-      },
-      opts
-    );
-  };
-  readFile = async <TResponseType extends 'blob' | 'stream'>(
-    props?: ReadFileEndpointParams,
-    opts: MfdocEndpointDownloadBinaryOpts<TResponseType> = {
-      responseType: 'blob',
-    } as MfdocEndpointDownloadBinaryOpts<TResponseType>
-  ): Promise<MfdocEndpointResultWithBinaryResponse<TResponseType>> => {
-    const mapping = {
-      filepath: ['path', 'filepathOrId'],
-      fileId: ['path', 'filepathOrId'],
-      rangeHeader: ['header', 'Range'],
-      ifRangeHeader: ['header', 'If-Range'],
-    } as const;
-    return this.executeRaw(
-      {
-        responseType: opts.responseType,
-        data: props,
-        path: '/v1/files/readFile/:filepathOrId',
-        method: 'POST',
-      },
-      opts,
-      mapping
-    );
-  };
-  startMultipartUpload = async (
-    props: StartMultipartUploadEndpointParams,
-    opts?: MfdocEndpointOpts
-  ): Promise<StartMultipartUploadEndpointResult> => {
-    return this.executeJson(
-      {
-        data: props,
-        path: '/v1/files/startMultipartUpload',
-        method: 'POST',
-      },
-      opts
-    );
-  };
-  updateFileDetails = async (
-    props: UpdateFileDetailsEndpointParams,
-    opts?: MfdocEndpointOpts
-  ): Promise<UpdateFileDetailsEndpointResult> => {
-    return this.executeJson(
-      {
-        data: props,
-        path: '/v1/files/updateFileDetails',
-        method: 'POST',
-      },
-      opts
-    );
-  };
-  uploadFile = async (
-    props: UploadFileEndpointParams,
-    opts?: MfdocEndpointUploadBinaryOpts
-  ): Promise<UploadFileEndpointResult> => {
-    const mapping = {
-      filepath: ['path', 'filepathOrId'],
-      fileId: ['path', 'filepathOrId'],
-      data: ['body', 'data'],
-      description: ['header', 'x-fimidara-file-description'],
-      size: ['header', 'x-fimidara-file-size'],
-      encoding: ['header', 'x-fimidara-file-encoding'],
-      mimetype: ['header', 'x-fimidara-file-mimetype'],
-      clientMultipartId: ['header', 'x-fimidara-multipart-id'],
-      part: ['header', 'x-fimidara-multipart-part'],
-      append: ['header', 'x-fimidara-append'],
-      onAppendCreateIfNotExists: [
-        'header',
-        'x-fimidara-on-append-create-if-not-exists',
-      ],
-    } as const;
-    return this.executeJson(
-      {
-        formdata: props,
-        path: '/v1/files/uploadFile/:filepathOrId',
-        method: 'POST',
-      },
-      opts,
-      mapping
-    );
-  };
-}
 export class CollaborationRequestsEndpoints extends AbstractSdkEndpoints {
   /**
    * Get the total count of collaboration requests sent from your workspace. Useful for analytics and pagination calculations.
@@ -894,11 +910,11 @@ export class WorkspacesEndpoints extends AbstractSdkEndpoints {
   };
 }
 export class FimidaraEndpoints extends AbstractSdkEndpoints {
+  files = new FilesEndpoints(this.config, this);
   agentTokens = new AgentTokensEndpoints(this.config, this);
   folders = new FoldersEndpoints(this.config, this);
   permissionGroups = new PermissionGroupsEndpoints(this.config, this);
   permissionItems = new PermissionItemsEndpoints(this.config, this);
-  files = new FilesEndpoints(this.config, this);
   collaborationRequests = new CollaborationRequestsEndpoints(this.config, this);
   collaborators = new CollaboratorsEndpoints(this.config, this);
   usageRecords = new UsageRecordsEndpoints(this.config, this);

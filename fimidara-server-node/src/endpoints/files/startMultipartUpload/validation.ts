@@ -7,5 +7,6 @@ export const startMultipartUploadJoiSchema =
     .keys({
       ...fileValidationSchemas.fileMatcherParts,
       clientMultipartId: fileValidationSchemas.clientMultipartId.required(),
+      uploadSessionId: fileValidationSchemas.uploadSessionId,
     })
     .required();

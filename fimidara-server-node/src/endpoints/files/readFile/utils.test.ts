@@ -95,20 +95,27 @@ describe('parseRangeHeader', () => {
     expect(parseRangeHeader('bytes=100-200-300', 1000)).toBeNull();
   });
 
-  test('merges overlapping ranges', () => {
+  test('sorts overlapping ranges without merging them', () => {
     const result = parseRangeHeader('bytes=0-100,50-150', 1000);
-    expect(result).toEqual([{start: 0, end: 150}]);
+    expect(result).toEqual([
+      {start: 0, end: 100},
+      {start: 50, end: 150},
+    ]);
   });
 
-  test('merges adjacent ranges', () => {
+  test('sorts adjacent ranges without merging them', () => {
     const result = parseRangeHeader('bytes=0-99,100-199', 1000);
-    expect(result).toEqual([{start: 0, end: 199}]);
+    expect(result).toEqual([
+      {start: 0, end: 99},
+      {start: 100, end: 199},
+    ]);
   });
 
-  test('sorts and merges multiple overlapping ranges', () => {
+  test('sorts multiple overlapping ranges without merging them', () => {
     const result = parseRangeHeader('bytes=100-200,0-150,250-300', 1000);
     expect(result).toEqual([
-      {start: 0, end: 200},
+      {start: 0, end: 150},
+      {start: 100, end: 200},
       {start: 250, end: 300},
     ]);
   });

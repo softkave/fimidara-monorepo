@@ -34,7 +34,7 @@ export async function cleanupStaleMultipartUpload(params: {
 export async function prepareFileForUpload(params: {
   data: Pick<
     UploadFileEndpointParams,
-    'filepath' | 'clientMultipartId' | 'fileId'
+    'filepath' | 'clientMultipartId' | 'fileId' | 'uploadSessionId'
   >;
   agent: SessionAgent;
   shouldCreate?: boolean; // defaults to true

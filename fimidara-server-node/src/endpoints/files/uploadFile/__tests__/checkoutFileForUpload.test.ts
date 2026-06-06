@@ -49,8 +49,82 @@ describe('checkoutFileForUpload', () => {
       assert.ok(dbFile);
       expect(dbFile.clientMultipartId).toEqual(clientMultipartId);
       expect(dbFile.isWriteAvailable).toEqual(false);
+      expect(dbFile.writeLockedBy).toEqual(sessionAgent.agentId);
     }
   );
+
+  test('should fail if locked by same actor without uploadSessionId', async () => {
+    const {userToken, sessionAgent} = await insertUserForTest();
+    const {rawWorkspace: workspace} = await insertWorkspaceForTest(userToken);
+    const [file] = await generateAndInsertTestFiles(1, {
+      parentId: null,
+      workspaceId: workspace.resourceId,
+      isWriteAvailable: false,
+      writeLockedBy: sessionAgent.agentId,
+    });
+
+    await expect(async () => {
+      await kIjxSemantic.utils().withTxn(async opts => {
+        return await checkoutFileForUpload({
+          agent: sessionAgent,
+          workspace,
+          file,
+          data: {},
+          opts,
+        });
+      });
+    }).rejects.toThrow(FileNotWritableError);
+  });
+
+  test('should succeed if file is locked by same uploadSessionId holder', async () => {
+    const {userToken, sessionAgent} = await insertUserForTest();
+    const {rawWorkspace: workspace} = await insertWorkspaceForTest(userToken);
+    const uploadSessionId = 'my-session';
+    const [file] = await generateAndInsertTestFiles(1, {
+      parentId: null,
+      workspaceId: workspace.resourceId,
+      isWriteAvailable: false,
+      writeLockedBy: uploadSessionId,
+    });
+
+    const checkedFile = await kIjxSemantic.utils().withTxn(async opts => {
+      return await checkoutFileForUpload({
+        agent: sessionAgent,
+        workspace,
+        file,
+        data: {uploadSessionId},
+        opts,
+      });
+    });
+
+    assert.ok(checkedFile);
+    expect(checkedFile.isWriteAvailable).toEqual(false);
+    expect(checkedFile.writeLockedBy).toEqual(uploadSessionId);
+  });
+
+  test('should fail if locked by same actor but different clientMultipartId', async () => {
+    const {userToken, sessionAgent} = await insertUserForTest();
+    const {rawWorkspace: workspace} = await insertWorkspaceForTest(userToken);
+    const [file] = await generateAndInsertTestFiles(1, {
+      parentId: null,
+      workspaceId: workspace.resourceId,
+      isWriteAvailable: false,
+      writeLockedBy: sessionAgent.agentId,
+      clientMultipartId: 'existing-multipart',
+    });
+
+    await expect(async () => {
+      await kIjxSemantic.utils().withTxn(async opts => {
+        return await checkoutFileForUpload({
+          agent: sessionAgent,
+          workspace,
+          file,
+          data: {clientMultipartId: 'different-multipart'},
+          opts,
+        });
+      });
+    }).rejects.toThrow(FileNotWritableError);
+  });
 
   test('should fail if file is not writeable', async () => {
     const {userToken, sessionAgent} = await insertUserForTest();

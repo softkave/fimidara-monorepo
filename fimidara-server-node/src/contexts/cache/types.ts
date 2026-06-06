@@ -20,6 +20,17 @@ export interface ICacheContext extends DisposableResource {
       ttlMs?: number;
     }
   ): Promise<void>;
+  setJsonNx<T>(
+    key: string,
+    value: T,
+    opts?: {
+      ttlMs?: number;
+    }
+  ): Promise<boolean>;
+  deleteJsonIfOwner(
+    key: string,
+    ownerId: string
+  ): Promise<boolean>;
   setList(list: Array<{key: string; value: string | Buffer}>): Promise<void>;
   setJsonList<T>(list: Array<{key: string; value: T}>): Promise<void>;
   delete(key: string | string[]): Promise<void>;

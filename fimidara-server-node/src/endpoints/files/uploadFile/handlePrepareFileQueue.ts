@@ -62,7 +62,7 @@ async function getAndPrepareExistingFile(params: {
   agent: SessionAgent;
   data: Pick<
     UploadFileEndpointParams,
-    'filepath' | 'fileId' | 'clientMultipartId'
+    'filepath' | 'fileId' | 'clientMultipartId' | 'uploadSessionId'
   >;
 }) {
   const {agent, data} = params;
@@ -98,7 +98,7 @@ async function createAndPrepareNewFile(params: {
   agent: SessionAgent;
   data: Pick<
     UploadFileEndpointParams,
-    'filepath' | 'clientMultipartId' | 'part' | 'fileId'
+    'filepath' | 'clientMultipartId' | 'part' | 'fileId' | 'uploadSessionId'
   >;
 }) {
   const {agent, data} = params;

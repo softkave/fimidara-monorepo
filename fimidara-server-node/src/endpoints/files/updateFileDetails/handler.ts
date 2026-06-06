@@ -9,7 +9,7 @@ import {validate} from '../../../utils/validate.js';
 import {assertWorkspace} from '../../workspaces/utils.js';
 import {
   assertFile,
-  fileExtractor,
+  extractPublicFile,
   getAndCheckFileAuthorization,
 } from '../utils.js';
 import {UpdateFileDetailsEndpoint} from './types.js';
@@ -60,7 +60,9 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async reqData => {
     return file;
   });
 
-  return {file: fileExtractor(file)};
+  return {
+    file: extractPublicFile(file, agent.agentId),
+  };
 };
 
 export default updateFileDetails;

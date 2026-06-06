@@ -8,7 +8,7 @@ import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
 } from '../../contexts/semantic/types.js';
-import {File, FileMatcher, PublicFile} from '../../definitions/file.js';
+import {File, FileMatcher} from '../../definitions/file.js';
 import {
   FileBackendMount,
   ResolvedMountEntry,
@@ -25,6 +25,7 @@ import {
   kFimidaraResourceType,
 } from '../../definitions/system.js';
 import {Workspace} from '../../definitions/workspace.js';
+import {appAssert} from '../../utils/assertion.js';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract.js';
 import {pathBasename, pathJoin} from '../../utils/fns.js';
 import {
@@ -55,7 +56,7 @@ import {
 } from '../workspaces/utils.js';
 import {kFileConstants} from './constants.js';
 import {getFileWithMatcher} from './getFilesWithMatcher.js';
-import {appAssert} from '../../utils/assertion.js';
+import {fileFields} from './utils/fileFields.js';
 
 const presignedPathFields = getFields<PublicPresignedPath>({
   ...workspaceResourceFields,
@@ -71,22 +72,19 @@ const presignedPathFields = getFields<PublicPresignedPath>({
 export const presignedPathExtractor = makeExtract(presignedPathFields);
 export const presignedPathListExtractor = makeListExtract(presignedPathFields);
 
-const fileFields = getFields<PublicFile>({
-  ...workspaceResourceFields,
-  name: true,
-  description: true,
-  parentId: true,
-  mimetype: true,
-  size: true,
-  encoding: true,
-  ext: true,
-  idPath: true,
-  namepath: true,
-  version: true,
-});
-
 export const fileExtractor = makeExtract(fileFields);
 export const fileListExtractor = makeListExtract(fileFields);
+
+export {
+  extractPublicFile,
+  extractPublicFileList,
+  extractPublicFileWithoutAgent,
+} from './utils/extractPublicFile.js';
+export {
+  partDetailsExtractor,
+  partDetailsListExtractor,
+} from './utils/extractPublicPart.js';
+export {resolveUploadActorId} from './utils/uploadSession.js';
 
 export async function checkFileAuthorization(
   agent: SessionAgent,

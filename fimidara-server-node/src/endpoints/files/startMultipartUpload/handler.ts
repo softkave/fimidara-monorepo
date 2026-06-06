@@ -2,7 +2,7 @@ import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {prepareFileForUpload, prepareMultipart} from '../uploadFile/prepare.js';
-import {fileExtractor} from '../utils.js';
+import {extractPublicFile} from '../utils.js';
 import {StartMultipartUploadEndpoint} from './types.js';
 import {startMultipartUploadJoiSchema} from './validation.js';
 
@@ -31,7 +31,9 @@ const startMultipartUpload: StartMultipartUploadEndpoint = async reqData => {
     });
   }
 
-  return {file: fileExtractor(file)};
+  return {
+    file: extractPublicFile(file, agent.agentId, data.uploadSessionId),
+  };
 };
 
 export default startMultipartUpload;

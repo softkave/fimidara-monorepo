@@ -26,6 +26,10 @@ const clientMultipartId = Joi.string().max(
   kFileConstants.maxClientMultipartIdLength
 );
 
+const uploadSessionId = Joi.string().max(
+  kFileConstants.maxUploadSessionIdLength
+);
+
 const part = Joi.number()
   .integer()
   .min(kFileConstants.minPartNumber)
@@ -52,6 +56,7 @@ const fileValidationSchemas = {
   readable,
   fileMatcherParts,
   clientMultipartId,
+  uploadSessionId,
   part,
 };
 

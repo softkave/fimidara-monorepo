@@ -48,6 +48,31 @@ export class MemoryCacheProvider implements ICacheContext {
     }
   }
 
+  async setJsonNx<T>(
+    key: string,
+    value: T,
+    opts?: {ttlMs?: number}
+  ): Promise<boolean> {
+    if (this.cache.has(key)) {
+      return false;
+    }
+
+    this.cache.set(key, value);
+    if (opts?.ttlMs) {
+      setTimeout(() => this.cache.delete(key), opts.ttlMs);
+    }
+    return true;
+  }
+
+  async deleteJsonIfOwner(key: string, ownerId: string): Promise<boolean> {
+    const existing = this.cache.get(key) as {lockedBy?: string} | undefined;
+    if (existing?.lockedBy === ownerId) {
+      this.cache.delete(key);
+      return true;
+    }
+    return false;
+  }
+
   async setList(
     list: Array<{key: string; value: string | Buffer}>
   ): Promise<void> {
