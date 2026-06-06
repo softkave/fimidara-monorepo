@@ -24,6 +24,15 @@
                     "description": "File ID",
                     "example": "file000_000000000000000000000"
                 }
+            },
+            "uploadSessionId": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Optional client-provided identifier for the uploader/session performing the upload. When omitted, the authenticated user id or client token id is used. Pass the same value on retry after a failed upload to resume writing to a locked file or part",
+                    "example": "my-upload-session-001"
+                }
             }
         }
     },

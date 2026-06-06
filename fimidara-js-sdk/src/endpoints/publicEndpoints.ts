@@ -110,7 +110,7 @@ import {
 
 export class FilesEndpoints extends AbstractSdkEndpoints {
   /**
-   * Clear a stuck single-file upload lock, abort an entire multipart upload, or delete a specific uploaded part and release its part lock. Omit clientMultipartId to unlock a stuck single upload. Provide only clientMultipartId to abort the whole multipart upload. Provide clientMultipartId and part to clear one uploaded part
+   * Clear a stuck upload lock or multipart upload state. Omit clientMultipartId to unlock a stuck single or multipart upload. Provide clientMultipartId to abort a specific multipart session (must match the active one). Provide clientMultipartId and part to delete one uploaded part and release its part lock
    */
   abortUpload = async (
     props?: AbortUploadEndpointParams,

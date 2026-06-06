@@ -5,7 +5,7 @@
     "requestBody": {
         "__id": "FieldObject",
         "name": "AbortUploadEndpointParams",
-        "description": "Parameters for clearing a stuck upload lock, aborting a multipart upload, or deleting a specific uploaded part",
+        "description": "Parameters for clearing a stuck upload lock or multipart upload state. Omit clientMultipartId to unlock a stuck single or multipart upload. Provide clientMultipartId to target a specific multipart session. Provide clientMultipartId and part to delete one uploaded part",
         "fields": {
             "filepath": {
                 "__id": "FieldObjectField",
@@ -100,7 +100,7 @@
         "fields": {}
     },
     "name": "fimidara/files/abortUpload",
-    "description": "Clear a stuck single-file upload lock, abort an entire multipart upload, or delete a specific uploaded part and release its part lock. Omit clientMultipartId to unlock a stuck single upload. Provide only clientMultipartId to abort the whole multipart upload. Provide clientMultipartId and part to clear one uploaded part",
+    "description": "Clear a stuck upload lock or multipart upload state. Omit clientMultipartId to unlock a stuck single or multipart upload. Provide clientMultipartId to abort a specific multipart session (must match the active one). Provide clientMultipartId and part to delete one uploaded part and release its part lock",
     "tags": [
         "public"
     ],

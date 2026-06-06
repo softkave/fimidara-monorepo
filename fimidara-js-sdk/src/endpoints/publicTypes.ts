@@ -4,7 +4,7 @@
 import type {Readable} from 'stream';
 
 /**
- * Parameters for clearing a stuck upload lock, aborting a multipart upload, or deleting a specific uploaded part
+ * Parameters for clearing a stuck upload lock or multipart upload state. Omit clientMultipartId to unlock a stuck single or multipart upload. Provide clientMultipartId to target a specific multipart session. Provide clientMultipartId and part to delete one uploaded part
  */
 export type AbortUploadEndpointParams = {
   /**
@@ -1690,6 +1690,14 @@ export type GetFileDetailsEndpointParams = {
    * ```
    */
   fileId?: string;
+  /**
+   * Optional client-provided identifier for the uploader/session performing the upload. When omitted, the authenticated user id or client token id is used. Pass the same value on retry after a failed upload to resume writing to a locked file or part
+   * @example
+   * ```
+   * my-upload-session-001
+   * ```
+   */
+  uploadSessionId?: string;
 };
 /**
  * Response containing the requested file details
@@ -3649,14 +3657,6 @@ export type PartDetails = {
    * ```
    */
   size: number;
-  /**
-   * Whether a read or write operation is available on a file or part, including whether it is available for the current requester
-   */
-  read: ResourceAvailability;
-  /**
-   * Whether a read or write operation is available on a file or part, including whether it is available for the current requester
-   */
-  write: ResourceAvailability;
 };
 /**
  * Response containing the list of uploaded parts and pagination info
