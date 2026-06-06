@@ -1,5 +1,4 @@
 import {merge, pick} from 'lodash-es';
-import {UnionToTuple} from 'type-fest';
 import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {File, FileWithRuntimeData} from '../../../definitions/file.js';
@@ -86,7 +85,7 @@ export async function checkoutFileForUpload(params: {
     opts
   );
 
-  const runtimeProps: UnionToTuple<
+  const runtimeProps: Array<
     Exclude<keyof FileWithRuntimeData, keyof File>
   > = [
     'RUNTIME_ONLY_shouldCleanupMultipart',
