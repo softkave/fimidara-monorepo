@@ -20,6 +20,7 @@ import {StartMultipartUploadEndpoint} from './startMultipartUpload/types.js';
 import {UpdateFileDetailsEndpoint} from './updateFileDetails/types.js';
 import {
   UploadFileEndpoint,
+  UploadFileEndpointHttpQuery,
   UploadFileEndpointParams,
   UploadFileEndpointResult,
 } from './uploadFile/types.js';
@@ -102,7 +103,7 @@ export type UploadFileHttpEndpoint = ExportedHttpEndpointWithMfdocDefinition<
   /** TEndpoint */ UploadFileEndpoint,
   /** TRequestHeaders */ UploadFileEndpointHTTPHeaders,
   /** TPathParameters */ FileMatcherPathParameters,
-  /** TQuery */ EmptyObject,
+  /** TQuery */ UploadFileEndpointHttpQuery,
   /** TRequestBody */ Pick<UploadFileEndpointParams, 'data'>,
   /** TResponseHeaders */ HttpEndpointResponseHeaders_ContentType_ContentLength,
   /** TResponseBody */ UploadFileEndpointResult,

@@ -75,6 +75,7 @@ import {
   UpdateFileDetailsInput,
 } from './updateFileDetails/types.js';
 import {
+  UploadFileEndpointHttpQuery,
   UploadFileEndpointParams,
   UploadFileEndpointResult,
 } from './uploadFile/types.js';
@@ -237,8 +238,7 @@ const uploadSessionId = mfdocConstruct.constructString({
   description:
     'Optional client-provided identifier for the uploader/session performing the upload. ' +
     'When omitted, the authenticated user id or client token id is recorded as the lock owner. ' +
-    'Pass the same uploadSessionId on retry after a failed upload to resume writing to a locked file or part. ' +
-    'Clients sharing credentials must pass a unique uploadSessionId per upload to avoid concurrent write clashes',
+    'Pass the same uploadSessionId on retry after a failed upload to resume writing to a locked file or part',
   example: 'my-upload-session-001',
 });
 const file = mfdocConstruct.constructObject<PublicFile>({
@@ -659,6 +659,64 @@ const abortUploadParams =
     },
   });
 
+const uploadFileQuery =
+  mfdocConstruct.constructObject<UploadFileEndpointHttpQuery>({
+    name: 'UploadFileEndpointHttpQuery',
+    description:
+      'Optional query parameters for file upload metadata. ' +
+      'Headers take precedence when the same value is provided in both places',
+    fields: {
+      description: mfdocConstruct.constructObjectField({
+        required: false,
+        data: fReusables.description,
+      }),
+      encoding: mfdocConstruct.constructObjectField({
+        required: false,
+        data: encoding,
+      }),
+      size: mfdocConstruct.constructObjectField({
+        required: false,
+        data: mfdocConstruct.constructString({
+          description: size.description,
+          example: String(size.example),
+        }),
+      }),
+      mimetype: mfdocConstruct.constructObjectField({
+        required: false,
+        data: mimetype,
+      }),
+      clientMultipartId: mfdocConstruct.constructObjectField({
+        required: false,
+        data: clientMultipartId,
+      }),
+      part: mfdocConstruct.constructObjectField({
+        required: false,
+        data: mfdocConstruct.constructString({
+          description: part.description,
+          example: String(part.example),
+        }),
+      }),
+      append: mfdocConstruct.constructObjectField({
+        required: false,
+        data: mfdocConstruct.constructString({
+          description: append.description,
+          example: 'false',
+        }),
+      }),
+      onAppendCreateIfNotExists: mfdocConstruct.constructObjectField({
+        required: false,
+        data: mfdocConstruct.constructString({
+          description: onAppendCreateIfNotExists.description,
+          example: 'true',
+        }),
+      }),
+      uploadSessionId: mfdocConstruct.constructObjectField({
+        required: false,
+        data: uploadSessionId,
+      }),
+    },
+  });
+
 const uploadFileSdkParamsDef =
   mfdocConstruct.constructObject<UploadFileEndpointSdkParams>({
     name: 'UploadFileEndpointParams',
@@ -710,7 +768,7 @@ const updloadFileSdkParams = mfdocConstruct.constructSdkParamsBody<
   UploadFileEndpointParams,
   UploadFileEndpointHTTPHeaders,
   FileMatcherPathParameters,
-  EmptyObject,
+  UploadFileEndpointHttpQuery,
   Pick<UploadFileEndpointParams, 'data'>
 >({
   mappings: key => {
@@ -784,7 +842,9 @@ assert.ok(uploadMultipartWithAuthOptionalHeaderFields);
 const uploadFileEndpointHTTPHeaders =
   mfdocConstruct.constructObject<UploadFileEndpointHTTPHeaders>({
     name: 'UploadFileEndpointHTTPHeaders',
-    description: 'HTTP headers for file upload requests',
+    description:
+      'HTTP headers for file upload requests. ' +
+      'Most metadata fields can also be passed as query parameters; headers take precedence',
     fields: {
       ...uploadMultipartWithAuthOptionalHeaderFields,
       'content-length': mfdocConstruct.constructObjectField({
@@ -989,6 +1049,7 @@ export const uploadFileEndpointDefinition =
     path: kFileConstants.routes.uploadFile_post,
     pathParamaters: fileMatcherPathParameters,
     method: HttpEndpointMethod.Post,
+    query: uploadFileQuery,
     requestBody: uploadFileParams,
     requestHeaders: uploadFileEndpointHTTPHeaders,
     responseHeaders:

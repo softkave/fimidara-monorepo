@@ -28,6 +28,18 @@ export interface UploadFileEndpointResult {
   file: PublicFile;
 }
 
+export type UploadFileEndpointHttpQuery = {
+  description?: string;
+  encoding?: string;
+  size?: string;
+  mimetype?: string;
+  clientMultipartId?: string;
+  uploadSessionId?: string;
+  part?: string;
+  append?: string;
+  onAppendCreateIfNotExists?: string;
+};
+
 export type UploadFileEndpoint = Endpoint<
   UploadFileEndpointParams,
   UploadFileEndpointResult

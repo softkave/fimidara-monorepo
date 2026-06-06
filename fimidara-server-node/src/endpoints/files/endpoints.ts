@@ -11,6 +11,11 @@ import {tryGetResourceTypeFromId} from '../../utils/resource.js';
 import {kEndpointConstants} from '../constants.js';
 import {populateMountUnsupportedOpNoteInNotFoundError} from '../fileBackends/mountUtils.js';
 import {kFolderConstants} from '../folders/constants.js';
+import {
+  getHeaderOrQueryString,
+  parseHeaderOrQueryInt,
+  parseTruthyHeaderOrQuery,
+} from '../httpRequestParams.js';
 import {ExportedHttpEndpoint_HandleErrorFn, kEndpointTag} from '../types.js';
 import {endpointDecodeURIComponent} from '../utils.js';
 import abortUpload from './abortUpload/handler.js';
@@ -338,31 +343,53 @@ async function extractUploadFileParamsFromReq(
   req: Request
 ): Promise<UploadFileEndpointParams> {
   let waitTimeoutHandle: NodeJS.Timeout | undefined = undefined;
-  const contentEncoding =
-    req.headers[kFileConstants.headers['x-fimidara-file-encoding']];
+  const contentEncoding = getHeaderOrQueryString(
+    req,
+    kFileConstants.headers['x-fimidara-file-encoding'],
+    'encoding'
+  );
   const contentLength =
     req.headers['content-length'] ||
-    req.headers[kFileConstants.headers['x-fimidara-file-size']];
-  const description =
-    req.headers[kFileConstants.headers['x-fimidara-file-description']];
-  const mimeType =
-    req.headers[kFileConstants.headers['x-fimidara-file-mimetype']];
-  const clientMultipartId =
-    req.headers[kFileConstants.headers['x-fimidara-multipart-id']];
-  const uploadSessionId =
-    req.headers[kFileConstants.headers['x-fimidara-upload-session-id']];
-  const part = parseInt(
-    req.headers[kFileConstants.headers['x-fimidara-multipart-part']] as string
+    getHeaderOrQueryString(
+      req,
+      kFileConstants.headers['x-fimidara-file-size'],
+      'size'
+    );
+  const description = getHeaderOrQueryString(
+    req,
+    kFileConstants.headers['x-fimidara-file-description'],
+    'description'
   );
-  const appendHeader = req.headers[kFileConstants.headers['x-fimidara-append']];
-  const onAppendCreateIfNotExistsHeader =
-    req.headers[
-      kFileConstants.headers['x-fimidara-on-append-create-if-not-exists']
-    ];
-  const append = appendHeader === 'true' || appendHeader === '1';
-  const onAppendCreateIfNotExists =
-    onAppendCreateIfNotExistsHeader === 'true' ||
-    onAppendCreateIfNotExistsHeader === '1';
+  const mimeType = getHeaderOrQueryString(
+    req,
+    kFileConstants.headers['x-fimidara-file-mimetype'],
+    'mimetype'
+  );
+  const clientMultipartId = getHeaderOrQueryString(
+    req,
+    kFileConstants.headers['x-fimidara-multipart-id'],
+    'clientMultipartId'
+  );
+  const uploadSessionId = getHeaderOrQueryString(
+    req,
+    kFileConstants.headers['x-fimidara-upload-session-id'],
+    'uploadSessionId'
+  );
+  const part = parseHeaderOrQueryInt(
+    req,
+    kFileConstants.headers['x-fimidara-multipart-part'],
+    'part'
+  );
+  const append = parseTruthyHeaderOrQuery(
+    req,
+    kFileConstants.headers['x-fimidara-append'],
+    'append'
+  );
+  const onAppendCreateIfNotExists = parseTruthyHeaderOrQuery(
+    req,
+    kFileConstants.headers['x-fimidara-on-append-create-if-not-exists'],
+    'onAppendCreateIfNotExists'
+  );
 
   const bb = busboy({
     limits: kFileConstants.multipartLimits,

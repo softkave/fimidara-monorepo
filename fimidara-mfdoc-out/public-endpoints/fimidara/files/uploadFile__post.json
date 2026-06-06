@@ -18,6 +18,94 @@
         }
     },
     "method": "post",
+    "query": {
+        "__id": "FieldObject",
+        "name": "UploadFileEndpointHttpQuery",
+        "description": "Optional query parameters for file upload metadata. Headers take precedence when the same value is provided in both places",
+        "fields": {
+            "description": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Resource description",
+                    "example": "This is a resource description."
+                }
+            },
+            "encoding": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "File encoding",
+                    "example": "utf8"
+                }
+            },
+            "size": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "File size in bytes",
+                    "example": "1024000"
+                }
+            },
+            "mimetype": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "File MIME type",
+                    "example": "image/jpeg"
+                }
+            },
+            "clientMultipartId": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Client generated unique identifier for multipart uploads. It is used to identify the same multipart upload across multiple requests. Cannot be used with append mode.",
+                    "example": "upload-123e4567-e89b-12d3-a456-426614174000"
+                }
+            },
+            "part": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Part number of the multipart upload. -1 can be used to signify the end of a multipart upload.",
+                    "example": "1"
+                }
+            },
+            "append": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Whether to append data to the existing file instead of replacing it. If true, the new data will be appended to the end of the file. Cannot be used with multipart uploads (clientMultipartId must not be provided when append is true).",
+                    "example": "false"
+                }
+            },
+            "onAppendCreateIfNotExists": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Whether to create the file if it does not exist when append is true. Defaults to true. If false and the file does not exist, the operation will fail.",
+                    "example": "true"
+                }
+            },
+            "uploadSessionId": {
+                "__id": "FieldObjectField",
+                "required": false,
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Optional client-provided identifier for the uploader/session performing the upload. When omitted, the authenticated user id or client token id is recorded as the lock owner. Pass the same uploadSessionId on retry after a failed upload to resume writing to a locked file or part",
+                    "example": "my-upload-session-001"
+                }
+            }
+        }
+    },
     "requestBody": {
         "__id": "HttpEndpointMultipartFormdata",
         "description": "Multipart form data for file upload",
@@ -41,7 +129,7 @@
     "requestHeaders": {
         "__id": "FieldObject",
         "name": "UploadFileEndpointHTTPHeaders",
-        "description": "HTTP headers for file upload requests",
+        "description": "HTTP headers for file upload requests. Most metadata fields can also be passed as query parameters; headers take precedence",
         "fields": {
             "Authorization": {
                 "__id": "FieldObjectField",
@@ -152,7 +240,7 @@
                 "required": false,
                 "data": {
                     "__id": "FieldString",
-                    "description": "Optional client-provided identifier for the uploader/session performing the upload. When omitted, the authenticated user id or client token id is used. Pass the same value on retry after a failed upload to resume writing to a locked file or part",
+                    "description": "Optional client-provided identifier for the uploader/session performing the upload. When omitted, the authenticated user id or client token id is recorded as the lock owner. Pass the same uploadSessionId on retry after a failed upload to resume writing to a locked file or part",
                     "example": "my-upload-session-001"
                 }
             }
@@ -481,7 +569,7 @@
                                         "required": true,
                                         "data": {
                                             "__id": "FieldBoolean",
-                                            "description": "Whether the operation is available to the current requester. This is true when available is true, or when the requester is the uploader that holds the lock",
+                                            "description": "Whether the operation is available to the current requester. For read, this is true when available is true or the caller matches the lock holder (uploadSessionId from the request when provided, otherwise the authenticated user id or agent token id). For write, this is true when available is true or uploadSessionId from the request matches lockedBy",
                                             "example": true
                                         }
                                     },
@@ -519,7 +607,7 @@
                                         "required": true,
                                         "data": {
                                             "__id": "FieldBoolean",
-                                            "description": "Whether the operation is available to the current requester. This is true when available is true, or when the requester is the uploader that holds the lock",
+                                            "description": "Whether the operation is available to the current requester. For read, this is true when available is true or the caller matches the lock holder (uploadSessionId from the request when provided, otherwise the authenticated user id or agent token id). For write, this is true when available is true or uploadSessionId from the request matches lockedBy",
                                             "example": true
                                         }
                                     },
@@ -652,7 +740,7 @@
                     "required": false,
                     "data": {
                         "__id": "FieldString",
-                        "description": "Optional client-provided identifier for the uploader/session performing the upload. When omitted, the authenticated user id or client token id is used. Pass the same value on retry after a failed upload to resume writing to a locked file or part",
+                        "description": "Optional client-provided identifier for the uploader/session performing the upload. When omitted, the authenticated user id or client token id is recorded as the lock owner. Pass the same uploadSessionId on retry after a failed upload to resume writing to a locked file or part",
                         "example": "my-upload-session-001"
                     }
                 }

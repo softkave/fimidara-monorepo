@@ -667,6 +667,91 @@ describe('endpoints', () => {
       expect(result.append).toBe(true);
       expect(result.onAppendCreateIfNotExists).toBe(true);
     });
+
+    test('extracts upload metadata from query params when headers are absent', async () => {
+      const endpoints = getFilesHttpEndpoints();
+      const getDataFromReq = endpoints.uploadFile.getDataFromReq!;
+
+      const req = {
+        path: `/api/v1/files/uploadFile/workspace-rootname/file.txt`,
+        headers: {},
+        query: {
+          description: 'Query description',
+          encoding: 'utf-8',
+          size: '42',
+          mimetype: 'text/plain',
+          clientMultipartId: 'multipart-query',
+          uploadSessionId: 'session-query',
+          part: '3',
+          append: 'true',
+          onAppendCreateIfNotExists: '1',
+        },
+        pipe: vi.fn(),
+      } as unknown as Request;
+
+      let fileHandler: (filename: string, stream: Readable, info: any) => void;
+      mockBusboy.on.mockImplementation((event: string, handler: any) => {
+        if (event === 'file') {
+          fileHandler = handler;
+        }
+      });
+
+      const promise = getDataFromReq(req) as Promise<UploadFileEndpointParams>;
+
+      fileHandler!('test.txt', mockFileStream, {
+        mimeType: 'application/octet-stream',
+        encoding: '7bit',
+      });
+
+      const result = await promise;
+
+      expect(result.description).toBe('Query description');
+      expect(result.encoding).toBe('utf-8');
+      expect(result.size).toBe('42');
+      expect(result.mimetype).toBe('text/plain');
+      expect(result.clientMultipartId).toBe('multipart-query');
+      expect(result.uploadSessionId).toBe('session-query');
+      expect(result.part).toBe(3);
+      expect(result.append).toBe(true);
+      expect(result.onAppendCreateIfNotExists).toBe(true);
+    });
+
+    test('prefers headers over query params when both are provided', async () => {
+      const endpoints = getFilesHttpEndpoints();
+      const getDataFromReq = endpoints.uploadFile.getDataFromReq!;
+
+      const req = {
+        path: `/api/v1/files/uploadFile/workspace-rootname/file.txt`,
+        headers: {
+          'x-fimidara-file-description': 'Header description',
+          'x-fimidara-upload-session-id': 'session-header',
+        },
+        query: {
+          description: 'Query description',
+          uploadSessionId: 'session-query',
+        },
+        pipe: vi.fn(),
+      } as unknown as Request;
+
+      let fileHandler: (filename: string, stream: Readable, info: any) => void;
+      mockBusboy.on.mockImplementation((event: string, handler: any) => {
+        if (event === 'file') {
+          fileHandler = handler;
+        }
+      });
+
+      const promise = getDataFromReq(req) as Promise<UploadFileEndpointParams>;
+
+      fileHandler!('test.txt', mockFileStream, {
+        mimeType: 'text/plain',
+        encoding: 'utf-8',
+      });
+
+      const result = await promise;
+
+      expect(result.description).toBe('Header description');
+      expect(result.uploadSessionId).toBe('session-header');
+    });
   });
 
   describe('cleanupUploadFileReq through endpoint', () => {
