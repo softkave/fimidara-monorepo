@@ -11,7 +11,6 @@ import {
   assertFile,
   extractPublicFile,
   getAndCheckFileAuthorization,
-  resolveUploadActorId,
 } from '../utils.js';
 import {UpdateFileDetailsEndpoint} from './types.js';
 import {updateFileDetailsJoiSchema} from './validation.js';
@@ -62,7 +61,7 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async reqData => {
   });
 
   return {
-    file: extractPublicFile(file, resolveUploadActorId(undefined, agent)),
+    file: extractPublicFile(file, agent.agentId),
   };
 };
 

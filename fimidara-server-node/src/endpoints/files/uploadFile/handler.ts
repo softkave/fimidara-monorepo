@@ -119,10 +119,7 @@ async function handleUploadFile(params: {
 
     appAssert(file, new InvalidRequestError('File is required'));
     return {
-      file: extractPublicFile(
-        file,
-        resolveUploadActorId(data.uploadSessionId, agent)
-      ),
+      file: extractPublicFile(file, agent.agentId, data.uploadSessionId),
     };
   } catch (error) {
     if (!isMultipart) {

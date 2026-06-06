@@ -53,6 +53,29 @@ describe('checkoutFileForUpload', () => {
     }
   );
 
+  test('should fail if locked by same actor without uploadSessionId', async () => {
+    const {userToken, sessionAgent} = await insertUserForTest();
+    const {rawWorkspace: workspace} = await insertWorkspaceForTest(userToken);
+    const [file] = await generateAndInsertTestFiles(1, {
+      parentId: null,
+      workspaceId: workspace.resourceId,
+      isWriteAvailable: false,
+      writeLockedBy: sessionAgent.agentId,
+    });
+
+    await expect(async () => {
+      await kIjxSemantic.utils().withTxn(async opts => {
+        return await checkoutFileForUpload({
+          agent: sessionAgent,
+          workspace,
+          file,
+          data: {},
+          opts,
+        });
+      });
+    }).rejects.toThrow(FileNotWritableError);
+  });
+
   test('should succeed if file is locked by same uploadSessionId holder', async () => {
     const {userToken, sessionAgent} = await insertUserForTest();
     const {rawWorkspace: workspace} = await insertWorkspaceForTest(userToken);

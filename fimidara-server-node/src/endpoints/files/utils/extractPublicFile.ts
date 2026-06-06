@@ -10,29 +10,33 @@ const publicFileExtractor = makeExtract(fileFields);
 
 export function extractPublicFile(
   file: File,
-  uploadActorId: string
+  agentId: string,
+  uploadSessionId?: string
 ): PublicFile {
   const base = publicFileExtractor(file);
 
   return {
     ...base,
-    read: getFileReadAvailability(file, uploadActorId),
-    write: getFileWriteAvailability(file, uploadActorId),
+    read: getFileReadAvailability(file, agentId, uploadSessionId),
+    write: getFileWriteAvailability(file, uploadSessionId),
   };
 }
 
 export function extractPublicFileList(
   files: File[],
-  uploadActorId: string
+  agentId: string,
+  uploadSessionId?: string
 ): PublicFile[] {
-  return files.map(file => extractPublicFile(file, uploadActorId));
+  return files.map(file =>
+    extractPublicFile(file, agentId, uploadSessionId)
+  );
 }
 
 /** For contexts without a requester (e.g. generic resource extractors). */
 export function extractPublicFileWithoutAgent(file: File): PublicFile {
   const base = publicFileExtractor(file);
   const read = getFileReadAvailability(file, '');
-  const write = getFileWriteAvailability(file, '');
+  const write = getFileWriteAvailability(file);
 
   return {
     ...base,

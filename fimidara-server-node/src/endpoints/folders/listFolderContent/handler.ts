@@ -8,10 +8,7 @@ import {
 import {Workspace} from '../../../definitions/workspace.js';
 import {validate} from '../../../utils/validate.js';
 import {areMountsCompletelyIngestedForFolder} from '../../fileBackends/mountUtils.js';
-import {
-  extractPublicFileList,
-  resolveUploadActorId,
-} from '../../files/utils.js';
+import {extractPublicFileList} from '../../files/utils.js';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
@@ -61,10 +58,7 @@ const listFolderContent: ListFolderContentEndpoint = async reqData => {
 
   return {
     folders: folderListExtractor(fetchedFolders),
-    files: extractPublicFileList(
-      fetchedFiles,
-      resolveUploadActorId(undefined, agent)
-    ),
+    files: extractPublicFileList(fetchedFiles, agent.agentId),
     page: getEndpointPageFromInput(data),
     notes: mountsCompletelyIngested
       ? undefined

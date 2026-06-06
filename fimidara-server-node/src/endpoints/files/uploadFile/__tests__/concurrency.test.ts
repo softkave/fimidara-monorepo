@@ -108,9 +108,19 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         callUploadFile(),
       ]);
 
-      const sResultOuter = results.find(r => r.status === 'fulfilled');
-      assert.ok(sResultOuter?.status === 'fulfilled');
-      const sResult = sResultOuter?.value;
+      await kIjxUtils.promises().flush();
+
+      const fulfilled = results.filter(result => result.status === 'fulfilled');
+      const rejected = results.filter(result => result.status === 'rejected');
+
+      expect(fulfilled).toHaveLength(1);
+      expect(rejected).toHaveLength(2);
+      for (const result of rejected) {
+        expect((result.reason as Error)?.name).toBe(FileNotWritableError.name);
+      }
+
+      const sResult = fulfilled[0]?.value;
+      assert.ok(sResult);
 
       const files = await kIjxSemantic
         .file()

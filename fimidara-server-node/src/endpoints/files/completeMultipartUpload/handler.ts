@@ -3,11 +3,7 @@ import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {validate} from '../../../utils/validate.js';
 import {queueCompleteMultipartUploadJob} from '../../jobs/queueFns/completeMultipartUpload.js';
-import {
-  extractPublicFile,
-  getAndCheckFileAuthorization,
-  resolveUploadActorId,
-} from '../utils.js';
+import {extractPublicFile, getAndCheckFileAuthorization} from '../utils.js';
 import {CompleteMultipartUploadEndpoint} from './types.js';
 import {completeMultipartUploadJoiSchema} from './validation.js';
 
@@ -41,7 +37,7 @@ const completeMultipartUpload: CompleteMultipartUploadEndpoint =
     });
 
     return {
-      file: extractPublicFile(file, resolveUploadActorId(undefined, agent)),
+      file: extractPublicFile(file, agent.agentId),
       jobId: job.resourceId,
     };
   };

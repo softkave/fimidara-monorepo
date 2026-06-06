@@ -215,7 +215,9 @@ const resourceAvailability = mfdocConstruct.constructObject<ResourceAvailability
         data: mfdocConstruct.constructBoolean({
           description:
             'Whether the operation is available to the current requester. ' +
-            'This is true when available is true, or when the requester is the uploader that holds the lock',
+            'For read, this is true when available is true or the caller matches the lock holder ' +
+            '(uploadSessionId from the request when provided, otherwise the authenticated user id or agent token id). ' +
+            'For write, this is true when available is true or uploadSessionId from the request matches lockedBy',
           example: true,
         }),
       }),
@@ -234,8 +236,9 @@ const resourceAvailability = mfdocConstruct.constructObject<ResourceAvailability
 const uploadSessionId = mfdocConstruct.constructString({
   description:
     'Optional client-provided identifier for the uploader/session performing the upload. ' +
-    'When omitted, the authenticated user id or client token id is used. ' +
-    'Pass the same value on retry after a failed upload to resume writing to a locked file or part',
+    'When omitted, the authenticated user id or client token id is recorded as the lock owner. ' +
+    'Pass the same uploadSessionId on retry after a failed upload to resume writing to a locked file or part. ' +
+    'Clients sharing credentials must pass a unique uploadSessionId per upload to avoid concurrent write clashes',
   example: 'my-upload-session-001',
 });
 const file = mfdocConstruct.constructObject<PublicFile>({

@@ -2,11 +2,7 @@ import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {validate} from '../../../utils/validate.js';
-import {
-  extractPublicFile,
-  getAndCheckFileAuthorization,
-  resolveUploadActorId,
-} from '../utils.js';
+import {extractPublicFile, getAndCheckFileAuthorization} from '../utils.js';
 import {GetFileDetailsEndpoint} from './types.js';
 import {getFileDetailsJoiSchema} from './validation.js';
 
@@ -31,10 +27,7 @@ const getFileDetails: GetFileDetailsEndpoint = async reqData => {
   );
 
   return {
-    file: extractPublicFile(
-      file,
-      resolveUploadActorId(data.uploadSessionId, agent)
-    ),
+    file: extractPublicFile(file, agent.agentId, data.uploadSessionId),
   };
 };
 

@@ -7,7 +7,10 @@ import {Folder} from '../../../definitions/folder.js';
 import {SessionAgent} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {getCleanupMultipartFileUpdate} from '../deleteFile/deleteMultipartUpload.js';
-import {resolveUploadActorId} from '../utils/uploadSession.js';
+import {
+  canResumeUploadWriteLock,
+  resolveUploadActorId,
+} from '../utils/uploadSession.js';
 import {FileNotWritableError} from '../errors.js';
 import {checkUploadFileAuth} from './auth.js';
 import {beginCleanupExpiredMultipartUpload} from './multipart.js';
@@ -17,10 +20,8 @@ async function checkFileWriteAvailable(params: {
   file: File;
   clientMultipartId: string | undefined;
   uploadSessionId: string | undefined;
-  agent: SessionAgent;
 }) {
-  const {file, clientMultipartId, uploadSessionId, agent} = params;
-  const uploadActorId = resolveUploadActorId(uploadSessionId, agent);
+  const {file, clientMultipartId, uploadSessionId} = params;
 
   if (file.isWriteAvailable) {
     return;
@@ -30,8 +31,7 @@ async function checkFileWriteAvailable(params: {
   ) {
     return;
   } else if (
-    file.writeLockedBy &&
-    file.writeLockedBy === uploadActorId &&
+    canResumeUploadWriteLock(uploadSessionId, file.writeLockedBy) &&
     (!file.clientMultipartId || file.clientMultipartId === clientMultipartId)
   ) {
     return;
@@ -59,7 +59,6 @@ export async function checkoutFileForUpload(params: {
     file,
     clientMultipartId: data.clientMultipartId,
     uploadSessionId: data.uploadSessionId,
-    agent,
   });
 
   if (!skipAuth) {

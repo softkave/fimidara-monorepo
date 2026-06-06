@@ -1,42 +1,37 @@
 import {File, ResourceAvailability} from '../../../definitions/file.js';
+import {
+  callerMatchesWriteLock,
+  canResumeUploadWriteLock,
+} from './uploadSession.js';
 
-function getAvailabilityForActor(params: {
-  available: boolean;
-  lockedBy?: string | null;
-  uploadActorId: string;
-}): ResourceAvailability {
-  const {available, lockedBy, uploadActorId} = params;
-  const lockedByValue = lockedBy ?? undefined;
+export function getFileReadAvailability(
+  file: Pick<File, 'isReadAvailable' | 'writeLockedBy'>,
+  agentId: string,
+  uploadSessionId?: string
+): ResourceAvailability {
+  const available = file.isReadAvailable === true;
+  const lockedByValue = file.writeLockedBy ?? undefined;
 
   return {
     available,
     availableForYou:
-      available || (!!lockedByValue && lockedByValue === uploadActorId),
+      available ||
+      callerMatchesWriteLock(lockedByValue, uploadSessionId, agentId),
     ...(available ? {} : lockedByValue ? {lockedBy: lockedByValue} : {}),
   };
 }
 
-export function getFileReadAvailability(
-  file: Pick<File, 'isReadAvailable' | 'writeLockedBy'>,
-  uploadActorId: string
-): ResourceAvailability {
-  const available = file.isReadAvailable === true;
-  return getAvailabilityForActor({
-    available,
-    lockedBy: available ? undefined : file.writeLockedBy,
-    uploadActorId,
-  });
-}
-
 export function getFileWriteAvailability(
   file: Pick<File, 'isWriteAvailable' | 'writeLockedBy'>,
-  uploadActorId: string
+  uploadSessionId?: string
 ): ResourceAvailability {
   const available = file.isWriteAvailable !== false;
-  return getAvailabilityForActor({
-    available,
-    lockedBy: available ? undefined : file.writeLockedBy,
-    uploadActorId,
-  });
-}
+  const lockedByValue = file.writeLockedBy ?? undefined;
+  const canResume = canResumeUploadWriteLock(uploadSessionId, lockedByValue);
 
+  return {
+    available,
+    availableForYou: available || canResume,
+    ...(available ? {} : lockedByValue ? {lockedBy: lockedByValue} : {}),
+  };
+}

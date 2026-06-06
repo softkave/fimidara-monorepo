@@ -14,21 +14,33 @@ const mockAgent = {
 describe('availability', () => {
   test('write available when isWriteAvailable is true', () => {
     const file = {isWriteAvailable: true} as File;
-    const result = getFileWriteAvailability(file, 'user-123');
+    const result = getFileWriteAvailability(file);
     expect(result.available).toBe(true);
     expect(result.availableForYou).toBe(true);
     expect(result.lockedBy).toBeUndefined();
   });
 
-  test('write available for lock holder', () => {
+  test('write not available for lock holder without uploadSessionId', () => {
     const file = {
       isWriteAvailable: false,
       writeLockedBy: 'user-123',
     } as File;
-    const result = getFileWriteAvailability(file, 'user-123');
+    const result = getFileWriteAvailability(file);
+    expect(result.available).toBe(false);
+    expect(result.availableForYou).toBe(false);
+    expect(result.lockedBy).toBe('user-123');
+  });
+
+  test('write available for lock holder with matching uploadSessionId', () => {
+    const uploadSessionId = 'session-abc';
+    const file = {
+      isWriteAvailable: false,
+      writeLockedBy: uploadSessionId,
+    } as File;
+    const result = getFileWriteAvailability(file, uploadSessionId);
     expect(result.available).toBe(false);
     expect(result.availableForYou).toBe(true);
-    expect(result.lockedBy).toBe('user-123');
+    expect(result.lockedBy).toBe(uploadSessionId);
   });
 
   test('write not available for other user', () => {
@@ -36,20 +48,47 @@ describe('availability', () => {
       isWriteAvailable: false,
       writeLockedBy: 'user-123',
     } as File;
-    const result = getFileWriteAvailability(file, 'other-user');
+    const result = getFileWriteAvailability(file, 'other-session');
     expect(result.available).toBe(false);
     expect(result.availableForYou).toBe(false);
     expect(result.lockedBy).toBe('user-123');
   });
 
-  test('read availability follows isReadAvailable', () => {
+  test('read available for lock holder via uploadSessionId', () => {
+    const uploadSessionId = 'session-abc';
+    const lockedFile = {
+      isReadAvailable: false,
+      writeLockedBy: uploadSessionId,
+    } as File;
+    const result = getFileReadAvailability(
+      lockedFile,
+      mockAgent.agentId,
+      uploadSessionId
+    );
+    expect(result.available).toBe(false);
+    expect(result.availableForYou).toBe(true);
+    expect(result.lockedBy).toBe(uploadSessionId);
+  });
+
+  test('read available when lock owner is agent id and uploadSessionId omitted', () => {
+    const lockedFile = {
+      isReadAvailable: false,
+      writeLockedBy: mockAgent.agentId,
+    } as File;
+    const result = getFileReadAvailability(lockedFile, mockAgent.agentId);
+    expect(result.available).toBe(false);
+    expect(result.availableForYou).toBe(true);
+    expect(result.lockedBy).toBe(mockAgent.agentId);
+  });
+
+  test('read not available when lock is uploadSessionId but caller omits it', () => {
     const lockedFile = {
       isReadAvailable: false,
       writeLockedBy: 'session-abc',
     } as File;
-    const result = getFileReadAvailability(lockedFile, 'session-abc');
+    const result = getFileReadAvailability(lockedFile, mockAgent.agentId);
     expect(result.available).toBe(false);
-    expect(result.availableForYou).toBe(true);
+    expect(result.availableForYou).toBe(false);
     expect(result.lockedBy).toBe('session-abc');
   });
 
@@ -75,7 +114,8 @@ describe('availability', () => {
 
     const publicFile = extractPublicFile(file, mockAgent.agentId);
     expect(publicFile.read.available).toBe(false);
-    expect(publicFile.write.availableForYou).toBe(true);
+    expect(publicFile.read.availableForYou).toBe(true);
+    expect(publicFile.write.availableForYou).toBe(false);
     expect(publicFile.write.lockedBy).toBe('user-123');
   });
 });
