@@ -41,6 +41,7 @@ export function getFolderByPath(
   includesWorkspaceRootname: boolean
 ) {
   const isFolderpathMatch = (f1: string[], f2: string[]) =>
+    f1.length === f2.length &&
     f1.every((name, index) => name === f2[index]);
 
   folderpath = includesWorkspaceRootname
