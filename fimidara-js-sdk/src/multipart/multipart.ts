@@ -97,7 +97,12 @@ export interface IMultipartUploadHookFnParams {
 export interface IMultipartUploadParams
   extends Pick<
     UploadFileEndpointParams,
-    'description' | 'encoding' | 'mimetype' | 'fileId' | 'filepath'
+    | 'description'
+    | 'encoding'
+    | 'mimetype'
+    | 'fileId'
+    | 'filepath'
+    | 'uploadSessionId'
   > {
   /** fimidara API endpoints instance */
   endpoints: FimidaraEndpoints;
@@ -191,6 +196,7 @@ async function uploadOnce(params: IMultipartUploadParams) {
     fileId: rest.fileId,
     filepath: rest.filepath,
     size: partSize,
+    uploadSessionId: rest.uploadSessionId,
   });
 
   const afterPartHookParams: IMultipartUploadHookFnParams = {
@@ -308,6 +314,7 @@ export async function multipartUpload(params: IMultipartUploadParams) {
       clientMultipartId: params.clientMultipartId,
       fileId: rest.fileId,
       filepath: rest.filepath,
+      uploadSessionId: rest.uploadSessionId,
     });
   }
 
@@ -423,6 +430,7 @@ export async function multipartUpload(params: IMultipartUploadParams) {
         mimetype: rest.mimetype,
         fileId: rest.fileId,
         filepath: rest.filepath,
+        uploadSessionId: rest.uploadSessionId,
       });
 
       completedParts.add(data.part);
