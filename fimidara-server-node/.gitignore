@@ -126,6 +126,7 @@ runtime-logs/
 # config
 local.json
 local-*.json
+production.json
 
 # certificates
 certs/
