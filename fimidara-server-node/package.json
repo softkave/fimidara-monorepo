@@ -28,6 +28,8 @@
     "mongo:dev": "npx run-rs --host localhost --portStart 27000 --dbpath ./local-mongo/dev --keep -v 7.0.0",
     "mongo:test": "npx run-rs --host localhost --portStart 27005 --dbpath ./local-mongo/test",
     "render:email-templates": "env-cmd -f \".env.dev\" npx tsx src/tools/email-templates/index.ts",
+    "rebuild:usage-records": "npx --yes -- softkave-forerunner@latest run-env --cmd \"tsx src/tools/rebuild-usage-records/index.ts\"",
+    "rebuild:usage-records:prod": "npx --yes -- softkave-forerunner@latest run-env -e .env.production --cmd \"tsx src/tools/rebuild-usage-records/index.ts\"",
     "gen:public:setup-js-sdk": "mfdoc setup-js-sdk ../fimidara-js-sdk --name fimidara --provider pnpm",
     "gen:public:endpoints-info": "mfdoc gen-http-api-endpoints-info ./src/endpoints/endpoints.mfdoc.ts --output-path ../fimidara-mfdoc-out/public-endpoints --include-tags public --ignore-tags ignoreForEndpointsInfo",
     "gen:public:js-sdk": "mfdoc gen-js-sdk ./src/endpoints/endpoints.mfdoc.ts --output-path ../fimidara-js-sdk --include-tags public --filename-prefix public --ignore-tags ignoreForJsSdk",
