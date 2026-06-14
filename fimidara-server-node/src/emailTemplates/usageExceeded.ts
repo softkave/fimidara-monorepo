@@ -33,6 +33,9 @@ export const kUsageExceededEmailArtifacts = {
       case kUsageRecordCategory.bandwidthOut:
         message = `Outgoing bandwidth usage exceeded for workspace "${workspaceName}"`;
         break;
+      case kUsageRecordCategory.total:
+        message = `Total usage budget exceeded for workspace "${workspaceName}"`;
+        break;
       default:
         message = `${threshold.category} usage exceeded for workspace "${workspaceName}"`;
     }
@@ -98,6 +101,9 @@ export function getUsageExceededEmailMessage(
       break;
     case kUsageRecordCategory.bandwidthOut:
       message = `You have reached your outgoing bandwidth usage threshold for workspace "${workspaceName}"`;
+      break;
+    case kUsageRecordCategory.total:
+      message = `You have reached your total usage budget for workspace "${workspaceName}"`;
       break;
     // case UsageRecordCategoryMap.Request:
     //   message = `You have reached your API requests usage threshold for workspace "${workspaceName}"`

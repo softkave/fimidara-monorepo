@@ -32,6 +32,10 @@ import {kIjxData, kIjxSemantic, kIjxUtils} from '../ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../semantic/types.js';
 import {kUsageProviderConstants} from './constants.js';
 import {
+  notifyWorkspaceUsageExceeded,
+  shouldNotifyUsageExceeded,
+} from './notifyUsageExceeded.js';
+import {
   IUsageCheckResult,
   IUsageContext,
   UsageRecordDecrementInput,
@@ -597,6 +601,7 @@ export class UsageProvider implements IUsageContext {
         usageL1: record,
         dropReason: kUsageRecordDropReason.exceedsUsage,
         usageL2: usageDroppedL2,
+        exceededCategory: kUsageRecordCategory.total,
       });
       // const dropRecordMeasure = performance.measure(
       //   `${markPrefix}-dropRecord`,
@@ -622,6 +627,7 @@ export class UsageProvider implements IUsageContext {
         usageL1: record,
         dropReason: kUsageRecordDropReason.exceedsUsage,
         usageL2: usageDroppedL2,
+        exceededCategory: record.category,
       });
       // const dropRecordMeasure = performance.measure(
       //   `${markPrefix}-dropRecord`,
@@ -703,8 +709,9 @@ export class UsageProvider implements IUsageContext {
     usageL1: UsageRecord;
     dropReason: UsageRecordDropReason;
     usageL2: UsageRecord | undefined;
+    exceededCategory?: UsageRecordCategory;
   }) => {
-    const {agent, usageL1, dropReason} = params;
+    const {agent, usageL1, dropReason, exceededCategory} = params;
     let usageL2 = params.usageL2;
 
     if (!usageL2) {
@@ -729,6 +736,21 @@ export class UsageProvider implements IUsageContext {
         },
       }),
     ]);
+
+    if (
+      dropReason === kUsageRecordDropReason.exceedsUsage &&
+      shouldNotifyUsageExceeded(exceededCategory)
+    ) {
+      kIjxUtils.promises().callAndForget(() =>
+        notifyWorkspaceUsageExceeded({
+          workspaceId: usageL1.workspaceId,
+          exceededCategory,
+          month: usageL1.month,
+          year: usageL1.year,
+          agent,
+        })
+      );
+    }
   };
 
   protected async writeUsageL1(params: {usageL1: UsageRecord}) {
