@@ -70,8 +70,9 @@ export const ImageFormatEnumMap = {
   webp: 'webp',
   tiff: 'tiff',
   raw: 'raw',
-
-  // TODO: support gif
+  /** GIF encode (still images only). Animated GIF sources are rejected. */
+  gif: 'gif',
+  avif: 'avif',
 } as const;
 export type ImageFormatEnum = ValueOf<typeof ImageFormatEnumMap>;
 
@@ -106,6 +107,8 @@ export interface ReadFileEndpointResult {
   ranges?: Array<{start: number; end: number}>;
   /** True if this is a multipart response (multiple streams) */
   isMultipart?: boolean;
+  /** True when the response body is an on-the-fly image transform */
+  isImageTransform?: boolean;
 }
 
 export type ReadFileEndpoint = Endpoint<

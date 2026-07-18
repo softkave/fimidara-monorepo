@@ -11,6 +11,7 @@ import {kUsageRecordCategory} from '../../../../definitions/usageRecord.js';
 import {kSystemSessionAgent} from '../../../../utils/agent.js';
 import {resolveBackendsMountsAndConfigs} from '../../../fileBackends/mountUtils.js';
 import {FileQueries} from '../../../files/queries.js';
+import {deleteImageDerivativesForFile} from '../../../files/readFile/imageDerivativeCache.js';
 import {stringifyFilenamepath} from '../../../files/utils.js';
 import {
   genericDeleteArtifacts,
@@ -239,6 +240,7 @@ const deleteResourceFn: DeleteResourceFn<
       workspaceId: args.workspaceId,
       size: preRunMeta.size,
     }),
+    deleteImageDerivativesForFile(args.resourceId),
   ]);
 
   await helpers.withTxn(async opts => {

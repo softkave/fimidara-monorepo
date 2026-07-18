@@ -164,8 +164,10 @@ export async function incrementBandwidthOutUsageRecord(params: {
     Partial<Pick<File, 'resourceId'>>;
   action: FimidaraPermissionAction;
   nothrow?: boolean;
+  /** Override byte count (e.g. transformed image size). Defaults to file.size. */
+  usage?: number;
 }) {
-  const {requestId, agent, file, action, nothrow = false} = params;
+  const {requestId, agent, file, action, nothrow = false, usage} = params;
   const artifactMeta: BandwidthUsageRecordArtifact = {
     requestId,
     filepath: file.namepath,
@@ -175,7 +177,7 @@ export async function incrementBandwidthOutUsageRecord(params: {
   const input: UsageRecordIncrementInput = {
     workspaceId: file.workspaceId,
     category: kUsageRecordCategory.bandwidthOut,
-    usage: file.size,
+    usage: usage ?? file.size,
     artifacts: [
       {
         action,

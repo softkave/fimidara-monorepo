@@ -1,5 +1,9 @@
 import {startHandleAddInternalMultipartIdQueue} from '../endpoints/files/uploadFile/handleAddInternalMultipartIdQueue.js';
 import {startHandlePrepareFileQueue} from '../endpoints/files/uploadFile/handlePrepareFileQueue.js';
+import {
+  startImageDerivativeCacheEviction,
+  stopImageDerivativeCacheEviction,
+} from '../endpoints/files/readFile/imageDerivativeCache.js';
 import {startHandleAddFolderQueue} from '../endpoints/folders/addFolder/handleAddFolderQueue.js';
 import {FimidaraSuppliedConfig} from '../resources/config.js';
 import {kIjxUtils} from './ijx/injectables.js';
@@ -7,6 +11,7 @@ import {clearIjx, registerIjx} from './ijx/register.js';
 import {startHandleUsageRecordQueue} from './usage/handleUsageOps.js';
 
 export async function globalDispose() {
+  stopImageDerivativeCacheEviction();
   kIjxUtils.runtimeState().setIsEnded(true);
   await kIjxUtils.disposables().awaitDisposeAll();
   await kIjxUtils.promises().close().flush();
@@ -49,6 +54,8 @@ export async function globalSetup(
       logger.log({message: 'Started worker pool'});
     }
   }
+
+  startImageDerivativeCacheEviction();
 
   if (otherConfig.useHandleFolderQueue) {
     suppliedConfig.addFolderQueueNo?.map(queueNo => {

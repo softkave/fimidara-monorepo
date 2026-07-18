@@ -200,6 +200,73 @@ describe('readFile', () => {
     const fileMetadata = await sharp(resultBuffer).metadata();
     expect(fileMetadata.width).toEqual(expectedWidth);
     expect(fileMetadata.height).toEqual(expectedHeight);
+    // Preserve source format when imageFormat omitted
+    expect(result.mimetype).toBe('image/png');
+    expect(result.ext).toBe('png');
+    expect(result.contentLength).toBe(resultBuffer.length);
+    expect(result.isImageTransform).toBe(true);
+  });
+
+  test('imageFormat jpeg sets mime and content length', async () => {
+    const {
+      sessionAgent,
+      workspace,
+      adminUserToken: userToken,
+    } = await getTestSessionAgent(kFimidaraResourceType.User, {
+      permissions: {actions: [kFimidaraPermissionActions.readFile]},
+    });
+    const {file} = await insertFileForTest(
+      userToken,
+      workspace,
+      {},
+      'png',
+      {width: 200, height: 200}
+    );
+
+    const result = await readFile(
+      RequestData.fromExpressRequest<ReadFileEndpointParams>(
+        mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+        {
+          filepath: stringifyFilenamepath(file, workspace.rootname),
+          imageFormat: 'jpeg',
+        }
+      )
+    );
+    assertEndpointResultOk(result);
+    assert.ok(!Array.isArray(result.stream));
+    const buf = await streamToBuffer(result.stream as Readable);
+    expect(result.mimetype).toBe('image/jpeg');
+    expect(result.ext).toBe('jpg');
+    expect(result.contentLength).toBe(buf.length);
+    expect((await sharp(buf).metadata()).format).toBe('jpeg');
+  });
+
+  test('rejects non-image transform requests', async () => {
+    const {
+      sessionAgent,
+      workspace,
+      adminUserToken: userToken,
+    } = await getTestSessionAgent(kFimidaraResourceType.User, {
+      permissions: {actions: [kFimidaraPermissionActions.readFile]},
+    });
+    const textBuffer = Buffer.from('not an image');
+    const {file} = await insertFileForTest(userToken, workspace, {
+      data: Readable.from([textBuffer]),
+      size: textBuffer.byteLength,
+      mimetype: 'text/plain',
+    });
+
+    await expectErrorThrownAsync(async () => {
+      await readFile(
+        RequestData.fromExpressRequest<ReadFileEndpointParams>(
+          mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+          {
+            filepath: stringifyFilenamepath(file, workspace.rootname),
+            imageResize: {width: 10, height: 10},
+          }
+        )
+      );
+    });
   });
 
   test.each(kTestSessionAgentTypes)(

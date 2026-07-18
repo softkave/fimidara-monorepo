@@ -92,6 +92,13 @@ export type FimidaraSuppliedConfig = Partial<{
   localFsDir?: string;
   localPartsFsDir?: string;
   multipartLockTimeoutSeconds?: number;
+  /** Local disk cache for on-the-fly image derivatives. Defaults under
+   * localFsDir. */
+  imageDerivativeCacheDir?: string;
+  imageDerivativeRetentionMs?: number;
+  imageDerivativeEvictionIntervalMs?: number;
+  /** Cache-Control for on-the-fly image transform responses. */
+  imageTransformCacheControl?: string;
 
   // Email
   emailProvider: FimidaraConfigEmailProvider;

@@ -173,7 +173,15 @@ async function handleReadFileHEADResponse(
   const responseHeaders: AnyObject = {};
 
   // Set range-related headers
-  res.setHeader('Accept-Ranges', 'bytes');
+  if (result.isImageTransform) {
+    res.setHeader('Accept-Ranges', 'none');
+    res.setHeader(
+      'Cache-Control',
+      kFileConstants.getImageTransformCacheControl()
+    );
+  } else {
+    res.setHeader('Accept-Ranges', 'bytes');
+  }
 
   if (result.lastModified) {
     const lastModifiedDate = new Date(result.lastModified);
@@ -207,7 +215,15 @@ async function handleReadFileResponse(
   const responseHeaders: AnyObject = {};
 
   // Set range-related headers
-  res.setHeader('Accept-Ranges', 'bytes');
+  if (result.isImageTransform) {
+    res.setHeader('Accept-Ranges', 'none');
+    res.setHeader(
+      'Cache-Control',
+      kFileConstants.getImageTransformCacheControl()
+    );
+  } else {
+    res.setHeader('Accept-Ranges', 'bytes');
+  }
 
   if (result.lastModified) {
     const lastModifiedDate = new Date(result.lastModified);

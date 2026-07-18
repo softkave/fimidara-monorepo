@@ -137,7 +137,11 @@ const withoutEnlargement = mfdocConstruct.constructBoolean({
   example: true,
 });
 const format = mfdocConstruct.constructString({
-  description: 'Format to transform image to if file is an image',
+  description:
+    'Format to transform image to if file is an image. ' +
+    'avif is CPU-heavier than webp. ' +
+    'Animated GIF/WebP and multi-page TIFF are not fully supported for transform yet. ' +
+    'gif output encodes a still image.',
   enumName: 'ImageFormatEnum',
   valid: Object.values(ImageFormatEnumMap),
   example: 'webp',
