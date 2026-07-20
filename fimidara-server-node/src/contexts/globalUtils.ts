@@ -18,10 +18,19 @@ export async function globalDispose() {
 
   const {redisURL} = kIjxUtils.suppliedConfig();
   if (redisURL) {
-    await Promise.allSettled([
-      ...kIjxUtils.redis().map(redis => redis.quit()),
-      ...kIjxUtils.ioredis().map(redis => redis.quit()),
-    ]);
+    try {
+      await Promise.allSettled([
+        ...kIjxUtils.redis().map(redis => redis.quit()),
+        ...kIjxUtils.ioredis().map(redis => redis.quit()),
+      ]);
+    } catch (error) {
+      // redisURL may be set while redis was never registered (partial setup).
+      kIjxUtils.logger().error({
+        message: 'Error quitting Redis',
+        error,
+        redisURL,
+      });
+    }
   }
 
   await kIjxUtils.dbConnection().close();

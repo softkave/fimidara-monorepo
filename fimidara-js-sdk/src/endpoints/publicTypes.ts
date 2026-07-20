@@ -779,6 +779,14 @@ export type ResourceAvailability = {
   lockedBy?: string;
 };
 /**
+ * Status of image dimension probing
+ */
+export type ImageDimensionsStatus =
+  | 'pending'
+  | 'ready'
+  | 'unsupported'
+  | 'failed';
+/**
  * File resource with metadata and location information
  */
 export type File = {
@@ -920,6 +928,38 @@ export type File = {
    * ```
    */
   version: number;
+  /**
+   * Image display width in pixels after EXIF orientation. Present when imageDimensionsStatus is ready.
+   * @example
+   * ```
+   * 1920
+   * ```
+   */
+  imageWidth?: number;
+  /**
+   * Image display height in pixels after EXIF orientation. Present when imageDimensionsStatus is ready.
+   * @example
+   * ```
+   * 1080
+   * ```
+   */
+  imageHeight?: number;
+  /**
+   * Status of image dimension probing: pending, ready, unsupported, or failed.
+   * @example
+   * ```
+   * ready
+   * ```
+   */
+  imageDimensionsStatus?: ImageDimensionsStatus;
+  /**
+   * Derived image aspect ratio (width / height) when both dimensions are present.
+   * @example
+   * ```
+   * 1.7778
+   * ```
+   */
+  aspectRatio?: number;
   /**
    * Whether a read or write operation is available on a file or part, including whether it is available for the current requester
    */

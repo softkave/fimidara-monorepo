@@ -111,7 +111,7 @@ describe('startMultipartUpload', () => {
         }
       );
 
-    await expect(async () => startMultipartUpload(reqData)).rejects.toThrow();
+    await expect(startMultipartUpload(reqData)).rejects.toThrow();
   });
 
   test('fails if file is not writable', async () => {
@@ -130,7 +130,7 @@ describe('startMultipartUpload', () => {
         }
       );
 
-    await expect(() => startMultipartUpload(reqData)).rejects.toThrow();
+    await expect(startMultipartUpload(reqData)).rejects.toThrow();
   });
 
   test('cleans up existing multipart upload if past timeout', async () => {

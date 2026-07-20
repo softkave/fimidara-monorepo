@@ -11,6 +11,7 @@ import {runEmailJob} from './runners/runEmailJob/runEmailJob.js';
 import {runIngestFolderpathJob} from './runners/runIngestFolderpathJob.js';
 import {runIngestMountJob} from './runners/runIngestMountJob.js';
 import {runNewSignupsOnWaitlistJob} from './runners/runNewSignupsOnWaitlistJob.js';
+import {runProbeImageDimensionsJob} from './runners/runProbeImageDimensionsJob.js';
 
 const kJobTypeToHandlerMap: Record<JobType, AnyFn<[Job], Promise<void>>> = {
   [kJobType.deleteResource]: runDeleteResourceJob,
@@ -21,6 +22,7 @@ const kJobTypeToHandlerMap: Record<JobType, AnyFn<[Job], Promise<void>>> = {
   [kJobType.newSignupsOnWaitlist]: runNewSignupsOnWaitlistJob,
   [kJobType.email]: runEmailJob,
   [kJobType.completeMultipartUpload]: runCompleteMultipartUploadJob,
+  [kJobType.probeImageDimensions]: runProbeImageDimensionsJob,
   [kJobType.noop]: noopAsync,
   [kJobType.fail]: async () => {
     throw new Error('Fail job');

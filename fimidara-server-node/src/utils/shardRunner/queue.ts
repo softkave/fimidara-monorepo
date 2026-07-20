@@ -87,7 +87,18 @@ export async function queueShardRunner<TInputItem, TOutputItem>(params: {
     ...getDeferredPromise<TOutputItem>(),
   };
 
-  vars.promise.finally(() => cleanup(vars));
+  // Attach cleanup without leaving an unhandled rejection on the passthrough
+  // promise that `.finally()` creates when `vars.promise` rejects.
+  vars.promise
+    .finally(() => cleanup(vars))
+    .catch(error =>
+      kIjxUtils.logger().error({
+        message: 'Shard runner queue cleanup error',
+        error,
+        queueKey,
+        id,
+      })
+    );
   vars.listener = response => {
     if (vars.isDone()) {
       return;

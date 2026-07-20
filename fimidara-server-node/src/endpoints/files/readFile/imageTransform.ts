@@ -1,7 +1,7 @@
 import {createHash} from 'crypto';
 import sharp from 'sharp';
 import {Readable} from 'stream';
-import {File} from '../../../definitions/file.js';
+import {File, ImageFormatEnum, ImageFormatEnumMap} from '../../../definitions/file.js';
 import {kFileConstants} from '../constants.js';
 import {
   ImageNotProcessableError,
@@ -13,8 +13,6 @@ import {
   resolveOutputImageFormat,
 } from './imageFormat.js';
 import {
-  ImageFormatEnum,
-  ImageFormatEnumMap,
   ImageResizeParams,
 } from './types.js';
 

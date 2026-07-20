@@ -7,14 +7,12 @@ import {initTests} from '../../endpoints/testHelpers/utils.js';
 import {ISetupDevUserOptions, setupDevUser} from './utils.js';
 
 beforeAll(async () => {
-  initTests();
+  await initTests();
 });
 
 afterAll(async () => {
-  completeTests();
+  await completeTests();
 });
-
-// TODO: test needs fixing
 
 const appOptions: ISetupDevUserOptions = {
   getUserEmail: () => Promise.resolve({email: faker.internet.email()}),
@@ -31,11 +29,11 @@ const appOptions: ISetupDevUserOptions = {
 };
 
 describe('dev user setup', () => {
-  test.fails('dev user setup', async () => {
+  test('dev user setup', async () => {
     await setupDevUser(appOptions);
   });
 
-  test.fails('does not require password change', async () => {
+  test('does not require password change', async () => {
     const userEmail = await appOptions.getUserEmail();
     await generateAndInsertUserListForTest(1, () => ({
       requiresPasswordChange: true,

@@ -1,6 +1,6 @@
 import {Readable} from 'stream';
 import {ValueOf} from 'type-fest';
-import {FileMatcher} from '../../../definitions/file.js';
+import {FileMatcher, ImageFormatEnum} from '../../../definitions/file.js';
 import {Endpoint} from '../../types.js';
 
 export const ImageResizeFitEnumMap = {
@@ -64,17 +64,7 @@ export type ImageResizeParams = {
   withoutEnlargement?: boolean;
 };
 
-export const ImageFormatEnumMap = {
-  jpeg: 'jpeg',
-  png: 'png',
-  webp: 'webp',
-  tiff: 'tiff',
-  raw: 'raw',
-  /** GIF encode (still images only). Animated GIF sources are rejected. */
-  gif: 'gif',
-  avif: 'avif',
-} as const;
-export type ImageFormatEnum = ValueOf<typeof ImageFormatEnumMap>;
+
 
 export type ReadFileEndpointParams = {
   imageResize?: ImageResizeParams;

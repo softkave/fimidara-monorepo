@@ -25,8 +25,10 @@ export async function runCompleteMultipartUploadJob(
   });
 
   const mountFilepath = await prepareMountFilepath({primaryMount, file});
-  const parts = JSON.parse(
-    completeParams.parts
+  const parts = (
+    typeof completeParams.parts === 'string'
+      ? JSON.parse(completeParams.parts)
+      : completeParams.parts
   ) as CompleteMultipartUploadInputPart[];
 
   await handleLastMultipartUpload({

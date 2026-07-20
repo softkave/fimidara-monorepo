@@ -4,7 +4,9 @@ import {tmpdir} from 'os';
 import path from 'path';
 import sharp from 'sharp';
 import {Readable} from 'stream';
-import {afterEach, describe, expect, test} from 'vitest';
+import {afterAll, afterEach, beforeAll, describe, expect, test} from 'vitest';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../testHelpers/utils.js';
 import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {streamToBuffer} from '../../../utils/fns.js';
 import {ImageTransformValidationError} from '../errors.js';
@@ -25,7 +27,7 @@ import {
   transformImageToFile,
   validateImageTransformDimensions,
 } from './imageTransform.js';
-import {ImageFormatEnumMap} from './types.js';
+import { ImageFormatEnumMap } from '../../../definitions/file.js';
 
 describe('imageFormat', () => {
   test('preserves source format when imageFormat is omitted', () => {
@@ -187,6 +189,14 @@ describe('imageTransform', () => {
 });
 
 describe('imageDerivativeCache', () => {
+  beforeAll(async () => {
+    await initTests();
+  });
+
+  afterAll(async () => {
+    await completeTests();
+  });
+
   const cacheDir = path.join(
     process.cwd(),
     'local-fs/test/.fimidara-image-derivatives-unit'

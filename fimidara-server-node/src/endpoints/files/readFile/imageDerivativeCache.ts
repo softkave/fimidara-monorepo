@@ -1,15 +1,7 @@
 import {createHash} from 'crypto';
 import {createReadStream} from 'fs';
 import {pathExists} from 'fs-extra';
-import {
-  mkdir,
-  opendir,
-  rename,
-  rm,
-  stat,
-  unlink,
-  utimes,
-} from 'fs/promises';
+import {mkdir, opendir, rename, rm, stat, unlink, utimes} from 'fs/promises';
 import path from 'path';
 import {Readable} from 'stream';
 import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
@@ -26,7 +18,8 @@ import {
   hashCanonicalTransformParams,
   transformImageToFile,
 } from './imageTransform.js';
-import {ImageFormatEnum, ImageResizeParams} from './types.js';
+import { ImageFormatEnum } from '../../../definitions/file.js';
+import { ImageResizeParams } from './types.js';
 
 export type ImageDerivativeResult = {
   stream: Readable;

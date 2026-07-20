@@ -1,6 +1,6 @@
 import {Readable} from 'stream';
 import {incrementBandwidthOutUsageRecord} from '../../../contexts/usage/usageFns.js';
-import {File} from '../../../definitions/file.js';
+import {File, ImageFormatEnum} from '../../../definitions/file.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {Agent, SessionAgent} from '../../../definitions/system.js';
 import {isObjectFieldsEmpty} from '../../../utils/fns.js';
@@ -12,11 +12,7 @@ import {
   hashCanonicalTransformParams,
 } from './imageTransform.js';
 import {readPersistedFile} from './readPersistedFile.js';
-import {
-  ImageFormatEnum,
-  ImageResizeParams,
-  ReadFileEndpointResult,
-} from './types.js';
+import {ImageResizeParams, ReadFileEndpointResult} from './types.js';
 
 export function hasImageTransformRequest(params: {
   imageResize?: ImageResizeParams;

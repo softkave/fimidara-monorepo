@@ -29,6 +29,7 @@
     "render:email-templates": "env-cmd -f \".env.dev\" npx tsx src/tools/email-templates/index.ts",
     "rebuild:usage-records": "npx --yes -- softkave-forerunner@latest run-env --cmd \"tsx src/tools/rebuild-usage-records/index.ts\"",
     "rebuild:usage-records:prod": "npx --yes -- softkave-forerunner@latest run-env -e .env.production --cmd \"tsx src/tools/rebuild-usage-records/index.ts\"",
+    "backfill:image-dimensions": "npx --yes -- softkave-forerunner@latest run-env --cmd \"tsx src/tools/backfill-image-dimensions/index.ts\"",
     "summarize:workspace-files": "npx --yes -- softkave-forerunner@latest run-env --cmd \"tsx src/tools/summarize-workspace-files/index.ts\"",
     "gen:public:setup-js-sdk": "mfdoc setup-js-sdk ../fimidara-js-sdk --name fimidara --provider pnpm",
     "gen:public:endpoints-info": "mfdoc gen-http-api-endpoints-info ./src/endpoints/endpoints.mfdoc.ts --output-path ../fimidara-mfdoc-out/public-endpoints --include-tags public --ignore-tags ignoreForEndpointsInfo",
