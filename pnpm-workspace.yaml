@@ -3,6 +3,15 @@ packages:
   - fimidara-nextjs
   - fimidara-js-sdk
   - fimidara-private-js-sdk
+allowBuilds:
+  argon2: true
+  core-js: true
+  esbuild: true
+  msw: true
+  sharp: true
+  unrs-resolver: true
+minimumReleaseAgeExclude:
+  - softkave-node-utils@0.8.0
 onlyBuiltDependencies:
   - argon2
   - core-js

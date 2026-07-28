@@ -11,7 +11,13 @@ export async function dropMongoCollections(config: FimidaraSuppliedConfig) {
 
   console.log(`Dropping db - ${appDbName}`);
   const connection = await mongoose
-    .createConnection(mongoURI, {dbName: appDbName})
+    .createConnection(mongoURI, {
+      dbName: appDbName,
+      maxPoolSize: 25,
+      minPoolSize: 0,
+      maxIdleTimeMS: 60_000,
+      retryWrites: true,
+    })
     .asPromise();
   await dropMongoDBAndEndConnection(connection);
 }
