@@ -2,6 +2,7 @@ import assert from 'assert';
 import {mkdtemp, readFile, rm} from 'fs/promises';
 import {tmpdir} from 'os';
 import path from 'path';
+import {fileURLToPath} from 'url';
 import sharp from 'sharp';
 import {Readable} from 'stream';
 import {afterAll, afterEach, beforeAll, describe, expect, test} from 'vitest';
@@ -186,6 +187,33 @@ describe('imageTransform', () => {
       hashCanonicalTransformParams(b)
     );
   });
+
+  test('transforms test-artifacts/border-around-image.png', async () => {
+    const fixturePath = path.resolve(
+      path.dirname(fileURLToPath(import.meta.url)),
+      '../../../../test-artifacts/border-around-image.png'
+    );
+    const input = await readFile(fixturePath);
+    const sourceMeta = await sharp(input).metadata();
+    expect(sourceMeta.width).toBeGreaterThan(0);
+    expect(sourceMeta.height).toBeGreaterThan(0);
+
+    const outputPath = await outPath('fixture-out.jpg');
+    const result = await transformImageToFile({
+      input: Readable.from(input),
+      imageResize: {width: 200},
+      format: ImageFormatEnumMap.jpeg,
+      outputPath,
+    });
+
+    expect(result.mimetype).toBe('image/jpeg');
+    expect(result.ext).toBe('jpg');
+    const outBuf = await readFile(outputPath);
+    expect(result.contentLength).toBe(outBuf.length);
+    const outMeta = await sharp(outBuf).metadata();
+    expect(outMeta.width).toBe(200);
+    expect(outMeta.format).toBe('jpeg');
+  });
 });
 
 describe('imageDerivativeCache', () => {
@@ -263,6 +291,71 @@ describe('imageDerivativeCache', () => {
     assert.ok(cachePath.startsWith(cacheDir));
 
     await deleteImageDerivativesForFile('file_test_cache_01');
+    (
+      kIjxUtils.suppliedConfig() as {imageDerivativeCacheDir?: string}
+    ).imageDerivativeCacheDir = previous;
+  });
+
+  test('different lastUpdatedAt uses a different cache path and reloads', async () => {
+    const previous = kIjxUtils.suppliedConfig().imageDerivativeCacheDir;
+    (
+      kIjxUtils.suppliedConfig() as {imageDerivativeCacheDir?: string}
+    ).imageDerivativeCacheDir = cacheDir;
+
+    const input = await sharp({
+      create: {
+        width: 100,
+        height: 100,
+        channels: 3,
+        background: {r: 20, g: 40, b: 60},
+      },
+    })
+      .png()
+      .toBuffer();
+
+    const transform = buildCanonicalTransformParams({
+      imageResize: {width: 40, height: 40},
+      imageFormat: 'png',
+      file: {mimetype: 'image/png', ext: 'png'},
+    });
+
+    let loadCount = 0;
+    const loadOriginal = async () => {
+      loadCount += 1;
+      return Readable.from(input);
+    };
+
+    const pathV1 = getImageDerivativeCachePath({
+      fileId: 'file_test_cache_version',
+      lastUpdatedAt: 1,
+      transform,
+    });
+    const pathV2 = getImageDerivativeCachePath({
+      fileId: 'file_test_cache_version',
+      lastUpdatedAt: 2,
+      transform,
+    });
+    expect(pathV1).not.toBe(pathV2);
+
+    await getOrCreateImageDerivative({
+      fileId: 'file_test_cache_version',
+      lastUpdatedAt: 1,
+      transform,
+      imageResize: {width: 40, height: 40},
+      loadOriginal,
+    });
+    expect(loadCount).toBe(1);
+
+    await getOrCreateImageDerivative({
+      fileId: 'file_test_cache_version',
+      lastUpdatedAt: 2,
+      transform,
+      imageResize: {width: 40, height: 40},
+      loadOriginal,
+    });
+    expect(loadCount).toBe(2);
+
+    await deleteImageDerivativesForFile('file_test_cache_version');
     (
       kIjxUtils.suppliedConfig() as {imageDerivativeCacheDir?: string}
     ).imageDerivativeCacheDir = previous;

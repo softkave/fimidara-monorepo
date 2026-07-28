@@ -17,8 +17,10 @@ import {extractPublicFile} from './extractPublicFile.js';
 import {computeAspectRatio, withPublicFileAspectRatio} from './fileFields.js';
 import {
   displaySizeFromMetadata,
+  fileNeedsImageDimensionsProbe,
   probeAndPersistImageDimensions,
 } from './probeImageDimensions.js';
+import {stringifyFilenamepath} from '../utils.js';
 
 beforeAll(async () => {
   await initTests();
@@ -50,6 +52,74 @@ describe('displaySizeFromMetadata', () => {
   test('returns undefined when width or height missing', () => {
     expect(displaySizeFromMetadata({width: 100})).toBeUndefined();
     expect(displaySizeFromMetadata({})).toBeUndefined();
+  });
+});
+
+describe('fileNeedsImageDimensionsProbe', () => {
+  test('returns false for non-images', () => {
+    expect(
+      fileNeedsImageDimensionsProbe({
+        mimetype: 'text/plain',
+        ext: 'txt',
+      })
+    ).toBe(false);
+  });
+
+  test('returns false when ready with dims', () => {
+    expect(
+      fileNeedsImageDimensionsProbe({
+        mimetype: 'image/png',
+        ext: 'png',
+        imageWidth: 10,
+        imageHeight: 10,
+        imageDimensionsStatus: kImageDimensionsStatus.ready,
+      })
+    ).toBe(false);
+  });
+
+  test('returns false for unsupported and failed', () => {
+    expect(
+      fileNeedsImageDimensionsProbe({
+        mimetype: 'image/png',
+        ext: 'png',
+        imageDimensionsStatus: kImageDimensionsStatus.unsupported,
+      })
+    ).toBe(false);
+    expect(
+      fileNeedsImageDimensionsProbe({
+        mimetype: 'image/png',
+        ext: 'png',
+        imageDimensionsStatus: kImageDimensionsStatus.failed,
+      })
+    ).toBe(false);
+  });
+
+  test('returns true for pending or missing status', () => {
+    expect(
+      fileNeedsImageDimensionsProbe({
+        mimetype: 'image/png',
+        ext: 'png',
+        imageDimensionsStatus: kImageDimensionsStatus.pending,
+      })
+    ).toBe(true);
+    expect(
+      fileNeedsImageDimensionsProbe({
+        mimetype: 'image/jpeg',
+        ext: 'jpg',
+      })
+    ).toBe(true);
+  });
+
+  test('returns true when dims missing with non-terminal status', () => {
+    expect(
+      fileNeedsImageDimensionsProbe({
+        mimetype: 'image/png',
+        ext: 'png',
+        imageDimensionsStatus: kImageDimensionsStatus.ready,
+        imageWidth: null,
+        imageHeight: null,
+      })
+    ).toBe(true);
   });
 });
 
@@ -176,6 +246,103 @@ describe('probeAndPersistImageDimensions', () => {
     expect(file.imageHeight).toBeNull();
   });
 
+  test('marks corrupt image-like bytes as failed', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    const corrupt = Buffer.from('not-a-real-png-but-looks-like-one');
+    const {rawFile} = await insertFileForTest(
+      userToken,
+      workspace,
+      {
+        data: Readable.from(corrupt),
+        size: corrupt.byteLength,
+        mimetype: 'image/png',
+      },
+      kGenerateTestFileType.png
+    );
+
+    await kIjxSemantic.utils().withTxn(async opts => {
+      await kIjxSemantic.file().getAndUpdateOneById(
+        rawFile.resourceId,
+        {
+          imageWidth: null,
+          imageHeight: null,
+          imageDimensionsStatus: kImageDimensionsStatus.pending,
+          mimetype: 'image/png',
+          ext: 'png',
+        },
+        opts
+      );
+    });
+
+    const {file, updated} = await probeAndPersistImageDimensions(
+      rawFile.resourceId
+    );
+    expect(updated).toBe(true);
+    expect(file.imageDimensionsStatus).toBe(kImageDimensionsStatus.failed);
+    expect(file.imageWidth).toBeNull();
+    expect(file.imageHeight).toBeNull();
+  });
+
+  test('early-exits when already ready or terminal', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    const {rawFile} = await insertFileForTest(
+      userToken,
+      workspace,
+      {},
+      kGenerateTestFileType.png,
+      {width: 40, height: 20}
+    );
+
+    await kIjxUtils.promises().flush();
+    await probeAndPersistImageDimensions(rawFile.resourceId);
+
+    const readyAgain = await probeAndPersistImageDimensions(rawFile.resourceId);
+    expect(readyAgain.updated).toBe(false);
+    expect(readyAgain.file.imageDimensionsStatus).toBe(
+      kImageDimensionsStatus.ready
+    );
+
+    await kIjxSemantic.utils().withTxn(async opts => {
+      await kIjxSemantic.file().getAndUpdateOneById(
+        rawFile.resourceId,
+        {
+          imageWidth: null,
+          imageHeight: null,
+          imageDimensionsStatus: kImageDimensionsStatus.failed,
+        },
+        opts
+      );
+    });
+
+    const failedAgain = await probeAndPersistImageDimensions(
+      rawFile.resourceId
+    );
+    expect(failedAgain.updated).toBe(false);
+    expect(failedAgain.file.imageDimensionsStatus).toBe(
+      kImageDimensionsStatus.failed
+    );
+
+    await kIjxSemantic.utils().withTxn(async opts => {
+      await kIjxSemantic.file().getAndUpdateOneById(
+        rawFile.resourceId,
+        {
+          imageDimensionsStatus: kImageDimensionsStatus.unsupported,
+        },
+        opts
+      );
+    });
+
+    const unsupportedAgain = await probeAndPersistImageDimensions(
+      rawFile.resourceId
+    );
+    expect(unsupportedAgain.updated).toBe(false);
+    expect(unsupportedAgain.file.imageDimensionsStatus).toBe(
+      kImageDimensionsStatus.unsupported
+    );
+  });
+
   test('skips persist when file version changed mid-probe', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
@@ -270,5 +437,58 @@ describe('probeAndPersistImageDimensions', () => {
 
     const publicFile = extractPublicFile(probed, 'agent');
     expect(publicFile.aspectRatio).toBe(2);
+  });
+
+  test('overwrite clears ready dims back to pending', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    const {rawFile, file} = await insertFileForTest(
+      userToken,
+      workspace,
+      {},
+      kGenerateTestFileType.png,
+      {width: 80, height: 40}
+    );
+
+    await kIjxUtils.promises().flush();
+    await probeAndPersistImageDimensions(rawFile.resourceId);
+
+    const ready = await kIjxSemantic.file().assertGetOneByQuery({
+      resourceId: rawFile.resourceId,
+    });
+    expect(ready.imageDimensionsStatus).toBe(kImageDimensionsStatus.ready);
+    expect(ready.imageWidth).toBe(80);
+
+    const replacement = await sharp({
+      create: {
+        width: 60,
+        height: 30,
+        channels: 3,
+        background: {r: 1, g: 2, b: 3},
+      },
+    })
+      .png()
+      .toBuffer();
+
+    await insertFileForTest(
+      userToken,
+      workspace,
+      {
+        filepath: stringifyFilenamepath(file, workspace.rootname),
+        data: Readable.from(replacement),
+        size: replacement.byteLength,
+        mimetype: 'image/png',
+      },
+      kGenerateTestFileType.png
+    );
+
+    const afterReplace = await kIjxSemantic.file().assertGetOneByQuery({
+      resourceId: rawFile.resourceId,
+    });
+    expect(afterReplace.imageDimensionsStatus).toBe(
+      kImageDimensionsStatus.pending
+    );
+    expect(afterReplace.imageWidth).toBeNull();
+    expect(afterReplace.imageHeight).toBeNull();
   });
 });

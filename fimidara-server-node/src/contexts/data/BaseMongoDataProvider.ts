@@ -13,6 +13,7 @@ import {
 import {AnyObject} from 'softkave-js-utils';
 import {dataQueryToMongoQuery} from './dataQueryToMongoQuery.js';
 import {getPage, getPageSize} from './utils.js';
+import {withMongoRetry} from './withMongoRetry.js';
 
 function getMongoQueryOptionsForOp(params?: DataProviderOpParams): {
   lean: true;
@@ -77,7 +78,9 @@ export abstract class BaseMongoDataProvider<
     items: T[],
     otherProps?: DataProviderOpParams | undefined
   ) => {
-    await this.model.insertMany(items, getMongoQueryOptionsForOp(otherProps));
+    await withMongoRetry(() =>
+      this.model.insertMany(items, getMongoQueryOptionsForOp(otherProps))
+    );
   };
 
   getManyByQuery = async (
@@ -262,6 +265,8 @@ export abstract class BaseMongoDataProvider<
       }
     });
 
-    await this.model.bulkWrite(mongoOps, getMongoBulkWriteOptions(otherProps));
+    await withMongoRetry(() =>
+      this.model.bulkWrite(mongoOps, getMongoBulkWriteOptions(otherProps))
+    );
   }
 }

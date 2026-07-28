@@ -1,3 +1,6 @@
+import {readFile as readFileFs} from 'fs/promises';
+import path from 'path';
+import {fileURLToPath} from 'url';
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {difference} from 'lodash-es';
@@ -205,6 +208,49 @@ describe('readFile', () => {
     expect(result.ext).toBe('png');
     expect(result.contentLength).toBe(resultBuffer.length);
     expect(result.isImageTransform).toBe(true);
+  });
+
+  test('transforms test-artifacts/border-around-image.png over HTTP', async () => {
+    const {
+      sessionAgent,
+      workspace,
+      adminUserToken: userToken,
+    } = await getTestSessionAgent(kFimidaraResourceType.User, {
+      permissions: {actions: [kFimidaraPermissionActions.readFile]},
+    });
+
+    const fixturePath = path.resolve(
+      path.dirname(fileURLToPath(import.meta.url)),
+      '../../../../test-artifacts/border-around-image.png'
+    );
+    const fixtureBuffer = await readFileFs(fixturePath);
+    const {file} = await insertFileForTest(userToken, workspace, {
+      data: Readable.from(fixtureBuffer),
+      size: fixtureBuffer.byteLength,
+      mimetype: 'image/png',
+    });
+
+    const expectedWidth = 200;
+    const result = await readFile(
+      RequestData.fromExpressRequest<ReadFileEndpointParams>(
+        mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+        {
+          filepath: stringifyFilenamepath(file, workspace.rootname),
+          imageResize: {width: expectedWidth},
+          imageFormat: 'jpeg',
+        }
+      )
+    );
+    assertEndpointResultOk(result);
+    assert.ok(!Array.isArray(result.stream));
+    const buf = await streamToBuffer(result.stream as Readable);
+    expect(result.mimetype).toBe('image/jpeg');
+    expect(result.ext).toBe('jpg');
+    expect(result.contentLength).toBe(buf.length);
+    expect(result.isImageTransform).toBe(true);
+    const meta = await sharp(buf).metadata();
+    expect(meta.width).toBe(expectedWidth);
+    expect(meta.format).toBe('jpeg');
   });
 
   test('imageFormat jpeg sets mime and content length', async () => {

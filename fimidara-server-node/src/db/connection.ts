@@ -1,8 +1,19 @@
 import {ClientSession, Connection, createConnection} from 'mongoose';
 import {noopAsync} from '../utils/fns.js';
 
+/** Keep pools modest — several Softkave apps share one Mongo host. */
+const kMongoConnectionOptions = {
+  maxPoolSize: 25,
+  minPoolSize: 0,
+  maxIdleTimeMS: 60_000,
+  retryWrites: true,
+} as const;
+
 export function getMongoConnection(uri: string, dbName: string) {
-  const connection = createConnection(uri, {dbName});
+  const connection = createConnection(uri, {
+    dbName,
+    ...kMongoConnectionOptions,
+  });
   const promise = connection.asPromise();
   return {connection, promise};
 }
