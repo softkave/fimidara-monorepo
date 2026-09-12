@@ -1,24 +1,22 @@
-import { Toaster } from "@/components/ui/toaster.tsx";
+import { Toaster } from "@/components/ui/toast";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/components/utils.ts";
 import type { Metadata } from "next";
 import { SessionProvider } from "next-auth/react";
-import { Source_Code_Pro, Space_Grotesk } from "next/font/google";
+import { DM_Sans, Source_Code_Pro, Space_Grotesk } from "next/font/google";
 import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 
+const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-sans" });
+
 const spaceGrotesk = Space_Grotesk({
-  variable: "--font-sans",
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
 });
 
-// const geistSans = Geist({
-//   variable: "--font-sans",
-//   subsets: ["latin"],
-// });
-
 const codeFont = Source_Code_Pro({
   subsets: ["latin"],
-  variable: "--font-code",
+  variable: "--font-source-code",
 });
 
 export const metadata: Metadata = {
@@ -32,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={cn("font-sans", dmSans.variable)}>
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
@@ -43,8 +41,10 @@ export default function RootLayout({
         )}
       >
         <NextTopLoader />
-        <SessionProvider>{children}</SessionProvider>
-        <Toaster />
+        <TooltipProvider>
+          <SessionProvider>{children}</SessionProvider>
+          <Toaster />
+        </TooltipProvider>
       </body>
     </html>
   );

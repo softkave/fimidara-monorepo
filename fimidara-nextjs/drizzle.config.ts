@@ -1,18 +1,14 @@
 import assert from "assert";
 import "dotenv/config";
 import { defineConfig } from "drizzle-kit";
+import { getDrizzlePgCredentials } from "./db/pgSsl";
 
-const dbURL = process.env.TURSO_DATABASE_URL;
-const authToken = process.env.TURSO_AUTH_TOKEN;
-assert.ok(dbURL, "TURSO_DATABASE_URL is required");
-assert.ok(authToken, "TURSO_AUTH_TOKEN is required");
+const pgDatabaseUrl = process.env.PG_DATABASE_URL;
+assert.ok(pgDatabaseUrl, "PG_DATABASE_URL is required");
 
 export default defineConfig({
   out: "./drizzle",
   schema: "./db/schema.ts",
-  dialect: "turso",
-  dbCredentials: {
-    authToken,
-    url: dbURL,
-  },
+  dialect: "postgresql",
+  dbCredentials: getDrizzlePgCredentials(pgDatabaseUrl),
 });

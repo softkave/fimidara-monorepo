@@ -87,7 +87,7 @@ export function SelectedFilesForm(props: SelectedFilesFormProps) {
 
   const collapseNode = panelNodes.length ? (
     <div className="mb-4">
-      <Accordion type="single" collapsible>
+      <Accordion>
         {panelNodes}
       </Accordion>
     </div>

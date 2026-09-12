@@ -42,8 +42,6 @@ export const kFooterLinkGroups: IWebFooterLinkGroup[] = [
         href: "https://fimipost.ywordk.com",
         isExternal: true,
       },
-      { label: "mmind", href: "https://mmind.ywordk.com", isExternal: true },
-      { label: "card game", href: "https://kder.ywordk.com", isExternal: true },
     ],
   },
 ];

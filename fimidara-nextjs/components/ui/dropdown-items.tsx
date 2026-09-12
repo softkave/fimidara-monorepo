@@ -1,3 +1,6 @@
+"use client";
+
+import { isValidElement } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,9 +29,11 @@ export function DropdownItems(props: IDropdownItemsProps) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger disabled={disabled} asChild={asChild}>
-        {children}
-      </DropdownMenuTrigger>
+      {asChild && isValidElement(children) ? (
+        <DropdownMenuTrigger disabled={disabled} render={children} />
+      ) : (
+        <DropdownMenuTrigger disabled={disabled}>{children}</DropdownMenuTrigger>
+      )}
       <DropdownMenuContent>
         {items.map((item) =>
           item.type === "divider" ? (
@@ -37,7 +42,7 @@ export function DropdownItems(props: IDropdownItemsProps) {
             <DropdownMenuItem
               key={item.key}
               disabled={item.disabled}
-              onSelect={() => onSelect?.(item.key)}
+              onClick={() => onSelect?.(item.key)}
             >
               {item.label}
             </DropdownMenuItem>

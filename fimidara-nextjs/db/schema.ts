@@ -1,34 +1,37 @@
-import { createClient } from "@libsql/client";
 import assert from "assert";
-import { drizzle } from "drizzle-orm/libsql";
+import { drizzle } from "drizzle-orm/node-postgres";
 import {
+  boolean,
   integer,
+  pgTable,
   primaryKey,
-  sqliteTable,
   text,
-} from "drizzle-orm/sqlite-core";
+  timestamp,
+} from "drizzle-orm/pg-core";
 import type { AdapterAccountType } from "next-auth/adapters";
+import { Pool } from "pg";
 import { v7 as uuidv7 } from "uuid";
+import { getPgPoolConfig } from "./pgSsl";
 
-const dbURL = process.env.TURSO_DATABASE_URL;
-const authToken = process.env.TURSO_AUTH_TOKEN;
-assert.ok(dbURL, "TURSO_DATABASE_URL is required");
-assert.ok(authToken, "TURSO_AUTH_TOKEN is required");
+const pgDatabaseUrl = process.env.PG_DATABASE_URL;
+assert.ok(pgDatabaseUrl, "PG_DATABASE_URL is required");
 
-const client = createClient({ authToken, url: dbURL });
-export const db = drizzle(client);
+const pool = new Pool(getPgPoolConfig(pgDatabaseUrl));
 
-export const users = sqliteTable("user", {
+export const db = drizzle(pool);
+export { pool };
+
+export const users = pgTable("user", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => uuidv7()),
   name: text("name"),
   email: text("email").unique(),
-  emailVerified: integer("emailVerified", { mode: "timestamp_ms" }),
+  emailVerified: timestamp("emailVerified", { mode: "date" }),
   image: text("image"),
 });
 
-export const accounts = sqliteTable(
+export const accounts = pgTable(
   "account",
   {
     userId: text("userId")
@@ -52,20 +55,20 @@ export const accounts = sqliteTable(
   })
 );
 
-export const sessions = sqliteTable("session", {
+export const sessions = pgTable("session", {
   sessionToken: text("sessionToken").primaryKey(),
   userId: text("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
+  expires: timestamp("expires", { mode: "date" }).notNull(),
 });
 
-export const verificationTokens = sqliteTable(
+export const verificationTokens = pgTable(
   "verificationToken",
   {
     identifier: text("identifier").notNull(),
     token: text("token").notNull(),
-    expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
+    expires: timestamp("expires", { mode: "date" }).notNull(),
   },
   (verificationToken) => ({
     compositePk: primaryKey({
@@ -74,7 +77,7 @@ export const verificationTokens = sqliteTable(
   })
 );
 
-export const authenticators = sqliteTable(
+export const authenticators = pgTable(
   "authenticator",
   {
     credentialID: text("credentialID").notNull().unique(),
@@ -85,9 +88,7 @@ export const authenticators = sqliteTable(
     credentialPublicKey: text("credentialPublicKey").notNull(),
     counter: integer("counter").notNull(),
     credentialDeviceType: text("credentialDeviceType").notNull(),
-    credentialBackedUp: integer("credentialBackedUp", {
-      mode: "boolean",
-    }).notNull(),
+    credentialBackedUp: boolean("credentialBackedUp").notNull(),
     transports: text("transports"),
   },
   (authenticator) => ({

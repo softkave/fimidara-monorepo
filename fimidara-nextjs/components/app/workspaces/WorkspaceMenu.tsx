@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button.tsx";
 import { DropdownItems } from "@/components/ui/dropdown-items.tsx";
-import { ToastAction } from "@/components/ui/toast.tsx";
 import { insertMenuDivider } from "@/components/utils/utils";
 import { useToast } from "@/hooks/use-toast.ts";
 import { kAppWorkspacePaths } from "@/lib/definitions/paths/workspace.ts";
@@ -37,11 +36,10 @@ const WorkspaceMenu: FC<WorkspaceMenuProps> = (props) => {
     if (key === MenuKeys.DeleteWorkspace) {
       toast({
         title: "Are you sure you want to delete this workspace?",
-        action: (
-          <ToastAction altText="Yes" onClick={noop}>
-            Yes
-          </ToastAction>
-        ),
+        actionProps: {
+          children: "Yes",
+          onClick: noop,
+        },
       });
     } else if (key === MenuKeys.GrantPermission) {
       permissionsHook.toggle();
