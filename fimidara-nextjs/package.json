@@ -18,7 +18,7 @@
     "db:generate": "npx --yes -- softkave-forerunner@latest run-env --cmd \"npx drizzle-kit generate\"",
     "db:migrate": "npx --yes -- softkave-forerunner@latest run-env --cmd \"npx drizzle-kit migrate\"",
     "db:migrate-sqlite-to-postgres": "npx tsx scripts/db/migrate-sqlite-to-postgres.ts",
-    "postgres:start": "npx --yes -- softkave-forerunner@latest run-env -e .env.local --cmd 'softkave-forerunner postgres start --version 16 --port $PG_PORT --container-name $PG_CONTAINER_NAME --user $PG_USER --password $PG_PASSWORD --keep'",
+    "postgres:start": "npx --yes -- softkave-forerunner@latest run-env -e .env.local --cmd 'softkave-forerunner postgres start --version 18 --port $PG_PORT --container-name $PG_CONTAINER_NAME --user $PG_USER --password $PG_PASSWORD --keep'",
     "postgres:ensure-dbs": "npx --yes -- softkave-forerunner@latest run-env -e .env.local --cmd 'bash scripts/db/ensure-postgres-dbs.sh'",
     "upload-source-maps": "npx --yes -- fimidx@latest source-maps upload --client-token \"$FIMIDX_SYMBOLICATION_AUTH_TOKEN\" --project-id \"$NEXT_PUBLIC_FIMIDX_LOGGER_PROJECT_ID\" --repo \"$NEXT_PUBLIC_FIMIDX_SYMBOLICATION_REPO\" --version \"$NEXT_PUBLIC_FIMIDX_SYMBOLICATION_VERSION\" --path .next",
     "delete-source-maps": "find .next -name '*.map' -type f -delete"

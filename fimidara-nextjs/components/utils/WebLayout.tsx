@@ -24,14 +24,14 @@ export const WebLayout = (props: IWebLayoutProps) => {
   }
 
   return (
-    <div className="flex flex-1 max-h-screen">
+    <div className="flex h-screen max-h-screen overflow-hidden">
       {isDocs && <DocsSideNav />}
-      <div className="flex-1 flex flex-col">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <WebHeader />
-        <MaybeScroll>
+        <MaybeScroll className="min-h-0 flex-1">
           <div
             className={cn(
-              "mx-auto p-4 flex-1 w-full max-w-4xl",
+              "mx-auto w-full max-w-4xl flex-1 p-4",
               props.contentClassName
             )}
           >

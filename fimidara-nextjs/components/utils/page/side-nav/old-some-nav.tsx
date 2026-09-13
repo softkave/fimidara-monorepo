@@ -92,7 +92,7 @@ export function SomeNav(props: ISomeNavProps) {
   });
 
   return (
-    <div className={cn(className, "grid grid-rows-[auto_1fr]")} style={style}>
+    <div className={cn(className)} style={style}>
       {navNodes}
     </div>
   );

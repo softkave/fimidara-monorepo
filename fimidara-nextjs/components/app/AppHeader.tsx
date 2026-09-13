@@ -19,7 +19,7 @@ export default function AppHeader(props: IAppHeaderProps) {
       className={cn(
         "flex",
         "items-center",
-        "space-x-4",
+        "gap-4",
         "py-3",
         "px-4",
         className
@@ -27,7 +27,7 @@ export default function AppHeader(props: IAppHeaderProps) {
       style={style}
     >
       {!isOpen ? <AppTitle className="flex-1" /> : <div className="flex-1" />}
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center gap-2">
         <UploadingFilesProgressButton />
         <UserMenu />
       </div>

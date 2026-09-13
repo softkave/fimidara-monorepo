@@ -3,16 +3,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/components/utils.ts";
 import type { Metadata } from "next";
 import { SessionProvider } from "next-auth/react";
-import { DM_Sans, Source_Code_Pro, Space_Grotesk } from "next/font/google";
+import { DM_Sans, Source_Code_Pro } from "next/font/google";
 import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 
 const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-sans" });
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  subsets: ["latin"],
-});
 
 const codeFont = Source_Code_Pro({
   subsets: ["latin"],
@@ -34,7 +29,6 @@ export default function RootLayout({
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
-          spaceGrotesk.variable,
           codeFont.variable,
           "flex",
           "flex-col"
