@@ -128,7 +128,7 @@ function NamepathBreadcrumb(props: NamepathBreadcrumbProps) {
 
   return (
     <Breadcrumb className={className} style={style}>
-      <BreadcrumbList className="p-0! list-none">{crumbs}</BreadcrumbList>
+      <BreadcrumbList>{crumbs}</BreadcrumbList>
     </Breadcrumb>
   );
 }
