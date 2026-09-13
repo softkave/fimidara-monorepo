@@ -51,7 +51,7 @@ export function SelectedFilesForm(props: SelectedFilesFormProps) {
         <AccordionTrigger>
           <div className="grid grid-cols-[1fr_auto] items-center mr-2 gap-2 flex-1">
             <div className="flex flex-col items-start flex-1">
-              <span className="text-left break-all">{value.name}</span>
+              <span className="text-left break-words">{value.name}</span>
               {errorMessage && (
                 <span className="text-sm font-medium text-destructive text-left">
                   {errorMessage}

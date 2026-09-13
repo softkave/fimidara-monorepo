@@ -78,7 +78,7 @@ const AssignedPermissionGroupList: FC<IAssignedPermissionGroupListProps> = (
             <ThumbnailContent
               key={item.permissionGroupId}
               main={
-                <div className="flex flex-col justify-center break-all">
+                <div className="flex flex-col justify-center break-words">
                   <Link
                     href={kAppWorkspacePaths.permissionGroup(
                       workspaceId,
@@ -88,7 +88,7 @@ const AssignedPermissionGroupList: FC<IAssignedPermissionGroupListProps> = (
                     {permissionGroup.name}
                   </Link>
                   {permissionGroup.description && (
-                    <span className="text-secondary break-all">
+                    <span className="text-secondary break-words">
                       {permissionGroup.description}
                     </span>
                   )}

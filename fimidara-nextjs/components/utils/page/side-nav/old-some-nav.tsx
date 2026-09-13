@@ -21,59 +21,82 @@ export function SomeNav(props: ISomeNavProps) {
 
   const navNodes = items.map((item) => {
     if (item.isDivider) {
-      return <div className="h-px bg-gray-200 my-2" key={item.key} />;
+      return <div className="my-2 h-px bg-gray-200" key={item.key} />;
     }
 
-    let menuItemContentNode = (
-      <div
-        className="gap-x-4 grid grid-cols-[auto_1fr] items-center"
-        onClick={() => someBehaviour.handleSelect(item)}
-      >
-        {item.icon && (
-          <span className="inline-flex items-center justify-center size-4">
-            {item.icon}
-          </span>
-        )}
-        <div
-          className="text-ellipsis overflow-hidden whitespace-nowrap text-base"
-          title={
-            item.tooltip || (isString(item.label) ? item.label : undefined)
-          }
-        >
-          {item.label}
-        </div>
-      </div>
+    const rowClassName = cn(
+      "flex w-full items-center gap-x-2 px-4 py-1 hover:bg-gray-100",
+      someBehaviour.checkIsSelected(item.key) && "bg-gray-100 font-semibold"
     );
 
-    if (item.href) {
-      menuItemContentNode = <Link href={item.href}>{menuItemContentNode}</Link>;
-    }
+    const labelTitle =
+      item.tooltip || (isString(item.label) ? item.label : undefined);
+
+    const rowContent = (
+      <>
+        {item.children?.length ? (
+          <span
+            role="button"
+            tabIndex={0}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              someBehaviour.handleOpen(item);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                event.stopPropagation();
+                someBehaviour.handleOpen(item);
+              }
+            }}
+            className="cursor-pointer text-muted-foreground"
+          >
+            {someBehaviour.checkIsOpen(item.key) ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
+          </span>
+        ) : null}
+        <span className="grid flex-1 grid-cols-[auto_1fr] items-center gap-x-4">
+          {item.icon ? (
+            <span className="inline-flex size-4 items-center justify-center">
+              {item.icon}
+            </span>
+          ) : null}
+          <span
+            className="overflow-hidden text-ellipsis whitespace-nowrap text-base"
+            title={labelTitle}
+          >
+            {item.label}
+          </span>
+        </span>
+      </>
+    );
 
     return (
       <div
         key={item.key}
-        className="grid grid-rows-[auto_1fr] w-full md:w-[300px]"
+        className="grid w-full grid-rows-[auto_1fr] md:w-[300px]"
       >
-        <div
-          className={cn(
-            "space-x-2 grid grid-cols-[auto_1fr] items-center py-1 px-4 hover:bg-gray-100",
-            someBehaviour.checkIsSelected(item.key) && "bg-gray-100 font-bold"
-          )}
-        >
-          {item.children?.length ? (
-            <span
-              onClick={() => someBehaviour.handleOpen(item)}
-              className="cursor-pointer text-muted-foreground"
-            >
-              {someBehaviour.checkIsOpen(item.key) ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-            </span>
-          ) : null}
-          {menuItemContentNode}
-        </div>
+        {item.href ? (
+          <Link
+            href={item.href}
+            className={rowClassName}
+            onClick={() => someBehaviour.handleSelect(item)}
+          >
+            {rowContent}
+          </Link>
+        ) : (
+          <button
+            type="button"
+            className={cn(rowClassName, "cursor-pointer text-left")}
+            onClick={() => someBehaviour.handleSelect(item)}
+          >
+            {rowContent}
+          </button>
+        )}
         {item.children?.length && someBehaviour.checkIsOpen(item.key) ? (
           <SomeNav
             items={item.children}

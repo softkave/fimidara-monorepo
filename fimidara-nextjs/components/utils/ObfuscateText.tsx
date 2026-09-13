@@ -22,7 +22,7 @@ export function ObfuscateText(props: IObfuscateTextProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap break-all wrap-anywhere w-full">
+      <div className="flex flex-wrap break-words w-full">
         {showText ? (
           text
         ) : (

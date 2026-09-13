@@ -37,7 +37,7 @@ export default function UserCollaborationRequestList() {
             <ThumbnailContent
               key={item.resourceId}
               main={
-                <div className="flex flex-col justify-center break-all">
+                <div className="flex flex-col justify-center break-words">
                   <Link href={`${kAppUserPaths.request(item.resourceId)}`}>
                     <span>
                       Request from <strong>{item.workspaceName}</strong>
