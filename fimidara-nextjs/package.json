@@ -47,7 +47,7 @@
     "drizzle-orm": "^0.36.2",
     "fimidara": "^1.41.1",
     "fimidara-private-js-sdk": "workspace:*",
-    "fimidx": "^0.8.0",
+    "fimidx": "^0.9.0",
     "immer": "^10.0.3",
     "isomorphic-form-data": "^2.0.0",
     "lodash-es": "^4.17.21",

@@ -34,7 +34,7 @@ export function DropdownItems(props: IDropdownItemsProps) {
       ) : (
         <DropdownMenuTrigger disabled={disabled}>{children}</DropdownMenuTrigger>
       )}
-      <DropdownMenuContent>
+      <DropdownMenuContent className="w-56">
         {items.map((item) =>
           item.type === "divider" ? (
             <DropdownMenuSeparator key={item.key} />

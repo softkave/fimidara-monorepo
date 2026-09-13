@@ -156,8 +156,8 @@ importers:
         specifier: workspace:*
         version: link:../fimidara-private-js-sdk
       fimidx:
-        specifier: ^0.8.0
-        version: 0.8.1(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0)
+        specifier: ^0.9.0
+        version: 0.9.0(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0)
       immer:
         specifier: ^10.0.3
         version: 10.1.1
@@ -371,8 +371,8 @@ importers:
         specifier: ^8.3.0
         version: 8.5.1
       fimidx:
-        specifier: ^0.8.0
-        version: 0.8.1(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0)
+        specifier: ^0.9.0
+        version: 0.9.0(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0)
       fs-extra:
         specifier: ^11.1.0
         version: 11.3.0
@@ -4623,8 +4623,8 @@ packages:
     engines: {node: '>=13'}
     hasBin: true
 
-  fimidx@0.8.1:
-    resolution: {integrity: sha512-AQKHviovHHRa3IpUTV3kuJuPE7jM0s8lQDmgkEWbzRpGR4sR5tUembA4Zi/VaowKDljv9TQp0EBCxxSVIxpDSQ==}
+  fimidx@0.9.0:
+    resolution: {integrity: sha512-rxy/XW+r2oxePYGCQzZGO6e6w7ES4H+qwuB74o1UMzfIjk/mlsxvSFA6MT849TzCSJkQqc7l4Q9No5pAJI/KAQ==}
     engines: {node: '>=13'}
     hasBin: true
 
@@ -12978,7 +12978,7 @@ snapshots:
       - debug
       - nanoid
 
-  fimidx@0.8.1(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0):
+  fimidx@0.9.0(assert@2.1.0)(nanoid@5.1.5)(path-browserify@1.0.1)(type-fest@4.41.0):
     dependencies:
       archiver: 7.0.1
       commander: 12.1.0
