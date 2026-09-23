@@ -66,7 +66,7 @@ export function MultipleFilesForm(props: MultipleFilesFormProps) {
               showUploadButton={true}
             >
               <Button title="Select Files" type="button" variant="outline">
-                <div className="space-x-2 flex items-center">
+                <div className="gap-2 flex items-center">
                   <FileUp className="h-4 w-4" />
                   <span>Select Files</span>
                 </div>

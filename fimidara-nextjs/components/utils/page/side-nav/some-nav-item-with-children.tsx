@@ -42,14 +42,16 @@ export function SomeNavItemWithChildren(props: ISomeNavItemWithChildrenProps) {
       onOpenChange={handleOpen}
     >
       <MenuItem>
-        <CollapsibleTrigger asChild>
-          <SomeNavItemMenuButton
-            item={item}
-            isSelected={isSelected}
-            onClick={someNavBehaviour.handleSelect}
-            isSubItem={isSubItem}
-          />
-        </CollapsibleTrigger>
+        <CollapsibleTrigger
+          render={
+            <SomeNavItemMenuButton
+              item={item}
+              isSelected={isSelected}
+              onClick={someNavBehaviour.handleSelect}
+              isSubItem={isSubItem}
+            />
+          }
+        />
         <CollapsibleContent>
           <SidebarMenuSub>
             {item.children?.map((child) => (

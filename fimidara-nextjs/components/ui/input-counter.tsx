@@ -30,16 +30,18 @@ export const InputCounter: React.FC<IInputCounterProps> = (props) => {
       {onTruncate && (
         <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                onClick={onTruncate}
-                disabled={count <= maxCount}
-                className="size-6"
-                size="icon"
-              >
-                <ScissorsLineDashed className="size-4 text-gray-500" />
-              </Button>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="outline"
+                  onClick={onTruncate}
+                  disabled={count <= maxCount}
+                  className="size-6"
+                  size="icon"
+                />
+              }
+            >
+              <ScissorsLineDashed className="size-4 text-gray-500" />
             </TooltipTrigger>
             <TooltipContent>
               <p>Truncate</p>

@@ -73,7 +73,10 @@ const SummedUsageRecordListControls: React.FC<
     <div className="flex items-center space-x-2">
       <Select
         disabled={disabled}
-        onValueChange={(value) => onChange(Number(value), first(months)!)}
+        onValueChange={(value) => {
+          if (value == null) return;
+          onChange(Number(value), first(months)!);
+        }}
         defaultValue={year.toString()}
       >
         <SelectTrigger className="w-[180px]">
@@ -89,7 +92,10 @@ const SummedUsageRecordListControls: React.FC<
       </Select>
       <Select
         disabled={disabled}
-        onValueChange={(value) => onChange(year, monthLabelsMap[value])}
+        onValueChange={(value) => {
+          if (value == null) return;
+          onChange(year, monthLabelsMap[value]);
+        }}
         defaultValue={monthLabels[month]?.toString()}
       >
         <SelectTrigger className="w-[180px]">

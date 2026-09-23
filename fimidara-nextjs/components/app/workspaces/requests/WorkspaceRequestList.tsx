@@ -27,7 +27,7 @@ const WorkspaceRequestList: FC<IWorkspaceRequestListProps> = (props) => {
         <ThumbnailContent
           key={item.resourceId}
           main={
-            <div className="flex flex-col justify-center break-all">
+            <div className="flex flex-col justify-center break-words">
               <Link
                 href={kAppWorkspacePaths.request(workspaceId, item.resourceId)}
               >

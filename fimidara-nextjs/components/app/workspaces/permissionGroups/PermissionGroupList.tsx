@@ -37,7 +37,7 @@ const PermissionGroupList: FC<PermissionGroupListProps> = (props) => {
     ) : (
       <Link
         href={kAppWorkspacePaths.permissionGroup(workspaceId, item.resourceId)}
-        className="break-all"
+        className="break-words"
       >
         {item.name}
       </Link>
@@ -51,10 +51,10 @@ const PermissionGroupList: FC<PermissionGroupListProps> = (props) => {
         selected={selectedMap && selectedMap[item.resourceId]}
         onSelect={onSelect && (() => onSelect(item))}
         main={
-          <div className="flex flex-col justify-center break-all">
+          <div className="flex flex-col justify-center break-words">
             {nameNode}
             {item.description && (
-              <span className="text-secondary break-all">
+              <span className="text-secondary break-words">
                 {item.description}
               </span>
             )}

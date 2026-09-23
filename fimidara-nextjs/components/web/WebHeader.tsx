@@ -21,7 +21,6 @@ import { DropdownItems } from "../ui/dropdown-items.tsx";
 import { cn } from "../utils.ts";
 import IconButton from "../utils/buttons/IconButton";
 import { insertMenuDivider } from "../utils/utils";
-import styles from "./WebHeader.module.css";
 
 export interface IWebHeaderProps {
   className?: string;
@@ -62,13 +61,18 @@ const WebHeader: FC<IWebHeaderProps> = (props) => {
     {
       key: "signin-with-google",
       label: (
-        <GoogleSignInClient className="w-full border-none shadow-none p-0 h-auto" />
+        <GoogleSignInClient
+          className="w-full border-none shadow-none p-0 h-auto justify-start"
+          textClassName="flex-none"
+        />
       ),
     },
     {
       key: "signin-with-github",
       label: (
-        <GitHubSignInClient className="w-full border-none shadow-none p-0 h-auto" />
+        <GitHubSignInClient className="w-full border-none shadow-none p-0 h-auto justify-start"
+        textClassName="flex-none"
+        />
       ),
     },
     {
@@ -98,9 +102,8 @@ const WebHeader: FC<IWebHeaderProps> = (props) => {
   ]);
 
   sideLinksNode = (
-    <div className="space-x-2 flex items-center">
-      {/* <GoogleSignInClient className="w-full border-none shadow-none h-auto" /> */}
-      <GitHubSignInClient className="w-full h-8" />
+    <div className="gap-2 flex items-center">
+      <GitHubSignInClient className="h-8" />
       <DropdownItems items={items} asChild>
         <Button variant="outline" size="icon" className="px-2">
           <Ellipsis className="w-4 h-4" />
@@ -112,10 +115,7 @@ const WebHeader: FC<IWebHeaderProps> = (props) => {
   const isDocs = pathname.startsWith(kAppRootPaths.docs);
 
   return (
-    <div
-      className={cn("p-4 space-x-4 flex items-center", className)}
-      style={style}
-    >
+    <div className={cn("p-4 gap-4 flex items-center", className)} style={style}>
       {isDocs && !isOpen && (
         <IconButton
           icon={isOpen ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
@@ -127,7 +127,7 @@ const WebHeader: FC<IWebHeaderProps> = (props) => {
           {isDocs ? null : <Link href={kAppRootPaths.home}>fimidara</Link>}
         </h5>
       </div>
-      <div className={styles.sideLinks}>{sideLinksNode}</div>
+      <div className="flex-1 justify-end flex">{sideLinksNode}</div>
     </div>
   );
 };

@@ -28,7 +28,7 @@ export function useDeleteModal(props: IUseDeleteModalProps) {
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           {description && (
-            <AlertDialogDescription className="break-all">
+            <AlertDialogDescription className="break-words">
               {description}
             </AlertDialogDescription>
           )}

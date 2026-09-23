@@ -64,21 +64,23 @@ function NamepathBreadcrumb(props: NamepathBreadcrumbProps) {
   crumbs.push(
     <BreadcrumbItem key="root">
       {workspaceRootname ? (
-        <BreadcrumbLink asChild>
-          <Link href={rootHref}>{workspaceRootname}</Link>
+        <BreadcrumbLink render={<Link href={rootHref} />}>
+          {workspaceRootname}
         </BreadcrumbLink>
       ) : (
-        <BreadcrumbLink asChild>
-          <Link
-            href={rootHref}
-            aria-label="Folders"
-            className={cn(
-              "inline-flex h-8 w-8 items-center justify-center rounded-md",
-              "hover:bg-accent hover:text-accent-foreground"
-            )}
-          >
-            <FolderTree className="h-4 w-4" />
-          </Link>
+        <BreadcrumbLink
+          render={
+            <Link
+              href={rootHref}
+              aria-label="Folders"
+              className={cn(
+                "inline-flex h-8 w-8 items-center justify-center rounded-md",
+                "hover:bg-accent hover:text-accent-foreground"
+              )}
+            />
+          }
+        >
+          <FolderTree className="h-4 w-4" />
         </BreadcrumbLink>
       )}
     </BreadcrumbItem>
@@ -97,8 +99,8 @@ function NamepathBreadcrumb(props: NamepathBreadcrumbProps) {
         <BreadcrumbSeparator />
         <BreadcrumbItem>
           {href ? (
-            <BreadcrumbLink asChild>
-              <Link href={href}>{label}</Link>
+            <BreadcrumbLink render={<Link href={href} />}>
+              {label}
             </BreadcrumbLink>
           ) : (
             <span className="text-muted-foreground">{label}</span>
@@ -116,8 +118,8 @@ function NamepathBreadcrumb(props: NamepathBreadcrumbProps) {
       <Fragment key="__file__">
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbLink asChild>
-            <Link href={fileHref}>{fileLabel}</Link>
+          <BreadcrumbLink render={<Link href={fileHref} />}>
+            {fileLabel}
           </BreadcrumbLink>
         </BreadcrumbItem>
       </Fragment>
@@ -126,7 +128,7 @@ function NamepathBreadcrumb(props: NamepathBreadcrumbProps) {
 
   return (
     <Breadcrumb className={className} style={style}>
-      <BreadcrumbList className="p-0 list-none">{crumbs}</BreadcrumbList>
+      <BreadcrumbList>{crumbs}</BreadcrumbList>
     </Breadcrumb>
   );
 }

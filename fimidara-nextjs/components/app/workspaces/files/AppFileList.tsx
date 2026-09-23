@@ -29,7 +29,7 @@ const AppFileList: FC<IAppFileListProps> = (props) => {
         <ThumbnailContent
           key={item.resourceId}
           main={
-            <div className="flex flex-col justify-center break-all">
+            <div className="flex flex-col justify-center break-words">
               <Link
                 href={kAppWorkspacePaths.file(
                   item.workspaceId,
@@ -39,7 +39,7 @@ const AppFileList: FC<IAppFileListProps> = (props) => {
                 {item.name + extension}
               </Link>
               {item.description && (
-                <span className="text-secondary break-all">
+                <span className="text-secondary break-words">
                   {item.description}
                 </span>
               )}

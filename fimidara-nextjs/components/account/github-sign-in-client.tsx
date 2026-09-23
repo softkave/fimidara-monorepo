@@ -10,6 +10,8 @@ import { cn } from "../utils.ts";
 export interface IGitHubSignInClientProps {
   redirectTo?: string;
   className?: string;
+  iconClassName?: string;
+  textClassName?: string;
   size?: "icon" | "default" | "sm" | "lg";
   variant?: "default" | "outline";
   showIcon?: boolean;
@@ -18,6 +20,8 @@ export interface IGitHubSignInClientProps {
 export default function GitHubSignInClient(props: IGitHubSignInClientProps) {
   const {
     className,
+    iconClassName,
+    textClassName,
     size = "default",
     variant = "outline",
     showIcon = true,
@@ -32,11 +36,11 @@ export default function GitHubSignInClient(props: IGitHubSignInClientProps) {
         signIn("github", { redirectTo: kClientPaths.withURL(returnTo) })
       }
       variant={variant}
-      className={cn(className, "space-x-4 font-normal")}
+      className={cn(className, "gap-4 font-normal")}
       size={size}
     >
-      {showIcon && <GithubIcon className={"size-4"} />}
-      <span className="flex-1">Sign-in with GitHub</span>
+      {showIcon && <GithubIcon className={cn("size-4", iconClassName)} />}
+      <span className={cn("flex-1", textClassName)}>Sign-in with GitHub</span>
     </Button>
   );
 }

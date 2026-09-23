@@ -356,9 +356,10 @@ export default function AgentTokenForm(props: IAgentTokenFormProps) {
             <div className="flex items-center space-x-2 w-full">
               <Select
                 value={refreshDurationUnit}
-                onValueChange={(value) =>
-                  setRefreshDurationUnit(value as RefreshDurationUnit)
-                }
+                onValueChange={(value) => {
+                  if (value == null) return;
+                  setRefreshDurationUnit(value as RefreshDurationUnit);
+                }}
               >
                 <SelectTrigger className="w-[110px]">
                   <SelectValue placeholder="Unit" />

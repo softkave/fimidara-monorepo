@@ -35,7 +35,6 @@ const IconButton = React.forwardRef<HTMLButtonElement, IIconButtonProps>(
       buttonProps,
       children,
       type,
-      asChild,
     } = props;
 
     const btnNode = (
@@ -58,7 +57,7 @@ const IconButton = React.forwardRef<HTMLButtonElement, IIconButtonProps>(
     return title ? (
       <TooltipProvider>
         <Tooltip>
-          <TooltipTrigger asChild={asChild}>{btnNode}</TooltipTrigger>
+          <TooltipTrigger render={btnNode} />
           <TooltipContent>{title}</TooltipContent>
         </Tooltip>
       </TooltipProvider>

@@ -2,9 +2,8 @@ import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import assert from "assert";
 import { FimidaraEndpoints } from "fimidara-private-js-sdk";
 import NextAuth, { Session } from "next-auth";
-import GitHub from "next-auth/providers/github";
-import Google from "next-auth/providers/google";
 import { NextRequest } from "next/server";
+import authConfig from "./auth.config";
 import { db } from "./db/schema";
 import { fimidxNextAuthLogger } from "./lib/common/logger/fimidx-auth-logger.ts";
 import { systemConstants } from "./lib/definitions/system.ts";
@@ -17,17 +16,10 @@ if (!internalAuthSecret) {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  ...authConfig,
   logger: fimidxNextAuthLogger,
-  // debug: true,
-  providers: [
-    Google({
-      allowDangerousEmailAccountLinking: true,
-    }),
-    GitHub({
-      allowDangerousEmailAccountLinking: true,
-    }),
-  ],
   adapter: DrizzleAdapter(db),
+  session: { strategy: "jwt" },
   events: {
     createUser: async ({ user }) => {
       assert.ok(user.id, "User ID is not set");
@@ -51,21 +43,52 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
   callbacks: {
-    session: async ({ session, user }) => {
+    jwt: async ({ token, user }) => {
+      if (user) {
+        token.sub = user.id;
+        token.name = user.name;
+        token.email = user.email;
+        token.picture = user.image;
+        const emailVerified =
+          "emailVerified" in user
+            ? (user.emailVerified as Date | null | undefined)
+            : undefined;
+        token.emailVerified = emailVerified?.toISOString() ?? null;
+      }
+      return token;
+    },
+    session: async ({ session, token }) => {
+      assert.ok(token.sub, "User ID is not set");
+
+      const name = token.name ?? session.user?.name;
+      const email = token.email ?? session.user?.email;
+      assert.ok(name, "User name is not set");
+      assert.ok(email, "User email is not set");
+
       const endpoint = new FimidaraEndpoints({
         serverURL: systemConstants.serverAddr,
       });
 
-      assert.ok(user.name, "User name is not set");
+      const emailVerifiedAt = token.emailVerified
+        ? new Date(String(token.emailVerified)).valueOf()
+        : undefined;
+
       const res = await endpoint.users.loginWithOAuth({
-        oauthUserId: user.id,
+        oauthUserId: token.sub,
         interServerAuthSecret: internalAuthSecret,
-        email: user.email,
-        name: user.name,
-        emailVerifiedAt: user.emailVerified?.valueOf(),
+        email,
+        name,
+        emailVerifiedAt,
       });
+
       const userData: IOAuthUser = {
-        ...user,
+        id: token.sub,
+        name,
+        email,
+        emailVerified: token.emailVerified
+          ? new Date(String(token.emailVerified))
+          : null,
+        image: token.picture ?? session.user?.image ?? null,
         ...res,
       };
 
@@ -74,9 +97,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         user: userData,
       };
     },
-  },
-  pages: {
-    error: "/error",
   },
 });
 

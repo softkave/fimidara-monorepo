@@ -199,7 +199,7 @@ function TargetGrantPermissionFormEntityList<T extends { resourceId: string }>(
     content = <PageLoading message="Resolving permissions..." />;
   } else if (rpState.data) {
     content = (
-      <Accordion type="single" collapsible>
+      <Accordion>
         {entities.map((entity) => {
           const info = getInfoFromItem(entity);
           return (

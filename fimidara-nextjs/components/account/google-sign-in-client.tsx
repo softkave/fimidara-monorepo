@@ -10,12 +10,14 @@ import { cn } from "../utils.ts";
 export interface IGoogleSignInClientProps {
   redirectTo?: string;
   className?: string;
+  iconClassName?: string;
+  textClassName?: string;
   variant?: "default" | "outline";
   showIcon?: boolean;
 }
 
 export default function GoogleSignInClient(props: IGoogleSignInClientProps) {
-  const { className, variant = "outline", showIcon = true } = props;
+  const { className, iconClassName, textClassName, variant = "outline", showIcon = true } = props;
   const returnTo = useLoggedInReturnTo({
     defaultReturnTo: props.redirectTo,
   });
@@ -26,10 +28,10 @@ export default function GoogleSignInClient(props: IGoogleSignInClientProps) {
         signIn("google", { redirectTo: kClientPaths.withURL(returnTo) })
       }
       variant={variant}
-      className={cn(className, "space-x-4 font-normal")}
+      className={cn(className, "gap-4 font-normal")}
     >
-      {showIcon && <GoogleIcon className={"size-4"} />}
-      <span className="flex-1">Sign-in with Google</span>
+      {showIcon && <GoogleIcon className={cn("size-4", iconClassName)} />}
+      <span className={cn("flex-1", textClassName)}>Sign-in with Google</span>
     </Button>
   );
 }

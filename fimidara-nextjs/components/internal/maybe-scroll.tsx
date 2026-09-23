@@ -15,7 +15,7 @@ export function MaybeScroll({
   return isMobile ? (
     <div className={cn("h-full overflow-y-auto", className)}>{children}</div>
   ) : (
-    <ScrollArea className={className}>
+    <ScrollArea className={cn("h-full", className)}>
       {children}
       <ScrollBar orientation="horizontal" />
     </ScrollArea>

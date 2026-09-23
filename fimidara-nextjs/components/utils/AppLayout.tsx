@@ -18,14 +18,14 @@ const AppLayoutImpl = (props: IAppLayoutProps) => {
   return usePageAuthRequired({
     render() {
       return (
-        <div className="flex flex-1 max-h-screen">
+        <div className="flex h-screen max-h-screen overflow-hidden">
           <FimidaraSideNav />
-          <div className="flex-1 flex flex-col">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             <AppHeader />
-            <MaybeScroll>
+            <MaybeScroll className="min-h-0 flex-1">
               <div
                 className={cn(
-                  "mx-auto p-4 flex-1 w-full max-w-lg",
+                  "mx-auto w-full max-w-lg flex-1 p-4",
                   contentClassName
                 )}
               >

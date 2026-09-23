@@ -40,14 +40,10 @@ export function SideNav(props: ISideNavProps) {
     }
 
     return (
-      <div className="h-screen grid grid-rows-[auto_1fr] gap-0 w-[300px] border-r">
+      <div className="grid h-full w-[300px] shrink-0 grid-rows-[auto_1fr] gap-0 border-r">
         <AppTitle
           className={cn(
-            "py-4",
-            "px-4",
-            "items-center",
-            "flex",
-            "sticky top-0 bg-white z-50"
+            "sticky top-0 z-50 flex items-center bg-background px-4 py-4"
           )}
         />
         <MaybeScroll className="w-full max-w-full">{menuNode}</MaybeScroll>

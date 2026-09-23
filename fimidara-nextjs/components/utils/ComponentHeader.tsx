@@ -15,7 +15,7 @@ const ComponentHeader: React.FC<IComponentHeaderProps> = (props) => {
   // TODO: implement copyable
 
   return (
-    <div className={cn("flex w-full break-all", className)}>
+    <div className={cn("flex w-full break-words", className)}>
       {prefixNode && <div className="mr-8">{prefixNode}</div>}
       <h4 className="mr-8 flex-1">{title}</h4>
       {children}

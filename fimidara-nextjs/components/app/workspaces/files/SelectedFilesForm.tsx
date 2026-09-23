@@ -49,16 +49,16 @@ export function SelectedFilesForm(props: SelectedFilesFormProps) {
     return (
       <AccordionItem key={value.__localId} value={value.__localId}>
         <AccordionTrigger>
-          <div className="grid grid-cols-[1fr_auto] items-center mr-2 gap-2">
-            <div className="flex flex-col items-start">
-              <span className="text-left break-all">{value.name}</span>
+          <div className="grid grid-cols-[1fr_auto] items-center mr-2 gap-2 flex-1">
+            <div className="flex flex-col items-start flex-1">
+              <span className="text-left break-words">{value.name}</span>
               {errorMessage && (
                 <span className="text-sm font-medium text-destructive text-left">
                   {errorMessage}
                 </span>
               )}
             </div>
-            <div className="space-x-4 flex items-center">
+            <div className="gap-4 flex items-center">
               {value?.file ? (
                 <span className="text-secondary">
                   {prettyBytes(value.file.size)}
@@ -87,7 +87,7 @@ export function SelectedFilesForm(props: SelectedFilesFormProps) {
 
   const collapseNode = panelNodes.length ? (
     <div className="mb-4">
-      <Accordion type="single" collapsible>
+      <Accordion>
         {panelNodes}
       </Accordion>
     </div>

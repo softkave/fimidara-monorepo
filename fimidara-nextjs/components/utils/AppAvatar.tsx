@@ -61,7 +61,7 @@ export default function AppAvatar(props: IAppAvatarProps) {
     : undefined;
 
   return (
-    <Avatar className={cn(avatarVariants({ shape }), className)}>
+    <Avatar className={cn(avatarVariants({ shape }), className, "border-0")}>
       <AvatarImage
         src={src}
         alt={alt}

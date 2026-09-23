@@ -70,10 +70,10 @@ const WorkspaceList: FC<IWorkspaceListProps> = (props) => {
               main={
                 <div className="flex flex-col justify-center">
                   <Link href={kAppWorkspacePaths.folderList(item.resourceId)}>
-                    <div className="break-all">{item.name}</div>
+                    <div className="break-words">{item.name}</div>
                   </Link>
                   {item.description && (
-                    <span className="text-secondary break-all">
+                    <span className="text-secondary break-words">
                       {item.description}
                     </span>
                   )}

@@ -24,24 +24,24 @@ export function DatePicker(props: IDatePickerProps) {
   return (
     <Popover>
       <PopoverTrigger
-        asChild
         disabled={disabled}
         className={className}
         style={style}
+        render={
+          <Button
+            type="button"
+            disabled={disabled}
+            variant={"outline"}
+            className={cn(
+              "w-[280px] justify-start text-left font-normal",
+              !value && "text-muted-foreground",
+              className
+            )}
+          />
+        }
       >
-        <Button
-          type="button"
-          disabled={disabled}
-          variant={"outline"}
-          className={cn(
-            "w-[280px] justify-start text-left font-normal",
-            !value && "text-muted-foreground",
-            className
-          )}
-        >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {value ? format(value, "PPP") : <span>Pick a date</span>}
-        </Button>
+        <CalendarIcon className="mr-2 h-4 w-4" />
+        {value ? format(value, "PPP") : <span>Pick a date</span>}
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
         <Calendar
@@ -49,7 +49,7 @@ export function DatePicker(props: IDatePickerProps) {
           selected={value}
           onSelect={onChange}
           disabled={disabled}
-          initialFocus
+          autoFocus
         />
       </PopoverContent>
     </Popover>
