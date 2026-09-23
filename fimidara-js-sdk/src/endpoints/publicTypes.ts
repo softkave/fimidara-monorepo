@@ -750,6 +750,18 @@ export type CompleteMultipartUploadEndpointParams = {
   parts: Array<CompleteMultipartUploadInputPart>;
 };
 /**
+ * Status of image dimension probing: pending, ready, unsupported, or failed.
+ * @example
+ * ```
+ * ready
+ * ```
+ */
+export type ImageDimensionsStatus =
+  | 'pending'
+  | 'ready'
+  | 'unsupported'
+  | 'failed';
+/**
  * Whether a read or write operation is available on a file or part, including whether it is available for the current requester
  */
 export type ResourceAvailability = {
@@ -778,14 +790,6 @@ export type ResourceAvailability = {
    */
   lockedBy?: string;
 };
-/**
- * Status of image dimension probing
- */
-export type ImageDimensionsStatus =
-  | 'pending'
-  | 'ready'
-  | 'unsupported'
-  | 'failed';
 /**
  * File resource with metadata and location information
  */
@@ -2443,6 +2447,49 @@ export type ResourceWrapper = {
  *               "example": 1
  *             }
  *           },
+ *           "imageWidth": {
+ *             "__id": "FieldObjectField",
+ *             "required": false,
+ *             "data": {
+ *               "__id": "FieldNumber",
+ *               "description": "Image display width in pixels after EXIF orientation. Present when imageDimensionsStatus is ready.",
+ *               "example": 1920
+ *             }
+ *           },
+ *           "imageHeight": {
+ *             "__id": "FieldObjectField",
+ *             "required": false,
+ *             "data": {
+ *               "__id": "FieldNumber",
+ *               "description": "Image display height in pixels after EXIF orientation. Present when imageDimensionsStatus is ready.",
+ *               "example": 1080
+ *             }
+ *           },
+ *           "imageDimensionsStatus": {
+ *             "__id": "FieldObjectField",
+ *             "required": false,
+ *             "data": {
+ *               "__id": "FieldString",
+ *               "description": "Status of image dimension probing: pending, ready, unsupported, or failed.",
+ *               "example": "ready",
+ *               "valid": [
+ *                 "pending",
+ *                 "ready",
+ *                 "unsupported",
+ *                 "failed"
+ *               ],
+ *               "enumName": "ImageDimensionsStatus"
+ *             }
+ *           },
+ *           "aspectRatio": {
+ *             "__id": "FieldObjectField",
+ *             "required": false,
+ *             "data": {
+ *               "__id": "FieldNumber",
+ *               "description": "Derived image aspect ratio (width / height) when both dimensions are present.",
+ *               "example": 1.7778
+ *             }
+ *           },
  *           "read": {
  *             "__id": "FieldObjectField",
  *             "required": true,
@@ -3813,9 +3860,7 @@ export type ImageResizeParams = {
   withoutEnlargement?: boolean;
 };
 /**
- * Format to transform image to if file is an image. Animated GIF/WebP and
- * multi-page TIFF sources are not supported for transform yet. `gif` output
- * encodes a still image.
+ * Format to transform image to if file is an image. Animated GIF/WebP and multi-page TIFF are not fully supported for transform yet. gif output encodes a still image.
  * @example
  * ```
  * webp
@@ -3871,7 +3916,7 @@ export type ReadFileEndpointParams = {
    */
   imageResize?: ImageResizeParams;
   /**
-   * Format to transform image to if file is an image
+   * Format to transform image to if file is an image. Animated GIF/WebP and multi-page TIFF are not fully supported for transform yet. gif output encodes a still image.
    * @example
    * ```
    * webp
