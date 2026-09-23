@@ -12,6 +12,34 @@ allowBuilds:
   unrs-resolver: true
 minimumReleaseAgeExclude:
   - softkave-node-utils@0.8.0
+  - '@next/env@16.3.6'
+  - '@next/swc-darwin-arm64@16.3.6'
+  - '@next/swc-darwin-x64@16.3.6'
+  - '@next/swc-linux-arm64-gnu@16.3.6'
+  - '@next/swc-linux-arm64-musl@16.3.6'
+  - '@next/swc-linux-x64-gnu@16.3.6'
+  - '@next/swc-linux-x64-musl@16.3.6'
+  - '@next/swc-win32-arm64-msvc@16.3.6'
+  - '@next/swc-win32-x64-msvc@16.3.6'
+  - next@15.5.10 || 15.5.13 || 15.5.14 || 15.5.15 || 15.5.16 || 15.5.18 || 15.5.21 || 15.5.24 || 16.3.6
+  - '@next/bundle-analyzer@16.3.6'
+  - '@next/eslint-plugin-next@16.3.6'
+  - '@next/mdx@16.3.6'
+  - cn@0.4.0
+  - eslint-config-next@16.3.6
+  - esbuild@0.24.3
+  - tmp@0.2.4 || 0.2.6
+  - zx@8.8.5
+  - minimatch@9.0.6 || 9.0.7
+  - vite@6.4.2 || 6.4.3
+  - drizzle-orm@0.45.2
+  - postcss@8.5.10 || 8.5.12 || 8.5.18 || 8.5.23
+  - mongoose@8.22.1 || 8.24.1
+  - sharp@0.35.0 || 0.35.4
+  - '@vitest/browser@3.2.7'
+  - vitest@3.2.6 || 4.1.11
+  - '@faker-js/faker@10.4.1'
+  - '@vitest/mocker@4.1.11'
 onlyBuiltDependencies:
   - argon2
   - core-js
