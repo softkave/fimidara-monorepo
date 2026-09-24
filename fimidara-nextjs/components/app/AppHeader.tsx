@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import { cn } from "../utils.ts";
+import { HeaderShell } from "../utils/HeaderShell.tsx";
 import AppTitle from "./AppTitle.tsx";
 import { useAppMenu } from "./useAppMenu.tsx";
 import UserMenu from "./UserMenu.tsx";
@@ -15,11 +18,8 @@ export default function AppHeader(props: IAppHeaderProps) {
   const { isOpen } = useAppMenu();
 
   return (
-    <div
-      className={cn(
-        "flex items-center gap-4 py-4 px-4",
-        className
-      )}
+    <HeaderShell
+      className={cn("flex items-center gap-4 py-4 px-4", className)}
       style={style}
     >
       {!isOpen ? <AppTitle className="flex-1" /> : <div className="flex-1" />}
@@ -27,6 +27,6 @@ export default function AppHeader(props: IAppHeaderProps) {
         <UploadingFilesProgressButton />
         <UserMenu />
       </div>
-    </div>
+    </HeaderShell>
   );
 }

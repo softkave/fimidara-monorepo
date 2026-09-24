@@ -18,6 +18,7 @@ import GoogleSignInClient from "../account/google-sign-in-client.tsx";
 import { useAppMenu } from "../app/useAppMenu.tsx";
 import { Button } from "../ui/button.tsx";
 import { DropdownItems, IDropdownItem } from "../ui/dropdown-items.tsx";
+import { HeaderShell } from "../utils/HeaderShell.tsx";
 import { cn } from "../utils.ts";
 import IconButton from "../utils/buttons/IconButton";
 
@@ -115,7 +116,10 @@ const WebHeader: FC<IWebHeaderProps> = (props) => {
   const isDocs = pathname.startsWith(kAppRootPaths.docs);
 
   return (
-    <div className={cn("p-4 gap-4 flex items-center", className)} style={style}>
+    <HeaderShell
+      className={cn("p-4 gap-4 flex items-center", className)}
+      style={style}
+    >
       {isDocs && !isOpen && (
         <IconButton
           icon={isOpen ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
@@ -128,7 +132,7 @@ const WebHeader: FC<IWebHeaderProps> = (props) => {
         </h5>
       </div>
       <div className="flex-1 justify-end flex">{sideLinksNode}</div>
-    </div>
+    </HeaderShell>
   );
 };
 
