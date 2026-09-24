@@ -59,9 +59,9 @@ export function SomeNav(props: ISomeNavProps) {
             )}
           </span>
         ) : null}
-        <span className="grid flex-1 grid-cols-[auto_1fr] items-center gap-x-4">
+        <span className="grid flex-1 grid-cols-[auto_1fr] items-center gap-x-2">
           {item.icon ? (
-            <span className="inline-flex size-4 items-center justify-center">
+            <span className="inline-flex size-4 items-center justify-center text-muted-foreground group-hover:text-foreground mx-2">
               {item.icon}
             </span>
           ) : null}

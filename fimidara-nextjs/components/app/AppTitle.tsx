@@ -22,7 +22,7 @@ export default function AppTitle(props: IAppTitleProps) {
   const isDocs = pathname.startsWith(kAppRootPaths.docs);
   return (
     <div
-      className={cn("flex", "items-center", "space-x-4", className)}
+      className={cn("flex", "items-center", "gap-x-2", className)}
       style={style}
     >
       <IconButton
