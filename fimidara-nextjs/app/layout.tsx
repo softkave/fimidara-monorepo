@@ -3,13 +3,14 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/components/utils.ts";
 import type { Metadata } from "next";
 import { SessionProvider } from "next-auth/react";
-import { DM_Sans, Source_Code_Pro } from "next/font/google";
+import { DM_Mono, DM_Sans, Source_Code_Pro } from "next/font/google";
 import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 
 const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-sans" });
 
-const codeFont = Source_Code_Pro({
+const codeFont = DM_Mono({
+  weight: "400",
   subsets: ["latin"],
   variable: "--font-source-code",
 });

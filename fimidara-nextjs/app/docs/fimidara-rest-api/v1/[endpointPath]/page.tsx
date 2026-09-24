@@ -1,5 +1,3 @@
-"use server";
-
 import HttpEndpointDoc from "@/components/docs/HttpEndpointDoc";
 import { kDocNavRootKeysList } from "@/components/docs/navItems.tsx";
 import PageNothingFound from "@/components/utils/page/PageNothingFound";
@@ -9,36 +7,12 @@ import { promises } from "fs";
 import { last } from "lodash-es";
 import { MfdocHttpEndpointDefinitionTypePrimitive } from "mfdoc/mfdoc-core";
 import path from "path";
-import { use } from "react";
 
 interface FimidaraRestApiEndpointDocPageProps {
   params: Promise<{ endpointPath: string }>;
 }
 
-const FimidaraRestApiEndpointDocPage = (
-  props: FimidaraRestApiEndpointDocPageProps
-) => {
-  const { endpointPath } = use(props.params);
-  const endpoint = use(useEndpointInfo(endpointPath));
-
-  if (!endpoint) {
-    return (
-      <PageNothingFound
-        message={
-          <p>
-            Endpoint <code>{endpointPath}</code> not found.
-          </p>
-        }
-      />
-    );
-  }
-
-  return <HttpEndpointDoc endpoint={endpoint} />;
-};
-
-export default FimidaraRestApiEndpointDocPage;
-
-const useEndpointInfo = async (endpointPath: string) => {
+async function getEndpointInfo(endpointPath: string) {
   try {
     if (endpointPath) {
       const s1 = endpointPath
@@ -60,4 +34,25 @@ const useEndpointInfo = async (endpointPath: string) => {
   } catch (error) {
     fimidxConsoleLogger.error(error);
   }
-};
+}
+
+export default async function FimidaraRestApiEndpointDocPage(
+  props: FimidaraRestApiEndpointDocPageProps
+) {
+  const { endpointPath } = await props.params;
+  const endpoint = await getEndpointInfo(endpointPath);
+
+  if (!endpoint) {
+    return (
+      <PageNothingFound
+        message={
+          <p>
+            Endpoint <code>{endpointPath}</code> not found.
+          </p>
+        }
+      />
+    );
+  }
+
+  return <HttpEndpointDoc endpoint={endpoint} />;
+}
