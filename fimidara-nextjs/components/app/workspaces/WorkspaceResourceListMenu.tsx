@@ -1,7 +1,9 @@
 import useTargetGrantPermissionModal from "@/components/hooks/useTargetGrantPermissionModal";
 import { Button } from "@/components/ui/button.tsx";
-import { DropdownItems } from "@/components/ui/dropdown-items.tsx";
-import { insertMenuDivider } from "@/components/utils/utils";
+import {
+  DropdownItems,
+  IDropdownItem,
+} from "@/components/ui/dropdown-items.tsx";
 import { FimidaraResourceType } from "fimidara";
 import { Ellipsis } from "lucide-react";
 import React from "react";
@@ -32,12 +34,12 @@ const WorkspaceResourceListMenu: React.FC<WorkspaceResourceListMenuProps> = (
     }
   };
 
-  const items = insertMenuDivider([
+  const items: IDropdownItem[] = [
     {
       key: MenuKeys.GrantPermission,
       label: "Permissions",
     },
-  ]);
+  ];
 
   return (
     <React.Fragment>

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button.tsx";
-import { DropdownItems } from "@/components/ui/dropdown-items.tsx";
+import { DropdownItems, IDropdownItem } from "@/components/ui/dropdown-items.tsx";
 import { cn } from "@/components/utils.ts";
 import { StyleableComponentProps } from "@/components/utils/styling/types";
 import { insertMenuDivider } from "@/components/utils/utils";
@@ -37,7 +37,7 @@ const FileListContainerHeader: React.FC<IFileListContainerHeaderProps> = (
     onScheduleDeleteSuccess,
   } = props;
 
-  const items = insertMenuDivider([
+  const items: IDropdownItem[] = ([
     {
       key: CreateMenuKeys.CreateFolder,
       label: "Add Folder",

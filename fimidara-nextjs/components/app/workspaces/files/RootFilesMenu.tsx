@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button.tsx";
-import { DropdownItems } from "@/components/ui/dropdown-items.tsx";
-import { insertMenuDivider } from "@/components/utils/utils";
+import {
+  DropdownItems,
+  IDropdownItem,
+} from "@/components/ui/dropdown-items.tsx";
 import { Ellipsis } from "lucide-react";
 import React from "react";
 import useTargetGrantPermissionModal from "../../../hooks/useTargetGrantPermissionModal";
@@ -28,12 +30,12 @@ const RootFilesMenu: React.FC<IRootFilesMenuProps> = (props) => {
     }
   };
 
-  const items = insertMenuDivider([
+  const items: IDropdownItem[] = [
     {
       key: MenuKeys.Permissions,
       label: "Permissions",
     },
-  ]);
+  ];
 
   return (
     <React.Fragment>

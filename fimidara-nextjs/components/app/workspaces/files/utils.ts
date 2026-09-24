@@ -2,6 +2,39 @@ import { fileValidationParts } from "@/lib/validation/file";
 import { debounce } from "lodash-es";
 import { SingleFileFormValue } from "./types";
 
+const kImageExtensions = new Set([
+  "jpg",
+  "jpeg",
+  "png",
+  "gif",
+  "webp",
+  "avif",
+  "tiff",
+  "tif",
+  "bmp",
+  "svg",
+  "heic",
+  "heif",
+]);
+
+export function isImageFile(file: {
+  ext?: string;
+  mimetype?: string;
+  name?: string;
+}): boolean {
+  if (file.mimetype?.toLowerCase().startsWith("image/")) {
+    return true;
+  }
+
+  const ext = (
+    file.ext ||
+    file.name?.split(".").pop() ||
+    ""
+  ).toLowerCase();
+
+  return kImageExtensions.has(ext);
+}
+
 export function getNewFileLocalId() {
   return Math.random().toString();
 }

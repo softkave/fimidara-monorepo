@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button.tsx";
-import { Checkbox } from "@/components/ui/checkbox.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import {
@@ -12,13 +11,22 @@ import {
   SelectValue,
 } from "@/components/ui/select.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
+import { Switch } from "@/components/ui/switch.tsx";
+import { getPublicFimidaraEndpointsUsingUserToken } from "@/lib/api/fimidaraEndpoints";
+import { kAppWorkspacePaths } from "@/lib/definitions/paths/workspace.ts";
 import { systemConstants } from "@/lib/definitions/system.ts";
+import { useRequest } from "ahooks";
 import {
   getFimidaraReadFileURL,
+  stringifyFimidaraFilename,
+  stringifyFimidaraFilepath,
+  type File,
   type ImageFormatEnum,
   type ImageResizeFitEnum,
   type ImageResizePositionEnum,
 } from "fimidara";
+import { ChevronLeftIcon } from "lucide-react";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 const FIT_OPTIONS: ImageResizeFitEnum[] = [
@@ -81,26 +89,45 @@ function parseOptionalPositiveInt(value: string): number | undefined {
   return Math.floor(n);
 }
 
-export function ImageTransformPlayground() {
-  const filepath = systemConstants.imageTransformDemoFilepath;
+export interface ImageTransformPlaygroundProps {
+  file: File;
+  workspaceRootname: string;
+}
+
+export function ImageTransformPlayground(props: ImageTransformPlaygroundProps) {
+  const { file, workspaceRootname } = props;
   const [controls, setControls] = useState<TransformControls>(defaultControls);
   const [applied, setApplied] = useState<TransformControls>(defaultControls);
   const [loadError, setLoadError] = useState<string | null>(null);
 
+  const filename = stringifyFimidaraFilename(file);
+  const filepath = stringifyFimidaraFilepath(file, workspaceRootname);
+
+  const pathHook = useRequest(async () => {
+    const endpoints = await getPublicFimidaraEndpointsUsingUserToken();
+    const issueResult = await endpoints.presignedPaths.issuePresignedPath({
+      fileId: file.resourceId,
+      duration: 60 * 60,
+    });
+    return issueResult.path.startsWith("/")
+      ? issueResult.path
+      : `/${issueResult.path}`;
+  });
+
   const originalUrl = useMemo(() => {
-    if (!filepath) return null;
+    if (!pathHook.data) return null;
     return getFimidaraReadFileURL({
-      filepath,
+      filepath: pathHook.data,
       serverURL: systemConstants.serverAddr,
     });
-  }, [filepath]);
+  }, [pathHook.data]);
 
   const transformedUrl = useMemo(() => {
-    if (!filepath) return null;
+    if (!pathHook.data) return null;
     const width = parseOptionalPositiveInt(applied.width);
     const height = parseOptionalPositiveInt(applied.height);
     return getFimidaraReadFileURL({
-      filepath,
+      filepath: pathHook.data,
       serverURL: systemConstants.serverAddr,
       width,
       height,
@@ -110,7 +137,7 @@ export function ImageTransformPlayground() {
       withoutEnlargement: applied.withoutEnlargement || undefined,
       format: applied.format === "original" ? undefined : applied.format,
     });
-  }, [filepath, applied]);
+  }, [pathHook.data, applied]);
 
   const update = <K extends keyof TransformControls>(
     key: K,
@@ -119,46 +146,44 @@ export function ImageTransformPlayground() {
     setControls((prev) => ({ ...prev, [key]: value }));
   };
 
-  if (!filepath) {
-    return (
-      <div className="flex flex-col gap-4 py-8">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Image transform
-        </h1>
-        <p className="text-sm text-muted-foreground max-w-prose">
-          Set{" "}
-          <code className="font-mono text-xs">
-            NEXT_PUBLIC_IMAGE_TRANSFORM_DEMO_FILEPATH
-          </code>{" "}
-          to a publicly readable image filepath in the fimidara workspace (for
-          example{" "}
-          <code className="font-mono text-xs">
-            /fimidara/public/demo.jpg
-          </code>
-          ), then restart the Next.js app.
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col gap-8 py-6">
+    <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Image transform
-        </h1>
+        <div className="flex flex-col gap-1">
+          <div>
+            <Button variant="link" size="sm" className="p-0">
+              <Link
+                href={kAppWorkspacePaths.file(
+                  file.workspaceId,
+                  file.resourceId
+                )}
+                className="flex items-center gap-2"
+              >
+                <ChevronLeftIcon className="w-4 h-4" />
+                Back to file
+              </Link>
+            </Button>
+          </div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Image transform
+          </h1>
+        </div>
         <p className="text-sm text-muted-foreground max-w-prose">
-          Live preview of on-the-fly resize and format conversion via{" "}
-          <code className="font-mono text-xs">readFile</code> query
-          params.
+          Live preview of on-the-fly resize and format conversion via image
+          transformation query params.
         </p>
         <p className="text-xs text-muted-foreground break-all">
-          Source:{" "}
           <code className="font-mono">{filepath}</code>
         </p>
+        {pathHook.error ? (
+          <p className="text-sm text-destructive">
+            Failed to prepare a readable URL for this file. Check that you can
+            read it.
+          </p>
+        ) : null}
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-[minmax(16rem,20rem)_1fr]">
+      <div className="grid gap-8 lg:grid-cols-[minmax(14rem,18rem)_minmax(0,1fr)]">
         <form
           className="flex flex-col gap-4"
           onSubmit={(e) => {
@@ -167,72 +192,76 @@ export function ImageTransformPlayground() {
             setApplied({ ...controls });
           }}
         >
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="width">Width</Label>
-            <Input
-              id="width"
-              type="number"
-              min={1}
-              placeholder="e.g. 600"
-              value={controls.width}
-              onChange={(e) => update("width", e.target.value)}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="width">Width</Label>
+              <Input
+                id="width"
+                type="number"
+                min={1}
+                placeholder="e.g. 600"
+                value={controls.width}
+                onChange={(e) => update("width", e.target.value)}
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="height">Height</Label>
+              <Input
+                id="height"
+                type="number"
+                min={1}
+                placeholder="e.g. 400"
+                value={controls.height}
+                onChange={(e) => update("height", e.target.value)}
+              />
+            </div>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="height">Height</Label>
-            <Input
-              id="height"
-              type="number"
-              min={1}
-              placeholder="e.g. 400"
-              value={controls.height}
-              onChange={(e) => update("height", e.target.value)}
-            />
-          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <Label>Fit</Label>
+              <Select
+                value={controls.fit || undefined}
+                onValueChange={(value) => {
+                  if (value == null) return;
+                  update("fit", value as ImageResizeFitEnum);
+                }}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Fit" />
+                </SelectTrigger>
+                <SelectContent>
+                  {FIT_OPTIONS.map((fit) => (
+                    <SelectItem key={fit} value={fit}>
+                      {fit}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <Label>Fit</Label>
-            <Select
-              value={controls.fit || undefined}
-              onValueChange={(value) => {
-                if (value == null) return;
-                update("fit", value as ImageResizeFitEnum);
-              }}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Fit" />
-              </SelectTrigger>
-              <SelectContent>
-                {FIT_OPTIONS.map((fit) => (
-                  <SelectItem key={fit} value={fit}>
-                    {fit}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <Label>Position</Label>
-            <Select
-              value={controls.position || undefined}
-              onValueChange={(value) => {
-                if (value == null) return;
-                update("position", value as ImageResizePositionEnum);
-              }}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Position" />
-              </SelectTrigger>
-              <SelectContent>
-                {POSITION_OPTIONS.map((position) => (
-                  <SelectItem key={position} value={position}>
-                    {position}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex flex-col gap-2">
+              <Label>Position</Label>
+              <Select
+                value={controls.position || undefined}
+                onValueChange={(value) => {
+                  if (value == null) return;
+                  update("position", value as ImageResizePositionEnum);
+                }}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Position" />
+                </SelectTrigger>
+                <SelectContent>
+                  {POSITION_OPTIONS.map((position) => (
+                    <SelectItem key={position} value={position}>
+                      {position}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="flex flex-col gap-2">
@@ -280,18 +309,20 @@ export function ImageTransformPlayground() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Checkbox
+            <Switch
               id="withoutEnlargement"
               checked={controls.withoutEnlargement}
               onCheckedChange={(checked) =>
-                update("withoutEnlargement", checked === true)
+                update("withoutEnlargement", checked)
               }
             />
             <Label htmlFor="withoutEnlargement">Without enlargement</Label>
           </div>
 
           <div className="flex gap-2">
-            <Button type="submit">Apply</Button>
+            <Button type="submit" disabled={!pathHook.data || pathHook.loading}>
+              Apply
+            </Button>
             <Button
               type="button"
               variant="outline"
@@ -320,7 +351,11 @@ export function ImageTransformPlayground() {
           <section className="flex flex-col gap-2">
             <h2 className="text-sm font-medium">Transformed</h2>
             <div className="flex min-h-64 items-center justify-center overflow-auto rounded-lg border bg-muted/20 p-4">
-              {transformedUrl ? (
+              {pathHook.loading ? (
+                <p className="text-sm text-muted-foreground">
+                  Preparing image…
+                </p>
+              ) : transformedUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   key={transformedUrl}
@@ -329,7 +364,7 @@ export function ImageTransformPlayground() {
                   className="max-h-[36rem] max-w-full object-contain"
                   onError={() =>
                     setLoadError(
-                      "Failed to load transformed image. Check that the file is publicly readable and the server supports transforms."
+                      "Failed to load transformed image. Check that the file is readable and the server supports transforms."
                     )
                   }
                   onLoad={() => setLoadError(null)}

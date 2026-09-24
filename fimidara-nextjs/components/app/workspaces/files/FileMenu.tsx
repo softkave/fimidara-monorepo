@@ -1,10 +1,13 @@
 import { useDeleteModal } from "@/components/hooks/useDeleteModal.tsx";
 import { useFileForm } from "@/components/hooks/useFileForm.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { DropdownItems } from "@/components/ui/dropdown-items.tsx";
+import {
+  DropdownItems,
+  IDropdownItem,
+} from "@/components/ui/dropdown-items.tsx";
 import { errorMessageNotificatition } from "@/components/utils/errorHandling";
-import { insertMenuDivider } from "@/components/utils/utils";
 import { useToast } from "@/hooks/use-toast.ts";
+import { kAppWorkspacePaths } from "@/lib/definitions/paths/workspace.ts";
 import { useWorkspaceFileDeleteMutationHook } from "@/lib/hooks/mutationHooks";
 import { useDownloadFile } from "@/lib/hooks/useDownloadFile.tsx";
 import {
@@ -13,8 +16,10 @@ import {
   stringifyFimidaraFilepath,
 } from "fimidara";
 import { Ellipsis } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { FC, Fragment } from "react";
 import useTargetGrantPermissionModal from "../../../hooks/useTargetGrantPermissionModal";
+import { isImageFile } from "./utils";
 
 export interface FileMenuProps {
   file: File;
@@ -27,11 +32,13 @@ enum MenuKeys {
   UpdateItem = "update-item",
   GrantPermission = "grant-permission",
   DownloadFile = "download",
+  ImageTransform = "image-transform",
 }
 
 const FileMenu: FC<FileMenuProps> = (props) => {
   const { file, workspaceRootname, onScheduleDeleteSuccess } = props;
   const { toast } = useToast();
+  const router = useRouter();
   const permissionsHook = useTargetGrantPermissionModal({
     workspaceId: file.workspaceId,
     targetId: file.resourceId,
@@ -74,10 +81,14 @@ const FileMenu: FC<FileMenuProps> = (props) => {
       downloadHook.downloadHook.run();
     } else if (key === MenuKeys.UpdateItem) {
       formHook.setFormOpen(file);
+    } else if (key === MenuKeys.ImageTransform) {
+      router.push(
+        kAppWorkspacePaths.fileImageTransform(file.workspaceId, file.resourceId)
+      );
     }
   };
 
-  const items = insertMenuDivider([
+  const items: IDropdownItem[] = [
     {
       key: MenuKeys.UpdateItem,
       label: "Update File",
@@ -91,11 +102,19 @@ const FileMenu: FC<FileMenuProps> = (props) => {
       label: downloadHook.downloadHook.loading ? "Downloading..." : "Download",
       disabled: downloadHook.downloadHook.loading,
     },
+    ...(isImageFile(file)
+      ? [
+          {
+            key: MenuKeys.ImageTransform,
+            label: "Image Transform",
+          },
+        ]
+      : []),
     {
       key: MenuKeys.DeleteItem,
       label: "Delete File",
     },
-  ]);
+  ];
 
   return (
     <Fragment>

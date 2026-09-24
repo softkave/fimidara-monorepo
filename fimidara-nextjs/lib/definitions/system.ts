@@ -37,9 +37,6 @@ export const systemConstants = {
     process.env.NEXT_PUBLIC_SERVER_ADDR,
     "https://api.fimidara.com"
   ),
-  /** Public demo image for the /image-transform playground (must be publicly readable). */
-  imageTransformDemoFilepath:
-    process.env.NEXT_PUBLIC_IMAGE_TRANSFORM_DEMO_FILEPATH?.trim() || undefined,
   minPage: 0,
   minPageSize: 1,
   maxPageSize: 1000,

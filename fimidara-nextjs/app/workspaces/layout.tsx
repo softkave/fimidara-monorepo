@@ -1,4 +1,4 @@
-import { AppLayout } from "@/components/utils/AppLayout.tsx";
+import { WorkspaceLayoutShell } from "@/components/app/workspaces/WorkspaceLayoutShell.tsx";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -11,5 +11,5 @@ export default function Layout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <AppLayout>{children}</AppLayout>;
+  return <WorkspaceLayoutShell>{children}</WorkspaceLayoutShell>;
 }

@@ -1,9 +1,11 @@
 import { useDeleteModal } from "@/components/hooks/useDeleteModal.tsx";
 import { useFolderForm } from "@/components/hooks/useFolderForm.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { DropdownItems } from "@/components/ui/dropdown-items.tsx";
+import {
+  DropdownItems,
+  IDropdownItem,
+} from "@/components/ui/dropdown-items.tsx";
 import { errorMessageNotificatition } from "@/components/utils/errorHandling";
-import { insertMenuDivider } from "@/components/utils/utils";
 import { useToast } from "@/hooks/use-toast.ts";
 import { addRootnameToPath, folderConstants } from "@/lib/definitions/folder";
 import { useWorkspaceFolderDeleteMutationHook } from "@/lib/hooks/mutationHooks";
@@ -72,7 +74,7 @@ const FolderMenu: React.FC<FolderMenuProps> = (props) => {
     }
   };
 
-  const items = insertMenuDivider([
+  const items: IDropdownItem[] = [
     {
       key: MenuKeys.UpdateItem,
       label: "Update Folder",
@@ -85,7 +87,7 @@ const FolderMenu: React.FC<FolderMenuProps> = (props) => {
       key: MenuKeys.DeleteItem,
       label: "Delete Folder",
     },
-  ]);
+  ];
 
   return (
     <React.Fragment>

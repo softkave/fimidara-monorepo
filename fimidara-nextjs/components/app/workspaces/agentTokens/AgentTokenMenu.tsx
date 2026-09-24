@@ -1,9 +1,11 @@
 import { useAgentTokenForm } from "@/components/hooks/useAgentTokenForm.tsx";
 import { useDeleteModal } from "@/components/hooks/useDeleteModal.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { DropdownItems } from "@/components/ui/dropdown-items.tsx";
+import {
+  DropdownItems,
+  IDropdownItem,
+} from "@/components/ui/dropdown-items.tsx";
 import { errorMessageNotificatition } from "@/components/utils/errorHandling";
-import { insertMenuDivider } from "@/components/utils/utils";
 import { useToast } from "@/hooks/use-toast.ts";
 import { useWorkspaceAgentTokenDeleteMutationHook } from "@/lib/hooks/mutationHooks";
 import { AgentToken } from "fimidara";
@@ -63,7 +65,7 @@ const AgentTokenMenu: React.FC<AgentTokenMenuProps> = (props) => {
     }
   };
 
-  const items = insertMenuDivider([
+  const items: IDropdownItem[] = [
     {
       // TODO: only show if user has permission
       key: MenuKeys.UpdatePermissionGroups,
@@ -77,7 +79,7 @@ const AgentTokenMenu: React.FC<AgentTokenMenuProps> = (props) => {
       key: MenuKeys.DeleteToken,
       label: "Delete Token",
     },
-  ]);
+  ];
 
   return (
     <React.Fragment>
