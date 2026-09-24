@@ -5,13 +5,14 @@ import { FormAlert } from "@/components/utils/FormAlert";
 import { useToast } from "@/hooks/use-toast.ts";
 import { addRootnameToPath, folderConstants } from "@/lib/definitions/folder";
 import {
+  uploadWorkspaceFile,
   useWorkspaceFileUpdateMutationHook,
-  useWorkspaceFileUploadMutationHook,
 } from "@/lib/hooks/mutationHooks";
 import { useFormHelpers } from "@/lib/hooks/useFormHelpers";
 import { useTransferProgressHandler } from "@/lib/hooks/useTransferProgress";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { File as FimidaraFile, stringifyFimidaraFilepath } from "fimidara";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { FilesFormUploadProgress } from "./FilesFormUploadProgress";
@@ -61,6 +62,8 @@ export default function FileForm(props: FileFormProps) {
   const { file, className, folderpath, workspaceId, workspaceRootname } = props;
   const { toast } = useToast();
   const progressHandlerHook = useTransferProgressHandler();
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<unknown>();
   const form = useForm<z.infer<typeof newFileFormValidationSchema>>({
     resolver: zodResolver(newFileFormValidationSchema),
     defaultValues: file ? getFileFormInputFromFile(file) : initialValues,
@@ -69,15 +72,6 @@ export default function FileForm(props: FileFormProps) {
   const updateHook = useWorkspaceFileUpdateMutationHook({
     onSuccess() {
       toast({ title: "File updated" });
-    },
-  });
-  const uploadHook = useWorkspaceFileUploadMutationHook({
-    onSuccess() {
-      toast({ title: "File uploaded" });
-    },
-    onError(e, params) {
-      const filepath = params[0].filepath;
-      if (filepath) progressHandlerHook.setOpError(filepath, e);
     },
   });
 
@@ -93,32 +87,35 @@ export default function FileForm(props: FileFormProps) {
 
     if (input.resourceId) {
       if (input.file) {
-        const result = await uploadHook.runAsync({
-          fileId: input.resourceId,
-          data: input.file,
-          size: input.file.size,
-          description: input.description || undefined,
-          mimetype: input.mimetype,
-          encoding: input.encoding,
-          clientMultipartId: input.file.name,
-          afterPart: progressHandlerHook.getProgressHandler({
-            identifier: filepath,
-            totalSize: input.file.size,
-          }),
-          resume: true,
-          firePartEventsForResumedParts: true,
-        });
+        try {
+          const result = await uploadWorkspaceFile({
+            fileId: input.resourceId,
+            data: input.file,
+            size: input.file.size,
+            description: input.description || undefined,
+            mimetype: input.mimetype,
+            encoding: input.encoding,
+            clientMultipartId: input.file.name,
+            afterPart: progressHandlerHook.getProgressHandler({
+              identifier: filepath,
+              totalSize: input.file.size,
+            }),
+            resume: true,
+            firePartEventsForResumedParts: true,
+          });
 
-        if (result?.file) {
           progressHandlerHook.markComplete(filepath, {
             fileId: result.file.resourceId,
             workspaceId,
             totalSize: input.file.size,
           });
           form.setValue(`files.${index}.resourceId`, result.file.resourceId);
+          toast({ title: "File uploaded" });
+          return result;
+        } catch (e) {
+          progressHandlerHook.setOpError(filepath, e);
+          throw e;
         }
-
-        return result;
       } else {
         return await updateHook.runAsync({
           fileId: input.resourceId,
@@ -137,43 +134,59 @@ export default function FileForm(props: FileFormProps) {
         return;
       }
 
-      const result = await uploadHook.runAsync({
-        filepath,
-        data: input.file,
-        size: input.file.size,
-        description: input.description || undefined,
-        mimetype: input.mimetype,
-        encoding: input.encoding,
-        clientMultipartId: input.file.name,
-        afterPart: progressHandlerHook.getProgressHandler({
-          identifier: filepath,
-          totalSize: input.file.size,
-        }),
-        resume: true,
-        firePartEventsForResumedParts: true,
-      });
+      try {
+        const result = await uploadWorkspaceFile({
+          filepath,
+          data: input.file,
+          size: input.file.size,
+          description: input.description || undefined,
+          mimetype: input.mimetype,
+          encoding: input.encoding,
+          clientMultipartId: input.file.name,
+          afterPart: progressHandlerHook.getProgressHandler({
+            identifier: filepath,
+            totalSize: input.file.size,
+          }),
+          resume: true,
+          firePartEventsForResumedParts: true,
+        });
 
-      if (result?.file) {
         progressHandlerHook.markComplete(filepath, {
           fileId: result.file.resourceId,
           workspaceId,
           totalSize: input.file.size,
         });
         form.setValue(`files.${index}.resourceId`, result.file.resourceId);
+        toast({ title: "File uploaded" });
+        return result;
+      } catch (e) {
+        progressHandlerHook.setOpError(filepath, e);
+        throw e;
       }
-
-      return result;
     }
   };
 
   const onSubmit = async (
     data: z.infer<typeof newFileFormValidationSchema>
   ) => {
-    await Promise.all(data.files.map((entry, index) => submitFile(entry, index)));
+    setUploading(true);
+    setUploadError(undefined);
+    try {
+      // Must not use a shared ahooks runAsync here — parallel runAsync cancels
+      // earlier requests when a later one starts.
+      await Promise.all(
+        data.files.map((entry, index) => submitFile(entry, index))
+      );
+    } catch (e) {
+      setUploadError(e);
+      throw e;
+    } finally {
+      setUploading(false);
+    }
   };
 
-  const loading = updateHook.loading || uploadHook.loading;
-  const error = updateHook.error || uploadHook.error;
+  const loading = updateHook.loading || uploading;
+  const error = updateHook.error || uploadError;
   useFormHelpers(form, { errors: error });
 
   let contentNode: React.ReactNode = null;

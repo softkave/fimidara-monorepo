@@ -179,12 +179,30 @@ export const useWorkspaceCollaboratorDeleteMutationHook =
     }
   );
 
+export type WorkspaceFileUploadParams = OmitFrom<
+  IMultipartUploadBrowserParams,
+  "endpoints"
+>;
+
+/**
+ * Upload a workspace file without going through ahooks `useRequest.runAsync`.
+ * Parallel `runAsync` calls on one hook cancel earlier requests when they finish
+ * (ahooks request count), which left uploads stuck in "uploading" after success.
+ */
+export async function uploadWorkspaceFile(params: WorkspaceFileUploadParams) {
+  const endpoints = await getPublicFimidaraEndpointsUsingUserToken();
+  const result = await multipartUploadBrowser({
+    endpoints,
+    ...params,
+  });
+  applyWorkspaceFileUploadToStores(result, params);
+  return result;
+}
+
 export const useWorkspaceFileUploadMutationHook = makeEndpointMutationHook(
   getPublicFimidaraEndpointsUsingUserToken,
   (endpoints) => {
-    return async (
-      params: OmitFrom<IMultipartUploadBrowserParams, "endpoints">
-    ) => {
+    return async (params: WorkspaceFileUploadParams) => {
       return await multipartUploadBrowser({
         endpoints,
         ...params,
@@ -192,21 +210,7 @@ export const useWorkspaceFileUploadMutationHook = makeEndpointMutationHook(
     };
   },
   (result, params) => {
-    if (params[0].fileId) {
-      useWorkspaceFilesStore
-        .getState()
-        .set(result.file.resourceId, result.file);
-    } else {
-      insertInFetchStoreAddMutationFn(
-        result.file,
-        useWorkspaceFilesStore,
-        useWorkspaceFilesFetchStore,
-        matchesFolderContentListParams
-      );
-      // Uploads can create intermediate folders; refresh folder lists for the
-      // parent(s) so new folders appear without a full page reload.
-      invalidateFolderContentFetchesForUploadedFile(result.file);
-    }
+    applyWorkspaceFileUploadToStores(result, params[0]);
   }
 );
 
@@ -445,6 +449,25 @@ function workspaceIdMatch<
   T1 extends { workspaceId?: string }
 >(p0: T0, p1: T1) {
   return p0.workspaceId === p1.workspaceId;
+}
+
+function applyWorkspaceFileUploadToStores(
+  result: { file: { resourceId: string; parentId?: string | null; idPath?: string[]; namepath: string[] } },
+  params: WorkspaceFileUploadParams
+) {
+  if (params.fileId) {
+    useWorkspaceFilesStore
+      .getState()
+      .set(result.file.resourceId, result.file as any);
+  } else {
+    insertInFetchStoreAddMutationFn(
+      result.file as any,
+      useWorkspaceFilesStore,
+      useWorkspaceFilesFetchStore,
+      matchesFolderContentListParams
+    );
+    invalidateFolderContentFetchesForUploadedFile(result.file);
+  }
 }
 
 function isRootParentId(parentId: string | null | undefined) {

@@ -19,7 +19,7 @@ import { kAppWorkspacePaths } from "@/lib/definitions/paths/workspace.ts";
 import { systemConstants } from "@/lib/definitions/system";
 import { useWorkspaceFoldersFetchHook } from "@/lib/hooks/fetchHooks";
 import {
-  useWorkspaceFileUploadMutationHook,
+  uploadWorkspaceFile,
   useWorkspaceFolderAddMutationHook,
   useWorkspaceFolderUpdateMutationHook,
 } from "@/lib/hooks/mutationHooks";
@@ -33,7 +33,7 @@ import { Folder, stringifyFimidaraFolderpath } from "fimidara";
 import { compact, last } from "lodash-es";
 import { CircleChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ChangeEventHandler, ReactNode, useMemo } from "react";
+import { ChangeEventHandler, ReactNode, useMemo, useState } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { FilesFormUploadProgress } from "./FilesFormUploadProgress";
@@ -106,15 +106,8 @@ export default function FolderForm(props: FolderFormProps) {
   });
 
   const progressHandlerHook = useTransferProgressHandler();
-  const uploadHook = useWorkspaceFileUploadMutationHook({
-    onSuccess() {
-      toast({ title: "File uploaded" });
-    },
-    onError(e, params) {
-      const filepath = params[0].filepath;
-      if (filepath) progressHandlerHook.setOpError(filepath, e);
-    },
-  });
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<unknown>();
 
   // We don't need to clear files state for folder/root because uploaded files
   // mutate the list and add themselves
@@ -133,14 +126,14 @@ export default function FolderForm(props: FolderFormProps) {
     return () => clearFetchState();
   });
 
-  const hookLoading =
-    uploadHook.loading || createHook.loading || updateHook.loading;
-  const hookError = uploadHook.error || createHook.error || updateHook.error;
-
   const form = useForm<z.infer<typeof folderValidation>>({
     resolver: zodResolver(folderValidation),
     defaultValues: folder ? getFolderFormInputFromFolder(folder) : { name: "" },
   });
+
+  const hookLoading =
+    uploading || createHook.loading || updateHook.loading;
+  const hookError = uploadError || createHook.error || updateHook.error;
   useFormHelpers(form, { errors: hookError });
 
   const wFiles = form.watch("files");
@@ -158,31 +151,34 @@ export default function FolderForm(props: FolderFormProps) {
         workspaceRootname
       );
 
-      const result = await uploadHook.runAsync({
-        filepath,
-        // fileId: input.resourceId,
-        data: input.file,
-        size: input.file.size,
-        description: input.description || undefined,
-        mimetype: input.mimetype,
-        encoding: input.encoding,
-        clientMultipartId: input.file.name,
-        afterPart: progressHandlerHook.getProgressHandler({
-          identifier: filepath,
-          totalSize: input.file.size,
-        }),
-      });
+      try {
+        const result = await uploadWorkspaceFile({
+          filepath,
+          // fileId: input.resourceId,
+          data: input.file,
+          size: input.file.size,
+          description: input.description || undefined,
+          mimetype: input.mimetype,
+          encoding: input.encoding,
+          clientMultipartId: input.file.name,
+          afterPart: progressHandlerHook.getProgressHandler({
+            identifier: filepath,
+            totalSize: input.file.size,
+          }),
+        });
 
-      if (result?.file) {
         progressHandlerHook.markComplete(filepath, {
           fileId: result.file.resourceId,
           workspaceId,
           totalSize: input.file.size,
         });
         form.setValue(`files.${index}.resourceId`, result.file.resourceId);
+        toast({ title: "File uploaded" });
+        return result;
+      } catch (e) {
+        progressHandlerHook.setOpError(filepath, e);
+        throw e;
       }
-
-      return result;
     }
   };
 
@@ -214,12 +210,21 @@ export default function FolderForm(props: FolderFormProps) {
 
   const onSubmit = async (data: z.infer<typeof folderValidation>) => {
     if (data.files) {
-      await Promise.all(
-        data.files.map((entry, index) => handleSubmitFile(entry, index))
-      );
+      setUploading(true);
+      setUploadError(undefined);
+      try {
+        await Promise.all(
+          data.files.map((entry, index) => handleSubmitFile(entry, index))
+        );
 
-      if (data.description) {
-        await handleUpdateFolder(data);
+        if (data.description) {
+          await handleUpdateFolder(data);
+        }
+      } catch (e) {
+        setUploadError(e);
+        throw e;
+      } finally {
+        setUploading(false);
       }
     } else if (folder) {
       await handleUpdateFolder(data);

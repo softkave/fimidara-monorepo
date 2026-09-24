@@ -72,15 +72,22 @@ export function TransferProgress(props: ITransferProgressProps) {
               <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
               <span className="break-words">{identifier}</span>
             </div>
-            <p className="text-sm text-secondary">Upload complete</p>
-            {fileHref ? (
-              <Link
-                href={fileHref}
-                className="text-sm text-primary underline-offset-4 hover:underline"
-              >
-                Open file
-              </Link>
-            ) : null}
+            <div className="flex flex-wrap items-center gap-x-2 text-sm text-secondary">
+              <span>Upload complete</span>
+              {fileHref ? (
+                <>
+                  <span aria-hidden className="text-base leading-none font-bold">
+                    ·
+                  </span>
+                  <Link
+                    href={fileHref}
+                    className="text-primary underline-offset-4 hover:underline"
+                  >
+                    Open file
+                  </Link>
+                </>
+              ) : null}
+            </div>
           </div>
           <Button
             type="button"

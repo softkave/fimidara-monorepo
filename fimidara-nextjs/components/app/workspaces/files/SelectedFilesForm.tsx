@@ -67,17 +67,22 @@ export function SelectedFilesForm(props: SelectedFilesFormProps) {
             <div className="flex flex-col items-start flex-1 gap-1">
               <span className="text-left break-words">{value.name}</span>
               {isUploaded ? (
-                <span className="inline-flex items-center gap-1 text-sm text-green-700">
+                <span className="inline-flex items-center gap-x-2 text-sm text-green-700">
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   Uploaded
                   {fileHref ? (
-                    <Link
-                      href={fileHref}
-                      className="text-primary hover:underline"
-                      onClick={(evt) => evt.stopPropagation()}
-                    >
-                      Open
-                    </Link>
+                    <>
+                      <span aria-hidden className="text-base leading-none text-secondary font-bold">
+                        ·
+                      </span>
+                      <Link
+                        href={fileHref}
+                        className="text-primary hover:underline"
+                        onClick={(evt) => evt.stopPropagation()}
+                      >
+                        Open
+                      </Link>
+                    </>
                   ) : null}
                 </span>
               ) : null}
