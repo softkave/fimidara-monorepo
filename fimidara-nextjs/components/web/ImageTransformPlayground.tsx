@@ -207,7 +207,6 @@ export function ImageTransformPlayground(props: ImageTransformPlaygroundProps) {
     const endpoints = await getPublicFimidaraEndpointsUsingUserToken();
     const issueResult = await endpoints.presignedPaths.issuePresignedPath({
       fileId: file.resourceId,
-      duration: 60 * 60,
     });
     return issueResult.path.startsWith("/")
       ? issueResult.path

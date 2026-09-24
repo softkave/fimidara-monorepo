@@ -17,11 +17,7 @@ export default function AppHeader(props: IAppHeaderProps) {
   return (
     <div
       className={cn(
-        "flex",
-        "items-center",
-        "gap-4",
-        "py-3",
-        "px-4",
+        "flex items-center gap-4 py-4 px-4",
         className
       )}
       style={style}

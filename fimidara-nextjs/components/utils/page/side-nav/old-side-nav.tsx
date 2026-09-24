@@ -43,7 +43,7 @@ export function SideNav(props: ISideNavProps) {
       <div className="grid h-full w-[300px] shrink-0 grid-rows-[auto_1fr] gap-0 border-r">
         <AppTitle
           className={cn(
-            "sticky top-0 z-50 flex items-center bg-background px-4 py-4"
+            "sticky top-0 z-50 flex items-center bg-background px-4 py-4 border-r"
           )}
         />
         <MaybeScroll className="w-full max-w-full">{menuNode}</MaybeScroll>

@@ -92,8 +92,8 @@ const issuePresignedPathParams =
         data: {
           ...fReusables.duration,
           description:
-            'How long the presigned path should remain valid, in seconds. Defaults to 3600 seconds (1 hour)',
-          example: 3600,
+            'How long the presigned path should remain valid, in milliseconds. Defaults to unlimited if not specified',
+          example: 3_600_000,
         },
       }),
       expires: mfdocConstruct.constructObjectField({
