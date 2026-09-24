@@ -43,7 +43,7 @@
     "date-fns": "^2.30.0",
     "dotenv": "^16.6.1",
     "drizzle-orm": "^0.36.4",
-    "fimidara": "^1.41.1",
+    "fimidara": "workspace:*",
     "fimidara-private-js-sdk": "workspace:*",
     "fimidx": "^0.9.0",
     "immer": "^10.2.0",

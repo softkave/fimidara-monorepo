@@ -1,3 +1,4 @@
+import { fileValidationParts } from "@/lib/validation/file";
 import { debounce } from "lodash-es";
 import { SingleFileFormValue } from "./types";
 
@@ -5,11 +6,27 @@ export function getNewFileLocalId() {
   return Math.random().toString();
 }
 
+/** Strip characters that fail file/folder name validation, preserving path segments. */
+export function normalizeFimidaraName(name: string): string {
+  return name
+    .replace(/\\/g, "/")
+    .split("/")
+    .map((part) =>
+      part
+        .replace(new RegExp(fileValidationParts.notNameRegex, "g"), " ")
+        .replace(/\s+/g, " ")
+        .trim()
+    )
+    .filter((part) => part.length > 0 && part !== "." && part !== "..")
+    .join("/");
+}
+
 export function getFirstFoldername(names: string[]) {
   for (const name of names) {
     const foldername = name
+      .replace(/\\/g, "/")
       .split("/")
-      .find((name) => !!name && name !== "." && name !== "..");
+      .find((segment) => !!segment && segment !== "." && segment !== "..");
 
     if (foldername) {
       return foldername;

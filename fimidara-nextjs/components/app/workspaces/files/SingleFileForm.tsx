@@ -24,7 +24,11 @@ import { UseFormReturn } from "react-hook-form";
 import { pathExtension } from "softkave-js-utils";
 import { z } from "zod";
 import { SingleFileFormValue } from "./types";
-import { getFirstFoldername, replaceBaseFoldername } from "./utils";
+import {
+  getFirstFoldername,
+  normalizeFimidaraName,
+  replaceBaseFoldername,
+} from "./utils";
 import { fileFormValidationSchema } from "./validation.ts";
 
 export interface SingleFileFormProps extends StyleableComponentProps {
@@ -69,6 +73,16 @@ export function SingleFileForm(props: SingleFileFormProps) {
   const wFiles = form.watch("files");
 
   const entry = wFiles[index];
+  const selectedFileName = entry?.file?.name;
+  const normalizedSelectedFileName = selectedFileName
+    ? (() => {
+        const normalized = normalizeFimidaraName(selectedFileName);
+        if (!normalized) {
+          return undefined;
+        }
+        return beforeUpdateModifyName?.(normalized) || normalized;
+      })()
+    : undefined;
   const nameNode = (
     <FormField
       control={form.control}
@@ -110,19 +124,19 @@ export function SingleFileForm(props: SingleFileFormProps) {
                   }}
                   className="mt-1"
                 />
-                {entry?.file && (
+                {normalizedSelectedFileName && (
                   <Button
                     variant="link"
                     onClick={() => {
-                      const name =
-                        beforeUpdateModifyName?.(entry?.file?.name) ||
-                        entry?.file?.name;
-                      form.setValue(`files.${index}.name`, name);
+                      form.setValue(
+                        `files.${index}.name`,
+                        normalizedSelectedFileName
+                      );
                     }}
                     type="button"
                     className="h-auto pl-0 pr-0"
                   >
-                    {messages.autofillText(entry?.file?.name)}
+                    {messages.autofillText(normalizedSelectedFileName)}
                   </Button>
                 )}
               </div>
@@ -186,9 +200,11 @@ export function SingleFileForm(props: SingleFileFormProps) {
                     : undefined;
                 const name = isExistingFile
                   ? values.name
-                  : isDirectory
-                  ? uploadFile.webkitRelativePath || uploadFile.name
-                  : uploadFile.name;
+                  : normalizeFimidaraName(
+                      isDirectory
+                        ? uploadFile.webkitRelativePath || uploadFile.name
+                        : uploadFile.name
+                    );
 
                 type ValuesType = [
                   Partial<SingleFileFormValue> &

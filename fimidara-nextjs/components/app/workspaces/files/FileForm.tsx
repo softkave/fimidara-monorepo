@@ -58,23 +58,22 @@ export interface FileFormProps {
 }
 
 export default function FileForm(props: FileFormProps) {
-  const { file, className, folderpath, workspaceRootname } = props;
+  const { file, className, folderpath, workspaceId, workspaceRootname } = props;
   const { toast } = useToast();
   const progressHandlerHook = useTransferProgressHandler();
+  const form = useForm<z.infer<typeof newFileFormValidationSchema>>({
+    resolver: zodResolver(newFileFormValidationSchema),
+    defaultValues: file ? getFileFormInputFromFile(file) : initialValues,
+  });
+
   const updateHook = useWorkspaceFileUpdateMutationHook({
-    onSuccess(data, params) {
+    onSuccess() {
       toast({ title: "File updated" });
-      // router.push(
-      //   appWorkspacePaths.file(workspaceId, data.file.resourceId)
-      // );
     },
   });
   const uploadHook = useWorkspaceFileUploadMutationHook({
-    onSuccess(data, params) {
+    onSuccess() {
       toast({ title: "File uploaded" });
-      // router.push(
-      //   appWorkspacePaths.file(workspaceId, data.file.resourceId)
-      // );
     },
     onError(e, params) {
       const filepath = params[0].filepath;
@@ -82,7 +81,7 @@ export default function FileForm(props: FileFormProps) {
     },
   });
 
-  const submitFile = async (input: SingleFileFormValue) => {
+  const submitFile = async (input: SingleFileFormValue, index: number) => {
     const filepath = file
       ? stringifyFimidaraFilepath(file, workspaceRootname)
       : addRootnameToPath(
@@ -94,7 +93,7 @@ export default function FileForm(props: FileFormProps) {
 
     if (input.resourceId) {
       if (input.file) {
-        return await uploadHook.runAsync({
+        const result = await uploadHook.runAsync({
           fileId: input.resourceId,
           data: input.file,
           size: input.file.size,
@@ -109,6 +108,17 @@ export default function FileForm(props: FileFormProps) {
           resume: true,
           firePartEventsForResumedParts: true,
         });
+
+        if (result?.file) {
+          progressHandlerHook.markComplete(filepath, {
+            fileId: result.file.resourceId,
+            workspaceId,
+            totalSize: input.file.size,
+          });
+          form.setValue(`files.${index}.resourceId`, result.file.resourceId);
+        }
+
+        return result;
       } else {
         return await updateHook.runAsync({
           fileId: input.resourceId,
@@ -127,7 +137,7 @@ export default function FileForm(props: FileFormProps) {
         return;
       }
 
-      return await uploadHook.runAsync({
+      const result = await uploadHook.runAsync({
         filepath,
         data: input.file,
         size: input.file.size,
@@ -142,19 +152,25 @@ export default function FileForm(props: FileFormProps) {
         resume: true,
         firePartEventsForResumedParts: true,
       });
+
+      if (result?.file) {
+        progressHandlerHook.markComplete(filepath, {
+          fileId: result.file.resourceId,
+          workspaceId,
+          totalSize: input.file.size,
+        });
+        form.setValue(`files.${index}.resourceId`, result.file.resourceId);
+      }
+
+      return result;
     }
   };
 
   const onSubmit = async (
     data: z.infer<typeof newFileFormValidationSchema>
   ) => {
-    await Promise.all(data.files.map(submitFile));
+    await Promise.all(data.files.map((entry, index) => submitFile(entry, index)));
   };
-
-  const form = useForm<z.infer<typeof newFileFormValidationSchema>>({
-    resolver: zodResolver(newFileFormValidationSchema),
-    defaultValues: file ? getFileFormInputFromFile(file) : initialValues,
-  });
 
   const loading = updateHook.loading || uploadHook.loading;
   const error = updateHook.error || uploadHook.error;
@@ -167,13 +183,15 @@ export default function FileForm(props: FileFormProps) {
   } else {
     contentNode = (
       <div className="mb-4">
-        <MultipleFilesForm form={form} disabled={loading} />
+        <MultipleFilesForm
+          form={form}
+          disabled={loading}
+          workspaceId={workspaceId}
+        />
       </div>
     );
   }
 
-  // TODO: should "uploading files progress" below open the progress drawer on
-  // click?
   return (
     <Form {...form}>
       <form
@@ -184,6 +202,7 @@ export default function FileForm(props: FileFormProps) {
         <div className="space-y-4">{contentNode}</div>
         <FilesFormUploadProgress
           identifiers={progressHandlerHook.identifiers}
+          onDismiss={progressHandlerHook.clearProgress}
         />
         <div>
           <Button type="submit" loading={loading} className="w-full">

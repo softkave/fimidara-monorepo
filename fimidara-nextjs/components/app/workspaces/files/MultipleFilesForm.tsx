@@ -18,16 +18,17 @@ import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { SelectedFilesForm } from "./SelectedFilesForm";
 import { SingleFileFormValue } from "./types.ts";
-import { getNewFileLocalId } from "./utils";
+import { getNewFileLocalId, normalizeFimidaraName } from "./utils";
 import { fileFormValidationSchema } from "./validation.ts";
 
 export interface MultipleFilesFormProps extends StyleableComponentProps {
   disabled?: boolean;
   form: UseFormReturn<z.infer<typeof fileFormValidationSchema>>;
+  workspaceId?: string;
 }
 
 export function MultipleFilesForm(props: MultipleFilesFormProps) {
-  const { disabled, form, className, style } = props;
+  const { disabled, form, className, style, workspaceId } = props;
 
   // TODO: include max file size
   // Only show the default upload button when we're uploading new files
@@ -53,7 +54,7 @@ export function MultipleFilesForm(props: MultipleFilesFormProps) {
                         file,
                         __localId: getNewFileLocalId(),
                         resourceId: undefined,
-                        name: file.name,
+                        name: normalizeFimidaraName(file.name),
                         mimetype: file.type,
                       })
                     )
@@ -81,7 +82,7 @@ export function MultipleFilesForm(props: MultipleFilesFormProps) {
 
   return (
     <div className={cn(className)} style={style}>
-      <SelectedFilesForm {...props} />
+      <SelectedFilesForm {...props} workspaceId={workspaceId} />
       {selectFileNode}
     </div>
   );

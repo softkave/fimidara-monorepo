@@ -201,17 +201,11 @@ export const useWorkspaceFileUploadMutationHook = makeEndpointMutationHook(
         result.file,
         useWorkspaceFilesStore,
         useWorkspaceFilesFetchStore,
-        (resource, lsParams) => {
-          // TODO: handle folderpath
-          // Parent ID is set to null for files and folders without parent folder,
-          // and for those, parentId is undefined.
-          if (resource.parentId === null) {
-            return lsParams.folderId === undefined;
-          } else {
-            return lsParams.folderId === resource.parentId;
-          }
-        }
+        matchesFolderContentListParams
       );
+      // Uploads can create intermediate folders; refresh folder lists for the
+      // parent(s) so new folders appear without a full page reload.
+      invalidateFolderContentFetchesForUploadedFile(result.file);
     }
   }
 );
@@ -252,16 +246,7 @@ export const useWorkspaceFolderAddMutationHook = makeEndpointMutationHook(
       result.folder,
       useWorkspaceFoldersStore,
       useWorkspaceFoldersFetchStore,
-      (resource, params) => {
-        // TODO: handle folderpath
-        // Parent ID is set to null for files and folders without parent folder,
-        // and for those, parentId is undefined.
-        if (resource.parentId === null) {
-          return params.folderId === undefined;
-        } else {
-          return params.folderId === resource.parentId;
-        }
-      }
+      matchesFolderContentListParams
     )
 );
 
@@ -460,6 +445,79 @@ function workspaceIdMatch<
   T1 extends { workspaceId?: string }
 >(p0: T0, p1: T1) {
   return p0.workspaceId === p1.workspaceId;
+}
+
+function isRootParentId(parentId: string | null | undefined) {
+  return parentId === null || parentId === undefined;
+}
+
+/** Match a file/folder to a listFolderContent fetch keyed by folderId and/or folderpath. */
+function matchesFolderContentListParams<
+  TResource extends {
+    parentId?: string | null;
+    namepath: string[];
+    workspaceId?: string;
+  },
+  TParams extends { folderId?: string; folderpath?: string }
+>(resource: TResource, lsParams: TParams) {
+  if (lsParams.folderId) {
+    return lsParams.folderId === resource.parentId;
+  }
+
+  // Root listings pass folderId: undefined and folderpath: workspaceRootname
+  if (isRootParentId(resource.parentId)) {
+    return !lsParams.folderId;
+  }
+
+  // List may be keyed only by folderpath — compare to the resource's parent path
+  // (folderpath includes workspace rootname; resource.namepath does not).
+  if (lsParams.folderpath) {
+    const normalizedListPath = lsParams.folderpath.replace(/^\/+/, "");
+    const pathParts = normalizedListPath.split("/").filter(Boolean);
+    // pathParts[0] is workspace rootname; remaining is parent folder namepath
+    const listParentNamepath = pathParts.slice(1);
+    const resourceParentNamepath = resource.namepath.slice(0, -1);
+    return (
+      listParentNamepath.length === resourceParentNamepath.length &&
+      listParentNamepath.every(
+        (name, index) => name === resourceParentNamepath[index]
+      )
+    );
+  }
+
+  return false;
+}
+
+/**
+ * After uploading a new file, refresh folder lists that should show a folder
+ * created for a nested upload path. The file itself is inserted into the
+ * matching files fetch via insertInFetchStoreAddMutationFn.
+ */
+function invalidateFolderContentFetchesForUploadedFile(file: {
+  parentId?: string | null;
+  idPath?: string[];
+  namepath: string[];
+}) {
+  // Nested path e.g. NewFolder/file.txt — NewFolder should appear in grandparent.
+  if (file.namepath.length <= 1) {
+    return;
+  }
+
+  const grandparentId =
+    file.idPath && file.idPath.length > 1
+      ? file.idPath[file.idPath.length - 2]
+      : null;
+
+  const matchesParent = (params: { folderId?: string }) => {
+    if (isRootParentId(grandparentId)) {
+      return !params.folderId;
+    }
+    return params.folderId === grandparentId;
+  };
+
+  useWorkspaceFoldersFetchStore.setState((store) => ({
+    states: store.states.filter(([params]) => !matchesParent(params)),
+  }));
 }
 
 function insertInFetchStoreAddMutationFn<
