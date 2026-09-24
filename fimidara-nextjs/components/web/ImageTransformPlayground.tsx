@@ -18,7 +18,6 @@ import { systemConstants } from "@/lib/definitions/system.ts";
 import { useRequest } from "ahooks";
 import {
   getFimidaraReadFileURL,
-  stringifyFimidaraFilename,
   stringifyFimidaraFilepath,
   type File,
   type ImageFormatEnum,
@@ -89,6 +88,37 @@ function parseOptionalPositiveInt(value: string): number | undefined {
   return Math.floor(n);
 }
 
+/** Reduce W×H to a simple ratio label (e.g. 1920×1080 → "16:9"). */
+function gcd(a: number, b: number): number {
+  let x = Math.abs(Math.round(a));
+  let y = Math.abs(Math.round(b));
+  while (y) {
+    const t = y;
+    y = x % y;
+    x = t;
+  }
+  return x || 1;
+}
+
+function formatAspectRatioLabel(width: number, height: number): string {
+  const divisor = gcd(width, height);
+  const w = Math.round(width / divisor);
+  const h = Math.round(height / divisor);
+  // Odd pixel sizes don't simplify cleanly — show a decimal instead.
+  if (w > 50 || h > 50) {
+    return `${(width / height).toFixed(4)}`;
+  }
+  return `${w}:${h}`;
+}
+
+function formatSizeAndAspect(
+  width: number | undefined,
+  height: number | undefined
+): string | null {
+  if (!width || !height) return null;
+  return `${width}×${height} · ${formatAspectRatioLabel(width, height)}`;
+}
+
 export interface ImageTransformPlaygroundProps {
   file: File;
   workspaceRootname: string;
@@ -99,9 +129,29 @@ export function ImageTransformPlayground(props: ImageTransformPlaygroundProps) {
   const [controls, setControls] = useState<TransformControls>(defaultControls);
   const [applied, setApplied] = useState<TransformControls>(defaultControls);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [originalMeasured, setOriginalMeasured] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
+  const [transformedMeasured, setTransformedMeasured] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
 
-  const filename = stringifyFimidaraFilename(file);
   const filepath = stringifyFimidaraFilepath(file, workspaceRootname);
+
+  const originalWidth = file.imageWidth ?? originalMeasured?.width;
+  const originalHeight = file.imageHeight ?? originalMeasured?.height;
+  const originalMeta = formatSizeAndAspect(originalWidth, originalHeight);
+
+  const requestedWidth = parseOptionalPositiveInt(applied.width);
+  const requestedHeight = parseOptionalPositiveInt(applied.height);
+  const transformedWidth = transformedMeasured?.width ?? requestedWidth;
+  const transformedHeight = transformedMeasured?.height ?? requestedHeight;
+  const transformedMeta = formatSizeAndAspect(
+    transformedWidth,
+    transformedHeight
+  );
 
   const pathHook = useRequest(async () => {
     const endpoints = await getPublicFimidaraEndpointsUsingUserToken();
@@ -282,6 +332,7 @@ export function ImageTransformPlayground(props: ImageTransformPlaygroundProps) {
                 value={controls.background}
                 placeholder="#ffffff"
                 onChange={(e) => update("background", e.target.value)}
+                className="font-mono uppercase"
               />
             </div>
           </div>
@@ -309,6 +360,7 @@ export function ImageTransformPlayground(props: ImageTransformPlaygroundProps) {
           </div>
 
           <div className="flex items-center gap-2">
+            <Label htmlFor="withoutEnlargement" className="flex-1">Without enlargement</Label>
             <Switch
               id="withoutEnlargement"
               checked={controls.withoutEnlargement}
@@ -316,7 +368,6 @@ export function ImageTransformPlayground(props: ImageTransformPlaygroundProps) {
                 update("withoutEnlargement", checked)
               }
             />
-            <Label htmlFor="withoutEnlargement">Without enlargement</Label>
           </div>
 
           <div className="flex gap-2">
@@ -349,7 +400,14 @@ export function ImageTransformPlayground(props: ImageTransformPlaygroundProps) {
 
         <div className="flex flex-col gap-6 min-w-0">
           <section className="flex flex-col gap-2">
-            <h2 className="text-sm font-medium">Transformed</h2>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="text-sm font-medium">Transformed</h2>
+              {transformedMeta ? (
+                <p className="text-xs text-muted-foreground font-mono">
+                  {transformedMeta}
+                </p>
+              ) : null}
+            </div>
             <div className="flex min-h-64 items-center justify-center overflow-auto rounded-lg border bg-muted/20 p-4">
               {pathHook.loading ? (
                 <p className="text-sm text-muted-foreground">
@@ -367,14 +425,34 @@ export function ImageTransformPlayground(props: ImageTransformPlaygroundProps) {
                       "Failed to load transformed image. Check that the file is readable and the server supports transforms."
                     )
                   }
-                  onLoad={() => setLoadError(null)}
+                  onLoad={(event) => {
+                    setLoadError(null);
+                    const { naturalWidth, naturalHeight } = event.currentTarget;
+                    if (naturalWidth > 0 && naturalHeight > 0) {
+                      setTransformedMeasured({
+                        width: naturalWidth,
+                        height: naturalHeight,
+                      });
+                    }
+                  }}
                 />
               ) : null}
             </div>
           </section>
 
           <section className="flex flex-col gap-2">
-            <h2 className="text-sm font-medium">Original</h2>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="text-sm font-medium">Original</h2>
+              {originalMeta ? (
+                <p className="text-xs text-muted-foreground font-mono">
+                  {originalMeta}
+                </p>
+              ) : file.imageDimensionsStatus === "pending" ? (
+                <p className="text-xs text-muted-foreground">
+                  Dimensions pending…
+                </p>
+              ) : null}
+            </div>
             <div className="flex min-h-40 items-center justify-center overflow-auto rounded-lg border bg-muted/20 p-4">
               {originalUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -382,6 +460,15 @@ export function ImageTransformPlayground(props: ImageTransformPlaygroundProps) {
                   src={originalUrl}
                   alt="Original image"
                   className="max-h-64 max-w-full object-contain"
+                  onLoad={(event) => {
+                    const { naturalWidth, naturalHeight } = event.currentTarget;
+                    if (naturalWidth > 0 && naturalHeight > 0) {
+                      setOriginalMeasured({
+                        width: naturalWidth,
+                        height: naturalHeight,
+                      });
+                    }
+                  }}
                 />
               ) : null}
             </div>
