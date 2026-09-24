@@ -315,6 +315,14 @@ const file = mfdocConstruct.constructObject<PublicFile>({
         example: 1.7778,
       }),
     }),
+    aspectRatioLabel: mfdocConstruct.constructObjectField({
+      required: false,
+      data: mfdocConstruct.constructString({
+        description:
+          'Simplified aspect ratio label for display (e.g. "16:9"). Falls back to a short decimal when the pixel size does not reduce cleanly.',
+        example: '16:9',
+      }),
+    }),
     read: mfdocConstruct.constructObjectField({
       required: true,
       data: resourceAvailability,

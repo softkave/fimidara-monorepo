@@ -9,12 +9,21 @@ export interface ICopyButtonProps {
   text: string | (() => string);
   disabled?: boolean;
   className?: string;
+  variant?: "outline" | "ghost";
+  size?: "icon" | "icon-sm" | "icon-xs";
   /** How long to show the check icon before reverting. Default 2000ms. */
   resetMs?: number;
 }
 
 export function CopyButton(props: ICopyButtonProps) {
-  const { text, disabled, className, resetMs = 2000 } = props;
+  const {
+    text,
+    disabled,
+    className,
+    variant = "outline",
+    size = "icon-sm",
+    resetMs = 2000,
+  } = props;
   const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
@@ -38,8 +47,8 @@ export function CopyButton(props: ICopyButtonProps) {
   return (
     <Button
       type="button"
-      variant="outline"
-      size="icon-sm"
+      variant={variant}
+      size={size}
       onClick={handleClick}
       disabled={disabled}
       className={cn("shrink-0", className)}

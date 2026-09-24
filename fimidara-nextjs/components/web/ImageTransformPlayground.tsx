@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import { Switch } from "@/components/ui/switch.tsx";
+import { CopyButton } from "@/components/utils/buttons/CopyButton.tsx";
 import { getPublicFimidaraEndpointsUsingUserToken } from "@/lib/api/fimidaraEndpoints";
 import { kAppWorkspacePaths } from "@/lib/definitions/paths/workspace.ts";
 import { systemConstants } from "@/lib/definitions/system.ts";
@@ -28,37 +29,78 @@ import { ChevronLeftIcon } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-const FIT_OPTIONS: ImageResizeFitEnum[] = [
-  "cover",
-  "contain",
-  "fill",
-  "inside",
-  "outside",
+const FIT_OPTIONS: Array<{
+  value: ImageResizeFitEnum;
+  description: string;
+}> = [
+  {
+    value: "cover",
+    description: "Fill both dimensions; crops overflow.",
+  },
+  {
+    value: "contain",
+    description: "Fit inside both dimensions; may letterbox.",
+  },
+  {
+    value: "fill",
+    description: "Stretch to exact size; may distort.",
+  },
+  {
+    value: "inside",
+    description: "As large as possible without exceeding either side.",
+  },
+  {
+    value: "outside",
+    description: "As small as possible while covering both sides.",
+  },
 ];
 
-const POSITION_OPTIONS: ImageResizePositionEnum[] = [
-  "centre",
-  "top",
-  "right top",
-  "right",
-  "right bottom",
-  "bottom",
-  "left bottom",
-  "left",
-  "left top",
-  "entropy",
-  "attention",
+const POSITION_OPTIONS: Array<{
+  value: ImageResizePositionEnum;
+  description: string;
+}> = [
+  { value: "centre", description: "Anchor to the center." },
+  { value: "top", description: "Anchor to the top edge." },
+  { value: "right top", description: "Anchor to the top-right corner." },
+  { value: "right", description: "Anchor to the right edge." },
+  { value: "right bottom", description: "Anchor to the bottom-right corner." },
+  { value: "bottom", description: "Anchor to the bottom edge." },
+  { value: "left bottom", description: "Anchor to the bottom-left corner." },
+  { value: "left", description: "Anchor to the left edge." },
+  { value: "left top", description: "Anchor to the top-left corner." },
+  {
+    value: "entropy",
+    description: "Focus on the region with highest Shannon entropy.",
+  },
+  {
+    value: "attention",
+    description: "Focus on luminance, saturation, and skin-tone regions.",
+  },
 ];
 
-const FORMAT_OPTIONS: Array<ImageFormatEnum | "original"> = [
-  "original",
-  "jpeg",
-  "png",
-  "webp",
-  "avif",
-  "gif",
-  "tiff",
+const FORMAT_OPTIONS: Array<{
+  value: ImageFormatEnum | "original";
+  description: string;
+}> = [
+  { value: "original", description: "Keep the source file format." },
+  { value: "jpeg", description: "Convert to JPEG." },
+  { value: "png", description: "Convert to PNG." },
+  { value: "webp", description: "Convert to WebP." },
+  { value: "avif", description: "Convert to AVIF." },
+  { value: "gif", description: "Convert to GIF (still images)." },
+  { value: "tiff", description: "Convert to TIFF." },
 ];
+
+function SelectOptionLabel(props: { label: string; description: string }) {
+  return (
+    <>
+      <span className="font-medium">{props.label}</span>
+      <span className="text-xs text-muted-foreground text-wrap">
+        {props.description}
+      </span>
+    </>
+  );
+}
 
 type TransformControls = {
   width: string;
@@ -113,10 +155,13 @@ function formatAspectRatioLabel(width: number, height: number): string {
 
 function formatSizeAndAspect(
   width: number | undefined,
-  height: number | undefined
+  height: number | undefined,
+  label?: string
 ): string | null {
   if (!width || !height) return null;
-  return `${width}×${height} · ${formatAspectRatioLabel(width, height)}`;
+  return `${width}×${height} · ${
+    label ?? formatAspectRatioLabel(width, height)
+  }`;
 }
 
 export interface ImageTransformPlaygroundProps {
@@ -142,7 +187,12 @@ export function ImageTransformPlayground(props: ImageTransformPlaygroundProps) {
 
   const originalWidth = file.imageWidth ?? originalMeasured?.width;
   const originalHeight = file.imageHeight ?? originalMeasured?.height;
-  const originalMeta = formatSizeAndAspect(originalWidth, originalHeight);
+  const originalMeta = formatSizeAndAspect(
+    originalWidth,
+    originalHeight,
+    // Prefer server-computed label when API dims are present.
+    file.imageWidth && file.imageHeight ? file.aspectRatioLabel : undefined
+  );
 
   const requestedWidth = parseOptionalPositiveInt(applied.width);
   const requestedHeight = parseOptionalPositiveInt(applied.height);
@@ -225,12 +275,6 @@ export function ImageTransformPlayground(props: ImageTransformPlaygroundProps) {
         <p className="text-xs text-muted-foreground break-all">
           <code className="font-mono">{filepath}</code>
         </p>
-        {pathHook.error ? (
-          <p className="text-sm text-destructive">
-            Failed to prepare a readable URL for this file. Check that you can
-            read it.
-          </p>
-        ) : null}
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[minmax(14rem,18rem)_minmax(0,1fr)]">
@@ -279,12 +323,17 @@ export function ImageTransformPlayground(props: ImageTransformPlaygroundProps) {
                 }}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Fit" />
+                  <SelectValue placeholder="Fit">
+                    {(value: string | null) => value}
+                  </SelectValue>
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="w-auto min-w-(--anchor-width) max-w-72">
                   {FIT_OPTIONS.map((fit) => (
-                    <SelectItem key={fit} value={fit}>
-                      {fit}
+                    <SelectItem key={fit.value} value={fit.value}>
+                      <SelectOptionLabel
+                        label={fit.value}
+                        description={fit.description}
+                      />
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -301,12 +350,17 @@ export function ImageTransformPlayground(props: ImageTransformPlaygroundProps) {
                 }}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Position" />
+                  <SelectValue placeholder="Position">
+                    {(value: string | null) => value}
+                  </SelectValue>
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="w-auto min-w-(--anchor-width) max-w-72">
                   {POSITION_OPTIONS.map((position) => (
-                    <SelectItem key={position} value={position}>
-                      {position}
+                    <SelectItem key={position.value} value={position.value}>
+                      <SelectOptionLabel
+                        label={position.value}
+                        description={position.description}
+                      />
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -347,12 +401,17 @@ export function ImageTransformPlayground(props: ImageTransformPlaygroundProps) {
               }}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Format" />
+                <SelectValue placeholder="Format">
+                  {(value: string | null) => value}
+                </SelectValue>
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="w-auto min-w-(--anchor-width) max-w-72">
                 {FORMAT_OPTIONS.map((format) => (
-                  <SelectItem key={format} value={format}>
-                    {format}
+                  <SelectItem key={format.value} value={format.value}>
+                    <SelectOptionLabel
+                      label={format.value}
+                      description={format.description}
+                    />
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -360,7 +419,9 @@ export function ImageTransformPlayground(props: ImageTransformPlaygroundProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            <Label htmlFor="withoutEnlargement" className="flex-1">Without enlargement</Label>
+            <Label htmlFor="withoutEnlargement" className="flex-1">
+              Without enlargement
+            </Label>
             <Switch
               id="withoutEnlargement"
               checked={controls.withoutEnlargement}
@@ -369,6 +430,16 @@ export function ImageTransformPlayground(props: ImageTransformPlaygroundProps) {
               }
             />
           </div>
+
+          {pathHook.error ? (
+            <p className="text-sm text-destructive">
+              Failed to prepare a readable URL for this file. Check that you can
+              read it.
+            </p>
+          ) : null}
+          {loadError ? (
+            <p className="text-sm text-destructive">{loadError}</p>
+          ) : null}
 
           <div className="flex gap-2">
             <Button type="submit" disabled={!pathHook.data || pathHook.loading}>
@@ -390,7 +461,14 @@ export function ImageTransformPlayground(props: ImageTransformPlaygroundProps) {
           {transformedUrl ? (
             <div className="flex flex-col gap-2">
               <Separator />
-              <Label>Request URL</Label>
+              <div className="flex items-center justify-between gap-2">
+                <Label>Request URL</Label>
+                <CopyButton
+                  text={transformedUrl}
+                  variant="ghost"
+                  size="icon-xs"
+                />
+              </div>
               <code className="font-mono break-all rounded-md border bg-muted/40 p-2 text-xs">
                 {transformedUrl}
               </code>
@@ -473,10 +551,6 @@ export function ImageTransformPlayground(props: ImageTransformPlaygroundProps) {
               ) : null}
             </div>
           </section>
-
-          {loadError ? (
-            <p className="text-sm text-destructive">{loadError}</p>
-          ) : null}
         </div>
       </div>
     </div>

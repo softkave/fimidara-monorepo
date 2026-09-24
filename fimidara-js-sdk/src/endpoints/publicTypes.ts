@@ -965,6 +965,14 @@ export type File = {
    */
   aspectRatio?: number;
   /**
+   * Simplified aspect ratio label for display (e.g. "16:9"). Falls back to a short decimal when the pixel size does not reduce cleanly.
+   * @example
+   * ```
+   * 16:9
+   * ```
+   */
+  aspectRatioLabel?: string;
+  /**
    * Whether a read or write operation is available on a file or part, including whether it is available for the current requester
    */
   read: ResourceAvailability;
@@ -2488,6 +2496,15 @@ export type ResourceWrapper = {
  *               "__id": "FieldNumber",
  *               "description": "Derived image aspect ratio (width / height) when both dimensions are present.",
  *               "example": 1.7778
+ *             }
+ *           },
+ *           "aspectRatioLabel": {
+ *             "__id": "FieldObjectField",
+ *             "required": false,
+ *             "data": {
+ *               "__id": "FieldString",
+ *               "description": "Simplified aspect ratio label for display (e.g. \"16:9\"). Falls back to a short decimal when the pixel size does not reduce cleanly.",
+ *               "example": "16:9"
  *             }
  *           },
  *           "read": {

@@ -14,7 +14,7 @@ import {
 } from '../../testHelpers/utils.js';
 import * as readPersistedFileModule from '../readFile/readPersistedFile.js';
 import {extractPublicFile} from './extractPublicFile.js';
-import {computeAspectRatio, withPublicFileAspectRatio} from './fileFields.js';
+import {computeAspectRatio, formatAspectRatioLabel, withPublicFileAspectRatio} from './fileFields.js';
 import {
   displaySizeFromMetadata,
   fileNeedsImageDimensionsProbe,
@@ -132,7 +132,7 @@ describe('computeAspectRatio / extractPublicFile', () => {
     expect(computeAspectRatio({})).toBeUndefined();
   });
 
-  test('withPublicFileAspectRatio adds aspectRatio when dims present', () => {
+  test('withPublicFileAspectRatio adds aspectRatio and label when dims present', () => {
     const result = withPublicFileAspectRatio({
       resourceId: 'id',
       workspaceId: 'ws',
@@ -153,6 +153,12 @@ describe('computeAspectRatio / extractPublicFile', () => {
     } as Parameters<typeof withPublicFileAspectRatio>[0]);
 
     expect(result.aspectRatio).toBe(2);
+    expect(result.aspectRatioLabel).toBe('2:1');
+  });
+
+  test('formatAspectRatioLabel simplifies common ratios', () => {
+    expect(formatAspectRatioLabel(1920, 1080)).toBe('16:9');
+    expect(formatAspectRatioLabel(400, 200)).toBe('2:1');
   });
 });
 

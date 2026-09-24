@@ -79,6 +79,8 @@ export type PublicFile = PublicWorkspaceResource &
     imageDimensionsStatus?: ImageDimensionsStatus;
     /** width / height when both image dimensions are present */
     aspectRatio?: number;
+    /** Simplified ratio label for display (e.g. "16:9") when dimensions are present */
+    aspectRatioLabel?: string;
     read: ResourceAvailability;
     write: ResourceAvailability;
   };

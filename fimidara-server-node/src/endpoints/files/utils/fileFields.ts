@@ -43,10 +43,51 @@ export function computeAspectRatio(
   return w / h;
 }
 
+function gcd(a: number, b: number): number {
+  let x = Math.abs(Math.round(a));
+  let y = Math.abs(Math.round(b));
+  while (y) {
+    const t = y;
+    y = x % y;
+    x = t;
+  }
+  return x || 1;
+}
+
+/**
+ * Human-readable aspect ratio for display (e.g. 1920×1080 → "16:9").
+ * Odd pixel sizes that don't simplify cleanly return a short decimal instead.
+ */
+export function formatAspectRatioLabel(
+  width: number,
+  height: number
+): string {
+  const divisor = gcd(width, height);
+  const w = Math.round(width / divisor);
+  const h = Math.round(height / divisor);
+  if (w > 50 || h > 50) {
+    return `${(width / height).toFixed(4)}`;
+  }
+  return `${w}:${h}`;
+}
+
 export function withPublicFileAspectRatio(
-  file: Omit<PublicFile, 'aspectRatio' | 'read' | 'write'> &
+  file: Omit<PublicFile, 'aspectRatio' | 'aspectRatioLabel' | 'read' | 'write'> &
     Pick<PublicFile, 'read' | 'write'>
 ): PublicFile {
   const aspectRatio = computeAspectRatio(file);
-  return aspectRatio === undefined ? file : {...file, aspectRatio};
+  if (aspectRatio === undefined) {
+    return file;
+  }
+
+  const w = file.imageWidth;
+  const h = file.imageHeight;
+  const aspectRatioLabel =
+    w != null && h != null ? formatAspectRatioLabel(w, h) : undefined;
+
+  return {
+    ...file,
+    aspectRatio,
+    ...(aspectRatioLabel ? {aspectRatioLabel} : {}),
+  };
 }
