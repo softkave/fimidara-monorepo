@@ -20,6 +20,9 @@ const fileSchema = ensureMongoTypeFields<File>({
   clientMultipartId: {type: String},
   internalMultipartId: {type: String},
   multipartTimeout: {type: Number},
+  imageWidth: {type: Number},
+  imageHeight: {type: Number},
+  imageDimensionsStatus: {type: String},
 });
 
 export type FileDocument = Document<File>;

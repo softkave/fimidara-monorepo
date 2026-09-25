@@ -123,14 +123,16 @@
                 "required": false,
                 "data": {
                     "__id": "FieldString",
-                    "description": "Format to transform image to if file is an image",
+                    "description": "Format to transform image to if file is an image. Animated GIF/WebP and multi-page TIFF are not fully supported for transform yet. gif output encodes a still image.",
                     "enumName": "ImageFormatEnum",
                     "valid": [
                         "jpeg",
                         "png",
                         "webp",
                         "tiff",
-                        "raw"
+                        "raw",
+                        "gif",
+                        "avif"
                     ],
                     "example": "webp"
                 }
@@ -376,14 +378,16 @@
                     "required": false,
                     "data": {
                         "__id": "FieldString",
-                        "description": "Format to transform image to if file is an image",
+                        "description": "Format to transform image to if file is an image. Animated GIF/WebP and multi-page TIFF are not fully supported for transform yet. gif output encodes a still image.",
                         "enumName": "ImageFormatEnum",
                         "valid": [
                             "jpeg",
                             "png",
                             "webp",
                             "tiff",
-                            "raw"
+                            "raw",
+                            "gif",
+                            "avif"
                         ],
                         "example": "webp"
                     }

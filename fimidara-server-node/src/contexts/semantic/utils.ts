@@ -99,8 +99,12 @@ export function getInAndNinQuery<
   return query;
 }
 
+function escapeRegex(str: string) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export function getIgnoreCaseDataQueryRegExp(
   str: string
 ): ComparisonLiteralFieldQueryOps<string> {
-  return {$regex: `^${str}$`, $options: 'i'};
+  return {$regex: `^${escapeRegex(str)}$`, $options: 'i'};
 }

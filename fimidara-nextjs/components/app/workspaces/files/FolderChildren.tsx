@@ -16,7 +16,7 @@ import {
   stringifyFimidaraFolderpath,
 } from "fimidara";
 import { useRouter } from "next/navigation";
-import { ReactNode, useMemo } from "react";
+import { useMemo } from "react";
 import AppFileList from "./AppFileList.tsx";
 import FileListContainerHeader from "./FileListContainerHeader";
 import FolderList from "./FolderList.tsx";
@@ -81,69 +81,6 @@ function FolderChildren(props: FolderChildrenProps) {
 
   const foldersHook = useFolders(workspaceRootname, folder);
   const filesHook = useFiles(workspaceRootname, folder);
-  const isInitialLoad = !foldersHook.isDataFetched && !filesHook.isDataFetched;
-  const hasContent =
-    foldersHook.resourceList.length || filesHook.resourceList.length;
-  const hasNoContent =
-    !foldersHook.resourceList.length && !filesHook.resourceList.length;
-
-  let foldersNode: ReactNode = null;
-  let filesNode: ReactNode = null;
-
-  const renderFolders = () => (
-    <PaginatedContent
-      content={
-        <PageContent02
-          error={foldersHook.error}
-          isLoading={foldersHook.isLoading}
-          isDataFetched={foldersHook.isDataFetched}
-          data={foldersHook.resourceList}
-          defaultErrorMessage="Error fetching folders"
-          defaultLoadingMessage="Loading folders..."
-          render={(data) => (
-            <FolderList folders={data} workspaceRootname={workspaceRootname} />
-          )}
-        />
-      }
-      pagination={{ ...foldersHook.pagination, count: foldersHook.count }}
-    />
-  );
-
-  const renderFiles = () => (
-    <PaginatedContent
-      content={
-        <PageContent02
-          error={filesHook.error}
-          isLoading={filesHook.isLoading}
-          isDataFetched={filesHook.isDataFetched}
-          data={filesHook.resourceList}
-          defaultErrorMessage="Error fetching files"
-          defaultLoadingMessage="Loading files..."
-          render={(data) => (
-            <AppFileList files={data} workspaceRootname={workspaceRootname} />
-          )}
-        />
-      }
-      pagination={{ ...filesHook.pagination, count: filesHook.count }}
-    />
-  );
-
-  if (isInitialLoad) {
-    foldersNode = renderFolders();
-  } else if (hasContent) {
-    if (foldersHook.resourceList.length) {
-      foldersNode = renderFolders();
-    }
-
-    if (filesHook.resourceList.length) {
-      filesNode = renderFiles();
-    }
-  } else if (hasNoContent) {
-    filesNode = renderFiles();
-  } else {
-    foldersNode = renderFolders();
-    filesNode = renderFiles();
-  }
 
   return (
     <div style={style} className={className}>
@@ -167,8 +104,46 @@ function FolderChildren(props: FolderChildrenProps) {
           resourceId={folder?.resourceId ?? ""}
           resourceKind="folder"
         />
-        {foldersNode}
-        {filesNode}
+        <PaginatedContent
+          content={
+            <PageContent02
+              error={foldersHook.error}
+              isLoading={foldersHook.isLoading}
+              isDataFetched={foldersHook.isDataFetched}
+              data={foldersHook.resourceList}
+              defaultErrorMessage="Error fetching folders"
+              defaultLoadingMessage="Loading folders..."
+              render={(data) =>
+                data.length ? (
+                  <FolderList
+                    folders={data}
+                    workspaceRootname={workspaceRootname}
+                  />
+                ) : null
+              }
+            />
+          }
+          pagination={{ ...foldersHook.pagination, count: foldersHook.count }}
+        />
+        <PaginatedContent
+          content={
+            <PageContent02
+              error={filesHook.error}
+              isLoading={filesHook.isLoading}
+              isDataFetched={filesHook.isDataFetched}
+              data={filesHook.resourceList}
+              defaultErrorMessage="Error fetching files"
+              defaultLoadingMessage="Loading files..."
+              render={(data) => (
+                <AppFileList
+                  files={data}
+                  workspaceRootname={workspaceRootname}
+                />
+              )}
+            />
+          }
+          pagination={{ ...filesHook.pagination, count: filesHook.count }}
+        />
       </div>
       {fileFormHook.node}
       {folderFormHook.node}

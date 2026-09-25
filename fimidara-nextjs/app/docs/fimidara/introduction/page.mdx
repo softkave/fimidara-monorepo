@@ -7,11 +7,11 @@
 **fimidara** is a developer-focused file storage service, similar to AWS S3, but with enhanced access control and management features:
 
 - **Hierarchical file storage** – Organize files in folders and subfolders.
-- **Access control** – Precisely manage who can access your files.
+- **Access control** – Precisely manage who can access your files using agent tokens and permission groups.
+- **Image transformation** – Resize and convert images on the fly when reading a file. See [Image transformation](/docs/fimidara/image-transformation).
 - **File search** – Quickly find files. _(coming soon)_
 - **File versioning** – Track and manage file versions. _(coming soon)_
 - **File sharing** – Easily share files with others. _(coming soon)_
-- **File processing** – Process images, videos, and more. _(coming soon)_
 - **File server** – Serve files publicly, including from external sources like AWS S3. _(coming soon)_
 
 **fimidara** solves the _"rogue link"_ problem—ensuring that file links are only accessible by design, not by accident. This strict access control extends to all resources, including collaborators, workspaces, and folders. In addition to security, fimidara offers robust tools for managing your files.
@@ -33,3 +33,5 @@ Every workspace includes a default `Public` permission group, which controls acc
 When a request is made (e.g., to read a file), fimidara checks the `Authorization` header for a JWT. If present, it verifies the token and determines the associated agent token. fimidara then checks all permission items assigned to the agent token (including those inherited from groups and the `Public` group). If a permission grants access, the request is allowed; if not, or if an explicit deny is found, access is denied. Public (unauthenticated) requests follow the same process, but without a JWT or agent token.
 <br />
 
+Use the [REST API](/docs/fimidara-rest-api/v1/overview) with an agent token (or a [presigned path](/docs/fimidara/image-transformation#presigned-paths)) to read and write files programmatically.
+<br />

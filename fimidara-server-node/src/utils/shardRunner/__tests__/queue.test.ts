@@ -94,14 +94,14 @@ describe('shardRunner queue', () => {
       await kIjxUtils.pubsub().publish(entry.outputChannel, output);
     });
 
-    await expect(async () => {
-      await queueShardRunner({
+    await expect(
+      queueShardRunner({
         item,
         queueKey,
         agent: sessionAgent,
         timeoutMs: 1000,
-      });
-    }).rejects.toThrowError('test');
+      })
+    ).rejects.toThrowError('test');
   });
 
   test('queued + timeout', async () => {
@@ -110,7 +110,7 @@ describe('shardRunner queue', () => {
     const item: ITestItem = {data: 'test'};
     const queueKey = 'test' + Math.random();
 
-    await expect(() =>
+    await expect(
       queueShardRunner({
         item,
         queueKey,

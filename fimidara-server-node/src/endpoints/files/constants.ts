@@ -3,7 +3,7 @@ import {BusboyConfig} from 'busboy';
 import {kIjxUtils} from '../../contexts/ijx/injectables.js';
 import {kEndpointConstants} from '../constants.js';
 
-const maxFileSizeInBytes = 1024 * 1024 ** 2; // 2Gb
+const maxFileSizeInBytes = 1024 * 1024 * 1024; // 1 GiB
 const multipartLimits: BusboyConfig['limits'] = {
   fields: 1,
   files: 1,
@@ -20,6 +20,46 @@ export const kFileConstants = {
   maxExtCharLength: 100,
   maxFileWidth: 5000, // px
   maxFileHeight: 5000, // px
+  /** Max width*height for resize requests (25 megapixels). */
+  maxImagePixelArea: 25_000_000,
+  /** Default AVIF encode quality (lower = smaller/faster). */
+  defaultAvifQuality: 50,
+  /** How often to touch derivative mtime for eviction (ms). */
+  imageDerivativeAccessTouchIntervalMs: 60 * 60 * 1000, // 1 hour
+  /** Delete local derivatives idle longer than this (ms). */
+  imageDerivativeRetentionMs: 30 * 24 * 60 * 60 * 1000, // 30 days
+  /** How often the eviction sweep runs (ms). */
+  imageDerivativeEvictionIntervalMs: 60 * 60 * 1000, // 1 hour
+  /** Timeout waiting for a derivative file lock (ms). */
+  imageDerivativeLockTimeoutMs: 30_000,
+  /** Max idle derivatives deleted per eviction sweep (rest wait for next tick). */
+  imageDerivativeEvictionMaxDeletes: 500,
+  /** Cache-Control for on-the-fly image transform responses. */
+  defaultImageTransformCacheControl: 'public, max-age=31536000, immutable',
+  getImageTransformCacheControl: () =>
+    kIjxUtils.suppliedConfig().imageTransformCacheControl ||
+    kFileConstants.defaultImageTransformCacheControl,
+  getDefaultImageDerivativeCacheDir: () => {
+    const localFsDir = kIjxUtils.suppliedConfig().localFsDir;
+    return localFsDir
+      ? `${localFsDir}/.fimidara-image-derivatives`
+      : './local-fs/.fimidara-image-derivatives';
+  },
+  getImageDerivativeCacheDir: () =>
+    kIjxUtils.suppliedConfig().imageDerivativeCacheDir ||
+    kFileConstants.getDefaultImageDerivativeCacheDir(),
+  getImageDerivativeLockTimeoutMs: () =>
+    kFileConstants.imageDerivativeLockTimeoutMs,
+  getImageDerivativeAccessTouchIntervalMs: () =>
+    kFileConstants.imageDerivativeAccessTouchIntervalMs,
+  getImageDerivativeRetentionMs: () =>
+    kIjxUtils.suppliedConfig().imageDerivativeRetentionMs ??
+    kFileConstants.imageDerivativeRetentionMs,
+  getImageDerivativeEvictionIntervalMs: () =>
+    kIjxUtils.suppliedConfig().imageDerivativeEvictionIntervalMs ??
+    kFileConstants.imageDerivativeEvictionIntervalMs,
+  getImageDerivativeEvictionMaxDeletes: () =>
+    kFileConstants.imageDerivativeEvictionMaxDeletes,
   uploadedFileFieldName: 'data',
   maxClientMultipartIdLength: 100,
   maxUploadSessionIdLength: 100,

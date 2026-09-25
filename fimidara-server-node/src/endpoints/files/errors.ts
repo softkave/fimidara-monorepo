@@ -48,3 +48,29 @@ export class UnsupportedOperationError extends OperationError {
     );
   }
 }
+
+export class ImageNotProcessableError extends OperationError {
+  name = 'ImageNotProcessableError';
+  statusCode = kEndpointConstants.httpStatusCode.badRequest;
+
+  constructor(props?: OperationErrorParameters | string) {
+    super(props);
+    this.message = getErrorMessageFromParams(
+      props,
+      'File is not a processable image, or image transform failed.'
+    );
+  }
+}
+
+export class ImageTransformValidationError extends OperationError {
+  name = 'ImageTransformValidationError';
+  statusCode = kEndpointConstants.httpStatusCode.badRequest;
+
+  constructor(props?: OperationErrorParameters | string) {
+    super(props);
+    this.message = getErrorMessageFromParams(
+      props,
+      'Invalid image transform parameters.'
+    );
+  }
+}

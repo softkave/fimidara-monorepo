@@ -4,10 +4,11 @@ import { FiDownload } from "react-icons/fi";
 
 export interface FilesFormUploadProgressProps {
   identifiers: string[];
+  onDismiss?: (identifier: string) => void;
 }
 
 export function FilesFormUploadProgress(props: FilesFormUploadProgressProps) {
-  const { identifiers } = props;
+  const { identifiers, onDismiss } = props;
 
   if (identifiers.length > 0) {
     return (
@@ -22,7 +23,10 @@ export function FilesFormUploadProgress(props: FilesFormUploadProgressProps) {
           />{" "}
           <strong>Uploading files progress</strong> button.
         </p>
-        <TransferProgressList identifiers={identifiers} />
+        <TransferProgressList
+          identifiers={identifiers}
+          onDismiss={onDismiss}
+        />
       </div>
     );
   }

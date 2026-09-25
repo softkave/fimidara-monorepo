@@ -12,6 +12,9 @@ export const kAppWorkspacePaths = {
   file(workspaceId: string, fileId: string) {
     return `${this.fileList(workspaceId)}/${fileId}`;
   },
+  fileImageTransform(workspaceId: string, fileId: string) {
+    return `${this.file(workspaceId, fileId)}/image-transform`;
+  },
 
   // Folder
   folderList(workspaceId: string) {

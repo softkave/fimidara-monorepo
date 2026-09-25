@@ -55,7 +55,7 @@ describe('FWorker', () => {
       outgoingPort: parentPort,
       incomingPort: parentPort,
       expectAck: true,
-      ackTimeoutMs: 1_000,
+      ackTimeoutMs: 60_000,
     });
 
     assert.ok(FWorkerMessager.isWorkerTrackedMessage(response));

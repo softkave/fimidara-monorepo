@@ -20,6 +20,8 @@ const routeToAppOnInitRoutes = [
 export function isWebPath(pathname: string) {
   return (
     pathname === kAppRootPaths.home ||
+    pathname === kAppRootPaths.pricing ||
+    pathname.startsWith(`${kAppRootPaths.pricing}/`) ||
     webRoutes.some((r) => {
       return pathname.startsWith(r);
     })

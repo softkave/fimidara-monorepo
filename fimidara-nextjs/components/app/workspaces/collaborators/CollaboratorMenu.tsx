@@ -1,8 +1,10 @@
 import { useDeleteModal } from "@/components/hooks/useDeleteModal.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { DropdownItems } from "@/components/ui/dropdown-items.tsx";
+import {
+  DropdownItems,
+  IDropdownItem,
+} from "@/components/ui/dropdown-items.tsx";
 import { errorMessageNotificatition } from "@/components/utils/errorHandling";
-import { insertMenuDivider } from "@/components/utils/utils";
 import { useToast } from "@/hooks/use-toast.ts";
 import { useWorkspaceCollaboratorDeleteMutationHook } from "@/lib/hooks/mutationHooks";
 import { Collaborator } from "fimidara";
@@ -63,7 +65,7 @@ const CollaboratorMenu: React.FC<CollaboratorMenuProps> = (props) => {
     }
   };
 
-  const items = insertMenuDivider([
+  const items: IDropdownItem[] = [
     {
       key: MenuKeys.GrantPermission,
       label: "Permissions",
@@ -72,7 +74,7 @@ const CollaboratorMenu: React.FC<CollaboratorMenuProps> = (props) => {
       key: MenuKeys.DeleteItem,
       label: "Remove Collaborator",
     },
-  ]);
+  ];
 
   return (
     <React.Fragment>

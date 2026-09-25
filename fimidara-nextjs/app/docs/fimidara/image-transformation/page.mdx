@@ -1,0 +1,109 @@
+# Image transformation
+<br />
+
+**fimidara** can resize and convert images **on the fly** when you read a file. Pass transform query parameters to `GET /v1/files/readFile/...` — you do not need to store multiple sizes upfront.
+<br />
+
+Transforms apply only when the file is a processable image. Animated GIF/WebP and multi-page TIFF are not fully supported yet; requesting `format=gif` encodes a still image.
+<br />
+
+## Authentication
+<br />
+
+You can call `readFile` with:
+
+- An **`Authorization: Bearer <agent-token-jwt>`** header, or
+- A **presigned path** in the URL (no auth header), which is ideal for `<img src="...">` and public links.
+
+See also [Introduction](/docs/fimidara/introduction) for how agent tokens and the `Public` permission group work.
+<br />
+
+## Query parameters
+<br />
+
+<table className="w-full text-sm border-collapse">
+  <thead>
+    <tr className="border-b text-left">
+      <th className="py-2 pr-4 font-medium">Param</th>
+      <th className="py-2 font-medium">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr className="border-b">
+      <td className="py-2 pr-4 align-top"><code>w</code></td>
+      <td className="py-2">Target width in pixels</td>
+    </tr>
+    <tr className="border-b">
+      <td className="py-2 pr-4 align-top"><code>h</code></td>
+      <td className="py-2">Target height in pixels</td>
+    </tr>
+    <tr className="border-b">
+      <td className="py-2 pr-4 align-top"><code>fit</code></td>
+      <td className="py-2">How to fit both dimensions: <code>cover</code>, <code>contain</code>, <code>fill</code>, <code>inside</code>, <code>outside</code> (default <code>cover</code>)</td>
+    </tr>
+    <tr className="border-b">
+      <td className="py-2 pr-4 align-top"><code>pos</code></td>
+      <td className="py-2">Anchor when <code>fit</code> is <code>cover</code> or <code>contain</code> (e.g. <code>centre</code>, <code>top</code>, <code>entropy</code>, <code>attention</code>)</td>
+    </tr>
+    <tr className="border-b">
+      <td className="py-2 pr-4 align-top"><code>bg</code></td>
+      <td className="py-2">Background color when <code>fit</code> is <code>contain</code> (e.g. <code>%23ffffff</code> for <code>#ffffff</code>)</td>
+    </tr>
+    <tr className="border-b">
+      <td className="py-2 pr-4 align-top"><code>withoutEnlargement</code></td>
+      <td className="py-2">If <code>true</code>, do not upscale smaller images</td>
+    </tr>
+    <tr className="border-b">
+      <td className="py-2 pr-4 align-top"><code>format</code></td>
+      <td className="py-2">Output format: <code>jpeg</code>, <code>png</code>, <code>webp</code>, <code>avif</code>, <code>gif</code>, <code>tiff</code></td>
+    </tr>
+  </tbody>
+</table>
+<br />
+
+Full field definitions (including enums) are on the generated <a href="/docs/fimidara-rest-api/v1/files__readFile__get" className="underline">readFile GET</a> docs.
+<br />
+
+## Example
+<br />
+
+<code className="block break-all whitespace-pre-wrap rounded-md border bg-muted/40 p-2 text-xs font-mono">
+  https://api.fimidara.com/v1/files/readFile/my-workspace/photos/hero.png?w=600&amp;h=400&amp;fit=cover&amp;pos=centre&amp;format=webp
+</code>
+
+
+<br />
+<br />
+
+With the JS SDK, build the same URL using:
+
+<br />
+
+```typescript
+const url = getFimidaraReadFileURL({
+  filepath: "my-workspace/photos/hero.png",
+  width: 600,
+  height: 400,
+  fit: "cover",
+  position: "centre",
+  background: "#ffffff",
+  withoutEnlargement: true,
+  format: "webp"
+});
+```
+<br />
+
+## Presigned paths
+<br />
+
+Browser `<img>` tags cannot send an `Authorization` header. Issue a presigned path with `issuePresignedPath`, then use that id as the `filepath` in `getFimidaraReadFileURL` / `readFile`.
+<br />
+
+**Note:** `duration` on `issuePresignedPath` is in **milliseconds** (for example, `3_600_000` for one hour). Omit `duration` if the path should not expire.
+<br />
+
+## In-app playground
+<br />
+
+In the fimidara app, open an image file menu and choose **Image Transform** to preview query parameters and copy a request URL.
+<br />

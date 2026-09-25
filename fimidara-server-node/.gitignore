@@ -144,3 +144,5 @@ sdk/js-sdk/src/testutils/testdata/
 .DS_Store
 *.DS_Store
 **/.DS_Store
+
+.forerunner-mongo/

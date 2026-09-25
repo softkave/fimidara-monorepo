@@ -1,6 +1,6 @@
 import {Readable} from 'stream';
 import {ValueOf} from 'type-fest';
-import {FileMatcher} from '../../../definitions/file.js';
+import {FileMatcher, ImageFormatEnum} from '../../../definitions/file.js';
 import {Endpoint} from '../../types.js';
 
 export const ImageResizeFitEnumMap = {
@@ -64,16 +64,7 @@ export type ImageResizeParams = {
   withoutEnlargement?: boolean;
 };
 
-export const ImageFormatEnumMap = {
-  jpeg: 'jpeg',
-  png: 'png',
-  webp: 'webp',
-  tiff: 'tiff',
-  raw: 'raw',
 
-  // TODO: support gif
-} as const;
-export type ImageFormatEnum = ValueOf<typeof ImageFormatEnumMap>;
 
 export type ReadFileEndpointParams = {
   imageResize?: ImageResizeParams;
@@ -106,6 +97,8 @@ export interface ReadFileEndpointResult {
   ranges?: Array<{start: number; end: number}>;
   /** True if this is a multipart response (multiple streams) */
   isMultipart?: boolean;
+  /** True when the response body is an on-the-fly image transform */
+  isImageTransform?: boolean;
 }
 
 export type ReadFileEndpoint = Endpoint<

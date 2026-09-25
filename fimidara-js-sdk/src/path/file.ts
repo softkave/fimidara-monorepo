@@ -1,84 +1,11 @@
 import {compact, map} from 'lodash-es';
 import {kDefaultServerURL} from '../constants.js';
+import {
+  ImageFormatEnum,
+  ImageResizeFitEnum,
+  ImageResizePositionEnum,
+} from '../endpoints/publicTypes.js';
 import {fimidaraAddRootnameToPath} from './fimidaraAddRootnameToPath.js';
-
-// export const kFimidaraImageResizeFitEnumMap = {
-//   contain: 'contain',
-//   cover: 'cover',
-//   fill: 'fill',
-//   inside: 'inside',
-//   outside: 'outside',
-// } as const;
-
-// export const kFimidaraImageResizePositionEnumMap = {
-//   top: 'top',
-//   rightTop: 'right top',
-//   right: 'right',
-//   rightBottom: 'right bottom',
-//   bottom: 'bottom',
-//   leftBottom: 'left bottom',
-//   left: 'left',
-//   leftTop: 'left top',
-//   north: 'north',
-//   northeast: 'northeast',
-//   east: 'east',
-//   southeast: 'southeast',
-//   south: 'south',
-//   southwest: 'southwest',
-//   west: 'west',
-//   northwest: 'northwest',
-//   centre: 'centre',
-
-//   /** focus on the region with the highest Shannon entropy. */
-//   entropy: 'entropy',
-
-//   /** focus on the region with the highest luminance frequency, colour
-//    * saturation and presence of skin tones. */
-//   attention: 'attention',
-// } as const;
-
-// export type FimidaraImageResizeFitEnum = ValueOf<
-//   typeof kFimidaraImageResizeFitEnumMap
-// >;
-
-// export type FimidaraImageResizePositionEnum = ValueOf<
-//   typeof kFimidaraImageResizePositionEnumMap
-// >;
-
-// export type FimidaraImageResizeParams = {
-//   width?: number;
-//   height?: number;
-
-//   /** How the image should be resized to fit both provided dimensions.
-//    * (optional, default 'cover') */
-//   fit?: keyof FimidaraImageResizeFitEnum;
-
-//   /** Position, gravity or strategy to use when fit is cover or contain.
-//    * (optional, default 'centre') */
-//   position?: number | FimidaraImageResizePositionEnum;
-
-//   /** Background colour when using a fit of contain, defaults to black without
-//    * transparency. (optional, default {r:0,g:0,b:0,alpha:1}) */
-//   background?: string;
-
-//   /** Do not enlarge if the width or height are already less than the specified
-//    * dimensions. (optional, default false) */
-//   withoutEnlargement?: boolean;
-// };
-
-// export const kFimidaraImageFormatEnumMap = {
-//   jpeg: 'jpeg',
-//   png: 'png',
-//   webp: 'webp',
-//   tiff: 'tiff',
-//   raw: 'raw',
-
-//   // TODO: support gif
-// } as const;
-
-// export type FimidaraImageFormatEnum = ValueOf<
-//   typeof kFimidaraImageFormatEnumMap
-// >;
 
 /**
  * Configuration for generating fimidara file read URLs
@@ -99,26 +26,29 @@ export type GetFimidaraReadFileURLProps = {
   serverURL?: string;
 
   /** Resize image to width */
-  // width?: number;
+  width?: number;
 
   /** Resize image to height */
-  // height?: number;
+  height?: number;
 
   /** How the image should be resized to fit both provided dimensions.
    * (optional, default 'cover') */
-  // fit?: keyof FimidaraImageResizeFitEnum;
+  fit?: ImageResizeFitEnum;
 
   /** Position, gravity or strategy to use when fit is cover or contain.
    * (optional, default 'centre') */
-  // position?: number | FimidaraImageResizePositionEnum;
+  position?: number | ImageResizePositionEnum;
 
   /** Background colour when using a fit of contain, defaults to black without
    * transparency. (optional, default {r:0,g:0,b:0,alpha:1}) */
-  // background?: string;
+  background?: string;
 
   /** Do not enlarge if the width or height are already less than the specified
    * dimensions. (optional, default false) */
-  // withoutEnlargement?: boolean;
+  withoutEnlargement?: boolean;
+
+  /** Output image format when transforming */
+  format?: ImageFormatEnum;
 
   /** Whether the server should add "Content-Disposition: attachment" header
    * which forces browsers to download files like HTML, JPEG, etc. which it'll
@@ -131,12 +61,13 @@ export type GetFimidaraReadFileURLProps = {
 const kReadFileQueryMap: Partial<
   Record<keyof GetFimidaraReadFileURLProps, string>
 > = {
-  // width: 'w',
-  // height: 'h',
-  // fit: 'fit',
-  // position: 'pos',
-  // background: 'bg',
-  // withoutEnlargement: 'withoutEnlargement',
+  width: 'w',
+  height: 'h',
+  fit: 'fit',
+  position: 'pos',
+  background: 'bg',
+  withoutEnlargement: 'withoutEnlargement',
+  format: 'format',
   download: 'download',
   downloadName: 'downloadName',
 };
@@ -170,11 +101,13 @@ function getFilepath(props: {
  * ```typescript
  * const url = getFimidaraReadFileURL({
  *   filepath: '/workspace/path/to/file.jpg',
- *   download: true,
- *   downloadName: 'my-download.txt'
+ *   width: 600,
+ *   height: 400,
+ *   fit: 'cover',
+ *   format: 'webp',
  * });
  *
- * // Returns: https://fimidara.com/v1/files/readFile/workspace/path/to/file.jpg?download=true&downloadName=my-download.txt
+ * // Returns: https://fimidara.com/v1/files/readFile/workspace/path/to/file.jpg?w=600&h=400&fit=cover&format=webp
  * ```
  */
 export function getFimidaraReadFileURL(props: GetFimidaraReadFileURLProps) {
@@ -183,7 +116,7 @@ export function getFimidaraReadFileURL(props: GetFimidaraReadFileURLProps) {
   const queryList = compact(
     map(props, (v, k) => {
       const qk = kReadFileQueryMap[k as keyof GetFimidaraReadFileURLProps];
-      if (!qk) return undefined;
+      if (!qk || v === undefined || v === null || v === '') return undefined;
       return `${qk}=${encodeURIComponent(String(v))}`;
     })
   );

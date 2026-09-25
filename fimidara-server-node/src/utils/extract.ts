@@ -92,7 +92,12 @@ export function extractFields<
   paths: ObjectPaths,
   extraArgs?: ObjectPaths['extraArgs']
 ): ObjectPaths['result'] {
-  let result = pick(data, paths.scalarFields);
+  let result = pick(data, paths.scalarFields) as Record<string, unknown>;
+  paths.scalarFields.forEach(key => {
+    if (result[key] === null) {
+      result[key] = undefined;
+    }
+  });
   paths.scalarFieldsWithTransformers.forEach(({property, transformer}) => {
     const propValue = data[property];
     if (propValue === undefined) {

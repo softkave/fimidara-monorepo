@@ -1,9 +1,11 @@
 import { useCollaborationRequestForm } from "@/components/hooks/useCollaborationRequestForm.tsx";
 import { useDeleteModal } from "@/components/hooks/useDeleteModal.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { DropdownItems } from "@/components/ui/dropdown-items.tsx";
+import {
+  DropdownItems,
+  IDropdownItem,
+} from "@/components/ui/dropdown-items.tsx";
 import { errorMessageNotificatition } from "@/components/utils/errorHandling";
-import { insertMenuDivider } from "@/components/utils/utils";
 import { useToast } from "@/hooks/use-toast.ts";
 import { useWorkspaceCollaborationRequestDeleteMutationHook } from "@/lib/hooks/mutationHooks";
 import { CollaborationRequestForWorkspace } from "fimidara";
@@ -70,7 +72,7 @@ const WorkspaceRequestMenu: React.FC<IWorkspaceRequestMenuProps> = (props) => {
   };
 
   const isPending = request.status === "pending";
-  const items = insertMenuDivider([
+  const items: IDropdownItem[] = [
     {
       // TODO: only show if user has permission
       key: MenuKeys.UpdateItem,
@@ -86,7 +88,7 @@ const WorkspaceRequestMenu: React.FC<IWorkspaceRequestMenuProps> = (props) => {
       label: "Delete Request",
       disabled: !isPending,
     },
-  ]);
+  ];
 
   return (
     <React.Fragment>

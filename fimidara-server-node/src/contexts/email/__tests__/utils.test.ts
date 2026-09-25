@@ -6,6 +6,7 @@ import {
 } from '../../../resources/config.js';
 import {ResendEmailProviderContext} from '../ResendEmailProviderContext.js';
 import {SESEmailProviderContext} from '../SESEmailProviderContext.js';
+import {kRegisterIjxUtils} from '../../ijx/register.js';
 import {getEmailProvider} from '../utils.js';
 
 describe('getEmailProvider', () => {
@@ -47,9 +48,11 @@ describe('getEmailProvider', () => {
           secretAccessKey: 'test-secret-key',
           region: 'us-east-1',
         },
+        sesEmailEncoding: 'UTF-8',
       },
     };
 
+    kRegisterIjxUtils.suppliedConfig(config);
     const provider = getEmailProvider(config);
     expect(provider).toBeInstanceOf(SESEmailProviderContext);
   });

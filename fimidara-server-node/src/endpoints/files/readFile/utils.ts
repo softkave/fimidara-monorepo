@@ -279,23 +279,28 @@ export function validateIfRange(
 }
 
 /**
- * Generates an ETag from lastModified timestamp and file size.
+ * Generates an ETag from lastModified timestamp, file size, and optional
+ * transform fingerprint.
  *
  * @param lastModified - Last modified timestamp in milliseconds
  * @param size - File size in bytes
+ * @param transformFingerprint - Optional hash of image transform params
  * @returns ETag string (strong ETag format: "hash")
  */
 export function generateETag(
   lastModified: number | undefined,
-  size: number | undefined
+  size: number | undefined,
+  transformFingerprint?: string
 ): string {
   if (lastModified === undefined || size === undefined) {
     return '';
   }
 
-  const hash = createHash('md5')
-    .update(`${lastModified}-${size}`)
-    .digest('hex');
+  const base = `${lastModified}-${size}`;
+  const payload = transformFingerprint
+    ? `${base}-${transformFingerprint}`
+    : base;
+  const hash = createHash('md5').update(payload).digest('hex');
 
   // Use strong ETag format
   return `"${hash}"`;

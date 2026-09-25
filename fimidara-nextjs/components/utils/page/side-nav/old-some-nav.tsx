@@ -50,7 +50,7 @@ export function SomeNav(props: ISomeNavProps) {
                 someBehaviour.handleOpen(item);
               }
             }}
-            className="cursor-pointer text-muted-foreground"
+            className="cursor-pointer text-muted-foreground px-2"
           >
             {someBehaviour.checkIsOpen(item.key) ? (
               <ChevronDown className="h-4 w-4" />
@@ -59,9 +59,9 @@ export function SomeNav(props: ISomeNavProps) {
             )}
           </span>
         ) : null}
-        <span className="grid flex-1 grid-cols-[auto_1fr] items-center gap-x-4">
+        <span className="grid flex-1 grid-cols-[auto_1fr] items-center gap-x-2">
           {item.icon ? (
-            <span className="inline-flex size-4 items-center justify-center">
+            <span className="inline-flex size-4 items-center justify-center text-muted-foreground group-hover:text-foreground mx-2">
               {item.icon}
             </span>
           ) : null}
@@ -100,7 +100,7 @@ export function SomeNav(props: ISomeNavProps) {
         {item.children?.length && someBehaviour.checkIsOpen(item.key) ? (
           <SomeNav
             items={item.children}
-            className="ml-6"
+            className="ml-10"
             key={item.key}
             onOpen={props.onOpen}
             onSelect={props.onSelect}

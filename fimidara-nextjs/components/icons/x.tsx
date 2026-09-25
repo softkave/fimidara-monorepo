@@ -1,13 +1,6 @@
 import { cn } from "@/lib/utils";
 
 export function XIcon(props: { className?: string }) {
-  // return (
-  //   <img
-  //     src="https://api.fimidara.com/v1/files/readFile/softkave/public/svg/x.png"
-  //     className={cn("w-6 h-6", props.className)}
-  //   />
-  // );
-
   return (
     <svg
       role="img"

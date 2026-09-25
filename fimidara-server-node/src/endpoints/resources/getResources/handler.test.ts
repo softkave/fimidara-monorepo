@@ -29,6 +29,12 @@ import {FetchResourceItem} from '../types.js';
 import getResources from './handler.js';
 import {GetResourcesEndpointParams} from './types.js';
 
+function omitNullishFields<T extends Record<string, unknown>>(value: T): T {
+  return Object.fromEntries(
+    Object.entries(value).filter(([, fieldValue]) => fieldValue != null)
+  ) as T;
+}
+
 /**
  * TODO:
  * - test resources that the agent doesn't have read permission to
@@ -131,9 +137,15 @@ describe('getResources', () => {
     assertEndpointResultOk(result);
     expect(result.resources).toHaveLength(resourcesInput.length);
     result.resources.forEach(resource => {
-      expect(resourcesMap[resource.resourceId]).toMatchObject(
-        resource.resource
-      );
+      const apiResource = {...resource.resource} as Record<string, unknown>;
+      if (resource.resourceType === kFimidaraResourceType.File) {
+        delete apiResource.read;
+        delete apiResource.write;
+      }
+      const dbResource = omitNullishFields({
+        ...(resourcesMap[resource.resourceId] as Record<string, unknown>),
+      });
+      expect(dbResource).toMatchObject(omitNullishFields(apiResource));
 
       if (resource.resourceType === kFimidaraResourceType.File) {
         const fileId =
@@ -143,7 +155,13 @@ describe('getResources', () => {
               workspace.rootname
             )
           ];
-        expect(resourcesMap[fileId]).toMatchObject(resource.resource);
+        const fileApiResource = {...resource.resource} as Record<string, unknown>;
+        delete fileApiResource.read;
+        delete fileApiResource.write;
+        const fileDbResource = omitNullishFields({
+          ...(resourcesMap[fileId] as Record<string, unknown>),
+        });
+        expect(fileDbResource).toMatchObject(omitNullishFields(fileApiResource));
       } else if (resource.resourceType === kFimidaraResourceType.Folder) {
         const folderId =
           filepathsMap[

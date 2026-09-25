@@ -370,6 +370,49 @@
                                 "example": 1
                             }
                         },
+                        "imageWidth": {
+                            "__id": "FieldObjectField",
+                            "required": false,
+                            "data": {
+                                "__id": "FieldNumber",
+                                "description": "Image display width in pixels after EXIF orientation. Present when imageDimensionsStatus is ready.",
+                                "example": 1920
+                            }
+                        },
+                        "imageHeight": {
+                            "__id": "FieldObjectField",
+                            "required": false,
+                            "data": {
+                                "__id": "FieldNumber",
+                                "description": "Image display height in pixels after EXIF orientation. Present when imageDimensionsStatus is ready.",
+                                "example": 1080
+                            }
+                        },
+                        "imageDimensionsStatus": {
+                            "__id": "FieldObjectField",
+                            "required": false,
+                            "data": {
+                                "__id": "FieldString",
+                                "description": "Status of image dimension probing: pending, ready, unsupported, or failed.",
+                                "example": "ready",
+                                "valid": [
+                                    "pending",
+                                    "ready",
+                                    "unsupported",
+                                    "failed"
+                                ],
+                                "enumName": "ImageDimensionsStatus"
+                            }
+                        },
+                        "aspectRatio": {
+                            "__id": "FieldObjectField",
+                            "required": false,
+                            "data": {
+                                "__id": "FieldNumber",
+                                "description": "Derived image aspect ratio (width / height) when both dimensions are present.",
+                                "example": 1.7778
+                            }
+                        },
                         "read": {
                             "__id": "FieldObjectField",
                             "required": true,

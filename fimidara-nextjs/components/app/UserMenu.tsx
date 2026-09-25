@@ -4,7 +4,6 @@ import { useRequestLogout } from "@/lib/hooks/session/useRequestLogout.ts";
 import Link from "next/link";
 import { useAssertGetUser } from "../hooks/useAssertGetUser.tsx";
 import { DropdownItems, IDropdownItem } from "../ui/dropdown-items.tsx";
-import { insertMenuDivider } from "../utils/utils";
 import UserAvatar from "./user/UserAvatar";
 
 const kMenuKeys = {
@@ -23,7 +22,7 @@ export default function UserMenu() {
     );
   };
 
-  const items: Array<IDropdownItem> = insertMenuDivider([
+  const items: IDropdownItem[] = [
     {
       label: (
         <Link
@@ -48,7 +47,7 @@ export default function UserMenu() {
       label: "Logout",
       key: kMenuKeys.logout,
     },
-  ]);
+  ];
 
   const onClick = async (key: string) => {
     if (key === kMenuKeys.logout) {

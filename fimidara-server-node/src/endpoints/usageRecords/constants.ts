@@ -9,7 +9,7 @@ import {getTimestamp} from '../../utils/dateFns.js';
 import {kEndpointConstants} from '../constants.js';
 
 export const kUsageRecordConstants = {
-  defaultTotalThresholdInUSD: 50,
+  defaultTotalThresholdInUSD: 10,
   routes: {
     countWorkspaceSummedUsage: `${kEndpointConstants.apiv1}/usageRecords/countWorkspaceSummedUsage`,
     getWorkspaceSummedUsage: `${kEndpointConstants.apiv1}/usageRecords/getWorkspaceSummedUsage`,

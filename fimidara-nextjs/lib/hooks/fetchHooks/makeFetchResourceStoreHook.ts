@@ -71,7 +71,7 @@ export function makeFetchResourceStoreHook<TData, TReturnedData, TKeyParams>(
         },
 
         findFetchState(fn) {
-          return this.states.find(([params, state]) => fn(params, state));
+          return get().states.find(([params, state]) => fn(params, state));
         },
 
         mapFetchState(fn) {

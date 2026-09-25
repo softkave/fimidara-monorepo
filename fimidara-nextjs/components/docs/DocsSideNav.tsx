@@ -1,58 +1,82 @@
 "use client";
 
-import { compact, flatten, last, uniq } from "lodash-es";
+import { uniq } from "lodash-es";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import { useAppMenu } from "../app/useAppMenu.tsx";
 import { SideNav } from "../utils/page/side-nav/old-side-nav.tsx";
+import { getMenuSelectedKeys } from "../utils/page/side-nav/utils.tsx";
 import {
-  DOCS_BASE_PATH,
+  fimidaraNavItems,
+  fimidaraRestApiNavItems,
   fimidaraRestApiSideNavItems,
   fimidaraSideNavItems,
   kDocNavRootKeysMap,
 } from "./navItems";
 
-// TODO: default open keys
+const kHttpMethods = new Set([
+  "get",
+  "post",
+  "put",
+  "patch",
+  "delete",
+  "head",
+  "options",
+]);
+
+function mergeHttpMethodParts(parts: string[]) {
+  return parts.reduce((acc, part) => {
+    if (kHttpMethods.has(part) && acc.length) {
+      acc[acc.length - 1] = `${acc[acc.length - 1]}__${part}`;
+    } else {
+      acc.push(part);
+    }
+    return acc;
+  }, [] as string[]);
+}
+
+function getOpenKeysFromSelectedKeys(selectedKeys: string[]) {
+  const openKeys: string[] = [];
+
+  for (const key of selectedKeys) {
+    const parts = mergeHttpMethodParts(key.split("__"));
+    for (let i = 1; i < parts.length; i++) {
+      openKeys.push(parts.slice(0, i).join("__"));
+    }
+  }
+
+  return openKeys;
+}
+
 export function DocsSideNav() {
   const { isOpen, toggleAppMenu } = useAppMenu();
   const pathname = usePathname();
 
+  const completeNavItems = useMemo(
+    () => fimidaraSideNavItems.concat(fimidaraRestApiSideNavItems),
+    []
+  );
+
   const { openKeys, selectedKeys } = useMemo(() => {
-    const docPath = last(pathname?.split(DOCS_BASE_PATH));
-    const openKeys = uniq(
-      flatten(
-        docPath
-          ?.split("/")
-          .filter((p) => !!p && p !== "v1")
-          .map((p) => p.split("__"))
-      )
-    )
-      .reduce((acc, p, i) => {
-        if (["get", "post", "delete", "head", "option"].includes(p)) {
-          acc[i - 1] = `${acc[i - 1]}__${p}`;
-        } else {
-          acc.push(p);
-        }
+    const selectedKeys = getMenuSelectedKeys(
+      fimidaraNavItems.concat(fimidaraRestApiNavItems),
+      pathname
+    );
 
-        return acc;
-      }, [] as string[])
-      .reduce((acc, p, i) => {
-        if (acc.length && acc[0] !== kDocNavRootKeysMap.fimidara) {
-          acc.push(`${acc[i - 1]}__${p}`);
-        } else {
-          acc.push(p);
-        }
+    const openKeys = uniq([
+      ...(pathname.startsWith(`/docs/${kDocNavRootKeysMap.fimidara}/`) ||
+      pathname === `/docs/${kDocNavRootKeysMap.fimidara}`
+        ? [kDocNavRootKeysMap.fimidara]
+        : []),
+      ...(pathname.startsWith(`/docs/${kDocNavRootKeysMap.restApi}/`) ||
+      pathname === `/docs/${kDocNavRootKeysMap.restApi}`
+        ? [kDocNavRootKeysMap.restApi]
+        : []),
+      ...getOpenKeysFromSelectedKeys(selectedKeys),
+    ]);
 
-        return acc;
-      }, [] as string[]);
-
-    const selectedKeys = compact([last(openKeys)]);
     return { openKeys, selectedKeys };
   }, [pathname]);
-
-  const completeNavItems = fimidaraSideNavItems.concat(
-    fimidaraRestApiSideNavItems
-  );
 
   return (
     <SideNav

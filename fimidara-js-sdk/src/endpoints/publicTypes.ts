@@ -750,6 +750,18 @@ export type CompleteMultipartUploadEndpointParams = {
   parts: Array<CompleteMultipartUploadInputPart>;
 };
 /**
+ * Status of image dimension probing: pending, ready, unsupported, or failed.
+ * @example
+ * ```
+ * ready
+ * ```
+ */
+export type ImageDimensionsStatus =
+  | 'pending'
+  | 'ready'
+  | 'unsupported'
+  | 'failed';
+/**
  * Whether a read or write operation is available on a file or part, including whether it is available for the current requester
  */
 export type ResourceAvailability = {
@@ -920,6 +932,46 @@ export type File = {
    * ```
    */
   version: number;
+  /**
+   * Image display width in pixels after EXIF orientation. Present when imageDimensionsStatus is ready.
+   * @example
+   * ```
+   * 1920
+   * ```
+   */
+  imageWidth?: number;
+  /**
+   * Image display height in pixels after EXIF orientation. Present when imageDimensionsStatus is ready.
+   * @example
+   * ```
+   * 1080
+   * ```
+   */
+  imageHeight?: number;
+  /**
+   * Status of image dimension probing: pending, ready, unsupported, or failed.
+   * @example
+   * ```
+   * ready
+   * ```
+   */
+  imageDimensionsStatus?: ImageDimensionsStatus;
+  /**
+   * Derived image aspect ratio (width / height) when both dimensions are present.
+   * @example
+   * ```
+   * 1.7778
+   * ```
+   */
+  aspectRatio?: number;
+  /**
+   * Simplified aspect ratio label for display (e.g. "16:9"). Falls back to a short decimal when the pixel size does not reduce cleanly.
+   * @example
+   * ```
+   * 16:9
+   * ```
+   */
+  aspectRatioLabel?: string;
   /**
    * Whether a read or write operation is available on a file or part, including whether it is available for the current requester
    */
@@ -2403,6 +2455,58 @@ export type ResourceWrapper = {
  *               "example": 1
  *             }
  *           },
+ *           "imageWidth": {
+ *             "__id": "FieldObjectField",
+ *             "required": false,
+ *             "data": {
+ *               "__id": "FieldNumber",
+ *               "description": "Image display width in pixels after EXIF orientation. Present when imageDimensionsStatus is ready.",
+ *               "example": 1920
+ *             }
+ *           },
+ *           "imageHeight": {
+ *             "__id": "FieldObjectField",
+ *             "required": false,
+ *             "data": {
+ *               "__id": "FieldNumber",
+ *               "description": "Image display height in pixels after EXIF orientation. Present when imageDimensionsStatus is ready.",
+ *               "example": 1080
+ *             }
+ *           },
+ *           "imageDimensionsStatus": {
+ *             "__id": "FieldObjectField",
+ *             "required": false,
+ *             "data": {
+ *               "__id": "FieldString",
+ *               "description": "Status of image dimension probing: pending, ready, unsupported, or failed.",
+ *               "example": "ready",
+ *               "valid": [
+ *                 "pending",
+ *                 "ready",
+ *                 "unsupported",
+ *                 "failed"
+ *               ],
+ *               "enumName": "ImageDimensionsStatus"
+ *             }
+ *           },
+ *           "aspectRatio": {
+ *             "__id": "FieldObjectField",
+ *             "required": false,
+ *             "data": {
+ *               "__id": "FieldNumber",
+ *               "description": "Derived image aspect ratio (width / height) when both dimensions are present.",
+ *               "example": 1.7778
+ *             }
+ *           },
+ *           "aspectRatioLabel": {
+ *             "__id": "FieldObjectField",
+ *             "required": false,
+ *             "data": {
+ *               "__id": "FieldString",
+ *               "description": "Simplified aspect ratio label for display (e.g. \"16:9\"). Falls back to a short decimal when the pixel size does not reduce cleanly.",
+ *               "example": "16:9"
+ *             }
+ *           },
  *           "read": {
  *             "__id": "FieldObjectField",
  *             "required": true,
@@ -3773,13 +3877,20 @@ export type ImageResizeParams = {
   withoutEnlargement?: boolean;
 };
 /**
- * Format to transform image to if file is an image
+ * Format to transform image to if file is an image. Animated GIF/WebP and multi-page TIFF are not fully supported for transform yet. gif output encodes a still image.
  * @example
  * ```
  * webp
  * ```
  */
-export type ImageFormatEnum = 'jpeg' | 'png' | 'webp' | 'tiff' | 'raw';
+export type ImageFormatEnum =
+  | 'jpeg'
+  | 'png'
+  | 'webp'
+  | 'tiff'
+  | 'raw'
+  | 'gif'
+  | 'avif';
 /**
  * Byte range with start and end positions
  */
@@ -3822,7 +3933,7 @@ export type ReadFileEndpointParams = {
    */
   imageResize?: ImageResizeParams;
   /**
-   * Format to transform image to if file is an image
+   * Format to transform image to if file is an image. Animated GIF/WebP and multi-page TIFF are not fully supported for transform yet. gif output encodes a still image.
    * @example
    * ```
    * webp

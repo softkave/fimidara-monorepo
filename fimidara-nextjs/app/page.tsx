@@ -6,6 +6,8 @@ import {
   WebFeatureList,
 } from "@/components/web/web-feature-list";
 import { WebFooter } from "@/components/web/web-footer";
+import { kAppRootPaths } from "@/lib/definitions/paths/root.ts";
+import Link from "next/link";
 
 const Home = async () => {
   return (
@@ -38,6 +40,11 @@ const Home = async () => {
             buttonClassName="w-full"
           />
         </div>
+        <p className="text-center text-sm text-muted-foreground !mt-4">
+          <Link href={kAppRootPaths.pricing} className="underline">
+            Pricing — free for now
+          </Link>
+        </p>
         <div className="flex flex-col items-center justify-center">
           <img
             src="https://api.fimidara.com/v1/files/readFile/softkave/public/fimidara-landing.png"

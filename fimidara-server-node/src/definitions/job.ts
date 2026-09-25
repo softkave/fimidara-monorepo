@@ -22,6 +22,7 @@ export const kJobType = {
   /** Primarily used for testing. A job that will always fail! */
   fail: 'fail',
   completeMultipartUpload: 'completeMultipartUpload',
+  probeImageDimensions: 'probeImageDimensions',
 } as const;
 
 export const kJobStatus = {
@@ -150,6 +151,10 @@ export interface CompleteMultipartUploadJobParams {
   // parts: CompleteMultipartUploadInputPart[];
   parts: string;
   requestId: string;
+}
+
+export interface ProbeImageDimensionsJobParams {
+  fileId: string;
 }
 
 export const kEmailJobType = {

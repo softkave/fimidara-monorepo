@@ -1,9 +1,11 @@
 import { useDeleteModal } from "@/components/hooks/useDeleteModal.tsx";
 import { usePermissionGroupForm } from "@/components/hooks/usePermissionGroupForm.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { DropdownItems } from "@/components/ui/dropdown-items.tsx";
+import {
+  DropdownItems,
+  IDropdownItem,
+} from "@/components/ui/dropdown-items.tsx";
 import { errorMessageNotificatition } from "@/components/utils/errorHandling";
-import { insertMenuDivider } from "@/components/utils/utils";
 import { useToast } from "@/hooks/use-toast.ts";
 import {
   useWorkspacePermissionGroupDeleteMutationHook,
@@ -115,26 +117,24 @@ const PermissionGroupMenu: React.FC<PermissionGroupMenuProps> = (props) => {
     }
   };
 
-  const items = insertMenuDivider(
-    compact([
-      {
-        key: MenuKeys.UpdateItem,
-        label: "Update",
-      },
-      unassignParams && {
-        key: MenuKeys.UnassignPermissionGroup,
-        label: "Unassign",
-      },
-      {
-        key: MenuKeys.GrantPermission,
-        label: "Permissions",
-      },
-      {
-        key: MenuKeys.DeleteItem,
-        label: "Delete",
-      },
-    ])
-  );
+  const items: IDropdownItem[] = compact([
+    {
+      key: MenuKeys.UpdateItem,
+      label: "Update",
+    },
+    unassignParams && {
+      key: MenuKeys.UnassignPermissionGroup,
+      label: "Unassign",
+    },
+    {
+      key: MenuKeys.GrantPermission,
+      label: "Permissions",
+    },
+    {
+      key: MenuKeys.DeleteItem,
+      label: "Delete",
+    },
+  ]);
 
   return (
     <React.Fragment>

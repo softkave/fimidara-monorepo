@@ -1,5 +1,9 @@
 import {startHandleAddInternalMultipartIdQueue} from '../endpoints/files/uploadFile/handleAddInternalMultipartIdQueue.js';
 import {startHandlePrepareFileQueue} from '../endpoints/files/uploadFile/handlePrepareFileQueue.js';
+import {
+  startImageDerivativeCacheEviction,
+  stopImageDerivativeCacheEviction,
+} from '../endpoints/files/readFile/imageDerivativeCache.js';
 import {startHandleAddFolderQueue} from '../endpoints/folders/addFolder/handleAddFolderQueue.js';
 import {FimidaraSuppliedConfig} from '../resources/config.js';
 import {kIjxUtils} from './ijx/injectables.js';
@@ -7,16 +11,26 @@ import {clearIjx, registerIjx} from './ijx/register.js';
 import {startHandleUsageRecordQueue} from './usage/handleUsageOps.js';
 
 export async function globalDispose() {
+  stopImageDerivativeCacheEviction();
   kIjxUtils.runtimeState().setIsEnded(true);
   await kIjxUtils.disposables().awaitDisposeAll();
   await kIjxUtils.promises().close().flush();
 
   const {redisURL} = kIjxUtils.suppliedConfig();
   if (redisURL) {
-    await Promise.allSettled([
-      ...kIjxUtils.redis().map(redis => redis.quit()),
-      ...kIjxUtils.ioredis().map(redis => redis.quit()),
-    ]);
+    try {
+      await Promise.allSettled([
+        ...kIjxUtils.redis().map(redis => redis.quit()),
+        ...kIjxUtils.ioredis().map(redis => redis.quit()),
+      ]);
+    } catch (error) {
+      // redisURL may be set while redis was never registered (partial setup).
+      kIjxUtils.logger().error({
+        message: 'Error quitting Redis',
+        error,
+        redisURL,
+      });
+    }
   }
 
   await kIjxUtils.dbConnection().close();
@@ -49,6 +63,8 @@ export async function globalSetup(
       logger.log({message: 'Started worker pool'});
     }
   }
+
+  startImageDerivativeCacheEviction();
 
   if (otherConfig.useHandleFolderQueue) {
     suppliedConfig.addFolderQueueNo?.map(queueNo => {

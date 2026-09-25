@@ -149,16 +149,16 @@ function renderFieldObjectAsJson(
   });
 
   return (
-    <div className="my-6" key={key}>
+    <div className="flex flex-col gap-2" key={key}>
       <div className="space-x-2 flex">
         {propName && <code>{propName}</code>}
         {nextObject.name && (
-          <h5 id={getTypeNameID(nextObject.name)}>{nextObject.name}</h5>
+          <h5 id={getTypeNameID(nextObject.name)} className="text-secondary">{nextObject.name}</h5>
         )}
       </div>
-      <FieldDescription fieldbase={nextObject} type="secondary" />
+      <FieldDescription fieldbase={nextObject} type="secondary" className="my-0" />
       <div
-        className={cn("p-4 rounded font-mono text-sm bg-gray-100 w-full mt-4")}
+        className={cn("p-4 rounded font-mono text-sm bg-gray-100 w-full")}
       >
         &#123;
         {rows}

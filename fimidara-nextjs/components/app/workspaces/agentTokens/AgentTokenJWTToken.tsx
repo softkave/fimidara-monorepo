@@ -5,6 +5,7 @@ import ListHeader from "@/components/utils/list/ListHeader";
 import { ObfuscateText } from "@/components/utils/ObfuscateText";
 import { toast } from "@/hooks/use-toast";
 import { useWorkspaceAgentTokenEncodeTokenMutationHook } from "@/lib/hooks/mutationHooks";
+import { useWorkspaceAgentTokensStore } from "@/lib/hooks/resourceListStores";
 import { formatDateTime } from "@/lib/utils/dateFns";
 import { AgentToken } from "fimidara";
 import { useCallback } from "react";
@@ -16,16 +17,29 @@ export interface IAgentTokenJWTTokenProps {
 export function AgentTokenJWTToken(props: IAgentTokenJWTTokenProps) {
   const { token } = props;
   const encodeTokenHook = useWorkspaceAgentTokenEncodeTokenMutationHook({
-    onSuccess(data, params) {
+    onSuccess() {
       toast({ title: "JWT Token Generated" });
     },
   });
+  const storedToken = useWorkspaceAgentTokensStore(
+    (store) => store.items[token.resourceId]
+  );
 
   const onGenerateToken = useCallback(() => {
     encodeTokenHook.runAsync({
       tokenId: token.resourceId,
     });
   }, [encodeTokenHook, token.resourceId]);
+
+  const encoded = encodeTokenHook.data;
+  const jwtToken =
+    encoded?.jwtToken ?? storedToken?.jwtToken ?? token.jwtToken ?? "";
+  const refreshToken = encoded
+    ? (encoded.refreshToken ?? "")
+    : (storedToken?.refreshToken ?? token.refreshToken ?? "");
+  const jwtTokenExpiresAt = encoded
+    ? encoded.jwtTokenExpiresAt
+    : (storedToken?.jwtTokenExpiresAt ?? token.jwtTokenExpiresAt);
 
   return (
     <div className="space-y-8">
@@ -39,7 +53,7 @@ export function AgentTokenJWTToken(props: IAgentTokenJWTTokenProps) {
               onClick={onGenerateToken}
               loading={encodeTokenHook.loading}
             >
-              {token.jwtToken ? "Regenerate Token" : "Generate Token"}
+              {jwtToken ? "Regenerate Token" : "Generate Token"}
             </Button>
           </div>
         }
@@ -49,7 +63,7 @@ export function AgentTokenJWTToken(props: IAgentTokenJWTTokenProps) {
         label="Encoded JWT Token"
         node={
           <ObfuscateText
-            text={token.jwtToken || ""}
+            text={jwtToken}
             canCopy
             defaultText={"Click Generate Token to generate a JWT token"}
           />
@@ -60,7 +74,7 @@ export function AgentTokenJWTToken(props: IAgentTokenJWTTokenProps) {
         label="JWT Refresh Token"
         node={
           <ObfuscateText
-            text={token.refreshToken || ""}
+            text={refreshToken}
             canCopy
             defaultText={"Click Generate Token to generate a JWT refresh token"}
           />
@@ -71,8 +85,8 @@ export function AgentTokenJWTToken(props: IAgentTokenJWTTokenProps) {
         label="JWT Token Expires"
         node={
           <p className="line-clamp-2">
-            {token.jwtTokenExpiresAt ? (
-              formatDateTime(token.jwtTokenExpiresAt)
+            {jwtTokenExpiresAt ? (
+              formatDateTime(jwtTokenExpiresAt)
             ) : (
               <span className="text-muted-foreground">Not Applicable</span>
             )}

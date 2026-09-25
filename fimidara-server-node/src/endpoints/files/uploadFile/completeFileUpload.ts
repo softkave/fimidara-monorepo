@@ -1,5 +1,5 @@
 import {FilePersistenceUploadFileResult} from '../../../contexts/file/types.js';
-import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {File} from '../../../definitions/file.js';
 import {
@@ -13,6 +13,8 @@ import {
 } from '../../../definitions/system.js';
 import {pathExtract} from '../../../utils/fns.js';
 import {newWorkspaceResource} from '../../../utils/resource.js';
+import {queueProbeImageDimensionsJob} from '../../jobs/queueFns/probeImageDimensions.js';
+import {isProcessableImageFile} from '../readFile/imageFormat.js';
 import {assertFile} from '../utils.js';
 import {
   getFinalFileUpdate,
@@ -140,6 +142,16 @@ export async function completeFileUpload(params: {
       opts: null,
     }),
   ]);
+
+  if (isProcessableImageFile(updatedFile)) {
+    kIjxUtils.promises().callAndForget(() =>
+      queueProbeImageDimensionsJob({
+        workspaceId: updatedFile.workspaceId,
+        fileId: updatedFile.resourceId,
+        agent,
+      })
+    );
+  }
 
   return updatedFile;
 }

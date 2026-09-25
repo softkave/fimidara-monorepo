@@ -17,10 +17,10 @@ import GitHubSignInClient from "../account/github-sign-in-client.tsx";
 import GoogleSignInClient from "../account/google-sign-in-client.tsx";
 import { useAppMenu } from "../app/useAppMenu.tsx";
 import { Button } from "../ui/button.tsx";
-import { DropdownItems } from "../ui/dropdown-items.tsx";
+import { DropdownItems, IDropdownItem } from "../ui/dropdown-items.tsx";
+import { HeaderShell } from "../utils/HeaderShell.tsx";
 import { cn } from "../utils.ts";
 import IconButton from "../utils/buttons/IconButton";
-import { insertMenuDivider } from "../utils/utils";
 
 export interface IWebHeaderProps {
   className?: string;
@@ -33,7 +33,7 @@ const WebHeader: FC<IWebHeaderProps> = (props) => {
   const { isOpen, toggleAppMenu } = useAppMenu();
 
   let sideLinksNode: ReactNode = null;
-  const items = insertMenuDivider([
+  const items: IDropdownItem[] = [
     {
       key: kAppAccountPaths.signup,
       label: (
@@ -70,8 +70,9 @@ const WebHeader: FC<IWebHeaderProps> = (props) => {
     {
       key: "signin-with-github",
       label: (
-        <GitHubSignInClient className="w-full border-none shadow-none p-0 h-auto justify-start"
-        textClassName="flex-none"
+        <GitHubSignInClient
+          className="w-full border-none shadow-none p-0 h-auto justify-start"
+          textClassName="flex-none"
         />
       ),
     },
@@ -99,7 +100,7 @@ const WebHeader: FC<IWebHeaderProps> = (props) => {
         </Link>
       ),
     },
-  ]);
+  ];
 
   sideLinksNode = (
     <div className="gap-2 flex items-center">
@@ -115,7 +116,10 @@ const WebHeader: FC<IWebHeaderProps> = (props) => {
   const isDocs = pathname.startsWith(kAppRootPaths.docs);
 
   return (
-    <div className={cn("p-4 gap-4 flex items-center", className)} style={style}>
+    <HeaderShell
+      className={cn("p-4 gap-4 flex items-center", className)}
+      style={style}
+    >
       {isDocs && !isOpen && (
         <IconButton
           icon={isOpen ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
@@ -128,7 +132,7 @@ const WebHeader: FC<IWebHeaderProps> = (props) => {
         </h5>
       </div>
       <div className="flex-1 justify-end flex">{sideLinksNode}</div>
-    </div>
+    </HeaderShell>
   );
 };
 

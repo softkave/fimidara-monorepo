@@ -2,15 +2,15 @@ import {isNumber, pick} from 'lodash-es';
 import {FilePersistenceUploadFileResult} from '../../../contexts/file/types.js';
 import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
-import {File} from '../../../definitions/file.js';
+import {File, kImageDimensionsStatus} from '../../../definitions/file.js';
 import {Agent, SessionAgent} from '../../../definitions/system.js';
+import {appAssert} from '../../../utils/assertion.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {mergeData} from '../../../utils/fns.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {getCleanupMultipartFileUpdate} from '../deleteFile/deleteMultipartUpload.js';
 import {writeFileParts} from '../utils/filePart.js';
 import {getNextMultipartTimeout} from '../utils/getNextMultipartTimeout.js';
-import {appAssert} from '../../../utils/assertion.js';
 
 export async function setFileWritable(fileId: string) {
   await kIjxSemantic.utils().withTxn(async opts => {
@@ -73,6 +73,15 @@ export function getIntermediateMultipartFileUpdate(params: {
   return update;
 }
 
+/** Clear image dims so they are re-probed after content changes. */
+export function getResetImageDimensionsUpdate(): Partial<File> {
+  return {
+    imageWidth: null,
+    imageHeight: null,
+    imageDimensionsStatus: kImageDimensionsStatus.pending,
+  };
+}
+
 export function getFinalFileUpdate(params: {
   agent: Agent;
   file: Pick<File, 'version' | 'size'>;
@@ -90,6 +99,8 @@ export function getFinalFileUpdate(params: {
     isReadAvailable: true,
     version: file.version + 1,
     size: finalSize,
+    // Bytes changed (replace or append) — re-probe dimensions.
+    ...getResetImageDimensionsUpdate(),
   };
 
   mergeData(

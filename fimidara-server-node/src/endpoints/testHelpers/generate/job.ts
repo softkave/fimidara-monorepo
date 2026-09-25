@@ -14,6 +14,7 @@ import {
 } from '../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getNewIdForResource, newResource} from '../../../utils/resource.js';
 import {JobInput} from '../../jobs/queueJobs.js';
@@ -37,7 +38,7 @@ export function generateJobInput(seed: Partial<JobInput> = {}): JobInput {
   const params = seed.params || {};
   return {
     params,
-    createdBy: kSystemSessionAgent,
+    createdBy: getActionAgentFromSessionAgent(kSystemSessionAgent),
     type: getRandomJobType(),
     priority: getRandomJobPresetPriority(),
     shard: getRandomAppType(),

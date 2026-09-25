@@ -8,9 +8,9 @@ import {
   InferMfdocSdkParamsType as InferSdkParamsType,
   mfdocConstruct,
 } from 'mfdoc';
-import {EmptyObject} from 'type-fest';
 import {
   FileMatcher,
+  ImageFormatEnumMap,
   PublicFile,
   PublicPart,
   ResourceAvailability,
@@ -22,13 +22,13 @@ import {
   mfdocEndpointHttpResponseItems,
 } from '../helpers.mfdoc.js';
 import {kEndpointTag} from '../types.js';
+import {AbortUploadEndpointParams} from './abortUpload/types.js';
 import {
   CompleteMultipartUploadEndpointParams,
   CompleteMultipartUploadEndpointResult,
   CompleteMultipartUploadInputPart,
 } from './completeMultipartUpload/types.js';
 import {kFileConstants} from './constants.js';
-import {AbortUploadEndpointParams} from './abortUpload/types.js';
 import {DeleteFileEndpointParams} from './deleteFile/types.js';
 import {
   GetFileDetailsEndpointParams,
@@ -39,10 +39,9 @@ import {
   ListPartsEndpointResult,
 } from './listParts/types.js';
 import {
-  ImageFormatEnumMap,
-  ImageResizeFitEnumMap,
-  ImageResizeParams,
-  ImageResizePositionEnumMap,
+    ImageResizeFitEnumMap,
+    ImageResizeParams,
+    ImageResizePositionEnumMap,
   ReadFileEndpointHttpQuery,
   ReadFileEndpointParams,
 } from './readFile/types.js';
@@ -125,7 +124,6 @@ const position = mfdocConstruct.constructOrCombination<
   [typeof positionEnum, typeof positionNum]
 >({
   types: [positionEnum, positionNum],
-  description: 'Position or gravity to use when fit is cover or contain',
 });
 const background = mfdocConstruct.constructString({
   description: 'Hex background color to use when fit is contain',
@@ -137,7 +135,10 @@ const withoutEnlargement = mfdocConstruct.constructBoolean({
   example: true,
 });
 const format = mfdocConstruct.constructString({
-  description: 'Format to transform image to if file is an image',
+  description:
+    'Format to transform image to if file is an image. ' +
+    'Animated GIF/WebP and multi-page TIFF are not fully supported for transform yet. ' +
+    'gif output encodes a still image.',
   enumName: 'ImageFormatEnum',
   valid: Object.values(ImageFormatEnumMap),
   example: 'webp',
@@ -196,8 +197,8 @@ const downloadName = mfdocConstruct.constructString({
     'Custom filename for "Content-Disposition: attachment" responses',
   example: 'my-download.txt',
 });
-const resourceAvailability = mfdocConstruct.constructObject<ResourceAvailability>(
-  {
+const resourceAvailability =
+  mfdocConstruct.constructObject<ResourceAvailability>({
     name: 'ResourceAvailability',
     description:
       'Whether a read or write operation is available on a file or part, ' +
@@ -232,8 +233,7 @@ const resourceAvailability = mfdocConstruct.constructObject<ResourceAvailability
         }),
       }),
     },
-  }
-);
+  });
 const uploadSessionId = mfdocConstruct.constructString({
   description:
     'Optional client-provided identifier for the uploader/session performing the upload. ' +
@@ -279,6 +279,48 @@ const file = mfdocConstruct.constructObject<PublicFile>({
     version: mfdocConstruct.constructObjectField({
       required: true,
       data: version,
+    }),
+    imageWidth: mfdocConstruct.constructObjectField({
+      required: false,
+      data: mfdocConstruct.constructNumber({
+        description:
+          'Image display width in pixels after EXIF orientation. Present when imageDimensionsStatus is ready.',
+        example: 1920,
+      }),
+    }),
+    imageHeight: mfdocConstruct.constructObjectField({
+      required: false,
+      data: mfdocConstruct.constructNumber({
+        description:
+          'Image display height in pixels after EXIF orientation. Present when imageDimensionsStatus is ready.',
+        example: 1080,
+      }),
+    }),
+    imageDimensionsStatus: mfdocConstruct.constructObjectField({
+      required: false,
+      data: mfdocConstruct.constructString({
+        description:
+          'Status of image dimension probing: pending, ready, unsupported, or failed.',
+        example: 'ready',
+        valid: ['pending', 'ready', 'unsupported', 'failed'],
+        enumName: 'ImageDimensionsStatus',
+      }),
+    }),
+    aspectRatio: mfdocConstruct.constructObjectField({
+      required: false,
+      data: mfdocConstruct.constructNumber({
+        description:
+          'Derived image aspect ratio (width / height) when both dimensions are present.',
+        example: 1.7778,
+      }),
+    }),
+    aspectRatioLabel: mfdocConstruct.constructObjectField({
+      required: false,
+      data: mfdocConstruct.constructString({
+        description:
+          'Simplified aspect ratio label for display (e.g. "16:9"). Falls back to a short decimal when the pixel size does not reduce cleanly.',
+        example: '16:9',
+      }),
     }),
     read: mfdocConstruct.constructObjectField({
       required: true,
@@ -802,7 +844,10 @@ const updloadFileSdkParams = mfdocConstruct.constructSdkParamsBody<
           kFileConstants.headers['x-fimidara-on-append-create-if-not-exists'],
         ];
       case 'uploadSessionId':
-        return ['header', kFileConstants.headers['x-fimidara-upload-session-id']];
+        return [
+          'header',
+          kFileConstants.headers['x-fimidara-upload-session-id'],
+        ];
       default:
         throw new Error(`unknown key ${String(key)}`);
     }
@@ -1196,7 +1241,8 @@ export const abortUploadEndpointDefinition =
       mfdocEndpointHttpHeaderItems.responseHeaders_JsonContentType,
     responseBody: mfdocConstruct.constructObject({
       name: 'AbortUploadEndpointResult',
-      description: 'Empty response when the upload lock or multipart state is cleared',
+      description:
+        'Empty response when the upload lock or multipart state is cleared',
       fields: {},
     }),
     name: 'fimidara/files/abortUpload',

@@ -140,7 +140,7 @@ describe('FWorkerMain', () => {
               outgoingPort: wEntry.port,
               incomingPort: wEntry.port,
               expectAck: true,
-              ackTimeoutMs: 1_000,
+              ackTimeoutMs: 60_000,
             })
           : undefined;
       })

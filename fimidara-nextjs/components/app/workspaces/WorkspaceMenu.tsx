@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button.tsx";
-import { DropdownItems } from "@/components/ui/dropdown-items.tsx";
-import { insertMenuDivider } from "@/components/utils/utils";
+import {
+  DropdownItems,
+  IDropdownItem,
+} from "@/components/ui/dropdown-items.tsx";
 import { useToast } from "@/hooks/use-toast.ts";
 import { kAppWorkspacePaths } from "@/lib/definitions/paths/workspace.ts";
 import { Workspace } from "fimidara";
@@ -46,25 +48,23 @@ const WorkspaceMenu: FC<WorkspaceMenuProps> = (props) => {
     }
   };
 
-  const items = insertMenuDivider(
-    compact([
-      {
-        // TODO: only show if user has permission
-        key: MenuKeys.UpdateWorkspace,
-        label: (
-          <Link
-            href={kAppWorkspacePaths.updateWorkspaceForm(workspace.workspaceId)}
-          >
-            Update Workspace
-          </Link>
-        ),
-      },
-      {
-        key: MenuKeys.GrantPermission,
-        label: "Permissions",
-      },
-    ])
-  );
+  const items: IDropdownItem[] = compact([
+    {
+      // TODO: only show if user has permission
+      key: MenuKeys.UpdateWorkspace,
+      label: (
+        <Link
+          href={kAppWorkspacePaths.updateWorkspaceForm(workspace.workspaceId)}
+        >
+          Update Workspace
+        </Link>
+      ),
+    },
+    {
+      key: MenuKeys.GrantPermission,
+      label: "Permissions",
+    },
+  ]);
 
   return (
     <Fragment>

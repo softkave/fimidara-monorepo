@@ -6,7 +6,9 @@ import {
 } from "@/components/ui/accordion.tsx";
 import IconButton from "@/components/utils/buttons/IconButton.tsx";
 import { StyleableComponentProps } from "@/components/utils/styling/types";
-import { Trash2 } from "lucide-react";
+import { kAppWorkspacePaths } from "@/lib/definitions/paths/workspace.ts";
+import { CheckCircle2, Trash2 } from "lucide-react";
+import Link from "next/link";
 import prettyBytes from "pretty-bytes";
 import { FieldError, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
@@ -21,6 +23,7 @@ export interface SelectedFilesFormProps extends StyleableComponentProps {
   form: UseFormReturn<z.infer<typeof selectedFilesSchema>>;
   isDirectory?: boolean;
   beforeUpdateModifyName?: (name: string) => string;
+  workspaceId?: string;
 }
 
 function getFirstErrorMessage(errors: Record<string, FieldError>) {
@@ -29,7 +32,14 @@ function getFirstErrorMessage(errors: Record<string, FieldError>) {
 }
 
 export function SelectedFilesForm(props: SelectedFilesFormProps) {
-  const { form, className, style, isDirectory, beforeUpdateModifyName } = props;
+  const {
+    form,
+    className,
+    style,
+    isDirectory,
+    beforeUpdateModifyName,
+    workspaceId,
+  } = props;
 
   const wFiles = form.watch("files");
 
@@ -39,19 +49,43 @@ export function SelectedFilesForm(props: SelectedFilesFormProps) {
     form.clearErrors(`files.${index}`);
   };
 
-  // TODO: show file entry error in panel
   const panelNodes = wFiles.map((value, index) => {
     const errors = form.getFieldState(`files.${index}`)?.error;
     const errorMessage = getFirstErrorMessage(
       (errors || {}) as Record<string, FieldError>
     );
+    const isUploaded = !!value.resourceId;
+    const fileHref =
+      isUploaded && workspaceId
+        ? kAppWorkspacePaths.file(workspaceId, value.resourceId!)
+        : undefined;
 
     return (
       <AccordionItem key={value.__localId} value={value.__localId}>
         <AccordionTrigger>
           <div className="grid grid-cols-[1fr_auto] items-center mr-2 gap-2 flex-1">
-            <div className="flex flex-col items-start flex-1">
+            <div className="flex flex-col items-start flex-1 gap-1">
               <span className="text-left break-words">{value.name}</span>
+              {isUploaded ? (
+                <span className="inline-flex items-center gap-x-2 text-sm text-green-700">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  Uploaded
+                  {fileHref ? (
+                    <>
+                      <span aria-hidden className="text-base leading-none text-secondary font-bold">
+                        ·
+                      </span>
+                      <Link
+                        href={fileHref}
+                        className="text-primary hover:underline"
+                        onClick={(evt) => evt.stopPropagation()}
+                      >
+                        Open
+                      </Link>
+                    </>
+                  ) : null}
+                </span>
+              ) : null}
               {errorMessage && (
                 <span className="text-sm font-medium text-destructive text-left">
                   {errorMessage}
@@ -87,9 +121,7 @@ export function SelectedFilesForm(props: SelectedFilesFormProps) {
 
   const collapseNode = panelNodes.length ? (
     <div className="mb-4">
-      <Accordion>
-        {panelNodes}
-      </Accordion>
+      <Accordion>{panelNodes}</Accordion>
     </div>
   ) : null;
 
