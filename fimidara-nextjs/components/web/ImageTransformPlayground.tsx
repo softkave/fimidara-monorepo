@@ -187,12 +187,7 @@ export function ImageTransformPlayground(props: ImageTransformPlaygroundProps) {
 
   const originalWidth = file.imageWidth ?? originalMeasured?.width;
   const originalHeight = file.imageHeight ?? originalMeasured?.height;
-  const originalMeta = formatSizeAndAspect(
-    originalWidth,
-    originalHeight,
-    // Prefer server-computed label when API dims are present.
-    file.imageWidth && file.imageHeight ? file.aspectRatioLabel : undefined
-  );
+  const originalMeta = formatSizeAndAspect(originalWidth, originalHeight);
 
   const requestedWidth = parseOptionalPositiveInt(applied.width);
   const requestedHeight = parseOptionalPositiveInt(applied.height);

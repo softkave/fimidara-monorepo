@@ -28,7 +28,14 @@ export interface IFormMessageProps {
 }
 
 const FormMessage: React.FC<IFormMessageProps> = (props) => {
-  const { children, message, type, className, style, visible } = props;
+  const {
+    children,
+    message = [],
+    type,
+    className,
+    style,
+    visible = true,
+  } = props;
 
   if (!visible) {
     return null;
@@ -75,11 +82,6 @@ const FormMessage: React.FC<IFormMessageProps> = (props) => {
       )}
     </div>
   );
-};
-
-FormMessage.defaultProps = {
-  message: [],
-  visible: true,
 };
 
 function getTailwindClasses(type: FormMessageType) {

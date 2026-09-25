@@ -19,7 +19,6 @@
     "jsx": "react-jsx",
     "incremental": true,
     "allowImportingTsExtensions": true,
-    "baseUrl": ".",
     "rootDir": ".",
     "paths": {
       "@/components": [

@@ -8,7 +8,7 @@ export const useFormHelpers = (
   form: UseFormReturn<any, any, any>,
   other: { errors?: unknown }
 ) => {
-  const lastErrorRef = React.useRef<any>();
+  const lastErrorRef = React.useRef<any>(undefined);
 
   React.useEffect(() => {
     if (other.errors && other.errors !== lastErrorRef.current) {
