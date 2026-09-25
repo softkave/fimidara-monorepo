@@ -54,6 +54,11 @@ export const fimidaraNavItems: IRawNavItem[] = [
         key: "workspace",
         href: kAppDocPaths.fimidaraDoc("workspace"),
       },
+      {
+        label: "Image transformation",
+        key: "image-transformation",
+        href: kAppDocPaths.fimidaraDoc("image-transformation"),
+      },
     ],
   },
 ];

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { CornerUpRightIcon } from "lucide-react";
+import { SquareArrowUpRightIcon } from "lucide-react";
 import Link from "next/link";
 
 export interface IWebFooterLinkGroup {
@@ -15,6 +15,7 @@ export const kFooterLinkGroups: IWebFooterLinkGroup[] = [
   {
     title: "Resources",
     links: [
+      { label: "Pricing", href: "/pricing" },
       { label: "App Docs", href: "/docs/fimidara/introduction" },
       { label: "REST API Docs", href: "/docs/fimidara-rest-api/v1" },
       {
@@ -33,13 +34,18 @@ export const kFooterLinkGroups: IWebFooterLinkGroup[] = [
     title: "Other Products",
     links: [
       {
-        label: "chorebuddy",
+        label: "ChoreBuddy",
         href: "https://chorebuddy.fimidara.com",
         isExternal: true,
       },
       {
         label: "fimipost",
         href: "https://fimipost.ywordk.com",
+        isExternal: true,
+      },
+      {
+        label: "fimidx",
+        href: "https://dx.fimidara.com",
         isExternal: true,
       },
     ],
@@ -55,15 +61,17 @@ export function WebFooterLinkGroup(props: {
       <h3 className="text-sm font-bold text-muted-foreground">
         {props.group.title}
       </h3>
-      <ul className="flex flex-col gap-2 py-0">
+      <ul className="flex list-none! flex-col gap-2 p-0!">
         {props.group.links.map((link) => (
-          <li key={link.href}>
+          <li key={link.href} className="list-none">
             <Link
               href={link.href}
               className="text-muted-foreground hover:text-primary transition-colors duration-300 text-sm flex items-center gap-2"
             >
               <span>{link.label}</span>
-              {link.isExternal && <CornerUpRightIcon className="w-3 h-3" />}
+              {link.isExternal && (
+                <SquareArrowUpRightIcon className="w-3 h-3" />
+              )}
             </Link>
           </li>
         ))}

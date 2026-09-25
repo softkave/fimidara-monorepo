@@ -83,49 +83,91 @@ export function renderTableFieldType(
     if (!data.type) return "";
     const containedTypeNode = renderTableFieldType(data.type, isForJsSdk);
     return (
-      <span>
-        <code>array</code> of {containedTypeNode}
+      <span className="inline-flex items-center gap-1 leading-none">
+        <code>array</code>
+        <span className="inline-flex items-center">of</span>
+        <span className="inline-flex items-center">{containedTypeNode}</span>
       </span>
     );
   } else if (isMfdocFieldObject(data)) {
     return data.name ? (
-      <a href={`#${getTypeNameID(data.name)}`}>
-        <code className="line-clamp-1">{data.name}</code>
+      <a
+        href={`#${getTypeNameID(data.name)}`}
+        className="inline-flex items-center leading-none"
+      >
+        <code>{data.name}</code>
       </a>
     ) : null;
   } else if (isMfdocFieldOrCombination(data)) {
     if (!data.types) return "";
     const nodes: React.ReactNode[] = [];
 
-    forEach(data.types, (type) => {
+    forEach(data.types, (type, typeIndex) => {
       const node = renderTableFieldType(type, isForJsSdk);
-      if (nodes.length) nodes.push(" or ", node);
-      else nodes.push(node);
+      if (nodes.length) {
+        nodes.push(
+          <span
+            key={`sep-${typeIndex}`}
+            className="inline-flex items-center"
+          >
+            or
+          </span>,
+          <span
+            key={`type-${typeIndex}`}
+            className="inline-flex items-center"
+          >
+            {node}
+          </span>
+        );
+      } else {
+        nodes.push(
+          <span
+            key={`type-${typeIndex}`}
+            className="inline-flex items-center"
+          >
+            {node}
+          </span>
+        );
+      }
     });
 
-    return nodes;
+    return (
+      <span className="inline-flex flex-wrap items-center gap-1 leading-none">
+        {nodes}
+      </span>
+    );
   } else if (isMfdocFieldBinary(data)) {
     return (
-      <span>
-        <code>string</code> |<br />
-        <a href="https://nodejs.org/api/stream.html#class-streamreadable">
-          <code className="line-clamp-1">Node.js Readable</code>
-        </a>{" "}
-        |<br />
-        <a href="https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream">
-          <code className="line-clamp-1">Browser ReadableStream</code>
-        </a>{" "}
+      <span className="inline-flex flex-col items-center gap-0.5 leading-none">
+        <code>string</code>
+        <span className="inline-flex items-center">|</span>
+        <a
+          href="https://nodejs.org/api/stream.html#class-streamreadable"
+          className="inline-flex items-center"
+        >
+          <code>Node.js Readable</code>
+        </a>
+        <span className="inline-flex items-center">|</span>
+        <a
+          href="https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream"
+          className="inline-flex items-center"
+        >
+          <code>Browser ReadableStream</code>
+        </a>
       </span>
     );
   } else if (isMfdocCustomType(data)) {
     if (data.descriptionLink) {
       return (
-        <a href={data.descriptionLink}>
+        <a
+          href={data.descriptionLink}
+          className="inline-flex items-center leading-none"
+        >
           <code>{data.name}</code>
         </a>
       );
     } else {
-      return <code className="line-clamp-1">{data.name}</code>;
+      return <code>{data.name}</code>;
     }
   }
 
@@ -151,8 +193,8 @@ function renderFieldObjectAsTable(
   );
 
   return (
-    <div key={nextObject.name || index}>
-      <div className="space-x-2 flex mb-4">
+    <div key={nextObject.name || index} className="flex flex-col gap-2">
+      <div className="space-x-2 flex">
         {propName && <code>{propName}</code>}
         {nextObject.name && (
           <h5 id={getTypeNameID(nextObject.name)} className="text-secondary">
@@ -161,36 +203,41 @@ function renderFieldObjectAsTable(
         )}
       </div>
       <FieldDescription fieldbase={nextObject} style={{ margin: 0 }} />
-      <div className="border rounded-md">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[150px]">Field</TableHead>
-              <TableHead className="w-[150px]">Type</TableHead>
-              <TableHead className="w-[80px]">Required</TableHead>
-              <TableHead>Description</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map((row, rowIndex) => (
-              <TableRow key={rowIndex}>
-                <TableCell className="font-mono">
-                  <code>{row.field}</code>
-                </TableCell>
-                <TableCell>
-                  {renderTableFieldType(row.fieldbase, isForJsSdk)}
-                </TableCell>
-                <TableCell>{row.required ? "Yes" : "No"}</TableCell>
-                <TableCell>
-                  <FieldDescription
-                    fieldbase={row.fieldbase}
-                    className="[&_.ant-typography]:m-0"
-                  />
-                </TableCell>
+      <div className="relative left-1/2 w-[100cqw] max-w-[100cqw] -translate-x-1/2 px-4 md:px-8">
+        <div className="overflow-hidden rounded-md border">
+          <Table className="table-fixed">
+            <colgroup>
+              <col className="w-[22%]" />
+              <col className="w-[22%]" />
+              <col className="w-[12%]" />
+              <col className="w-[44%]" />
+            </colgroup>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Field</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Required</TableHead>
+                <TableHead className="text-muted-foreground">Description</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row, rowIndex) => (
+                <TableRow key={rowIndex}>
+                  <TableCell className="font-mono whitespace-normal break-all">
+                    <code>{row.field}</code>
+                  </TableCell>
+                  <TableCell className="align-middle whitespace-normal break-words">
+                    {renderTableFieldType(row.fieldbase, isForJsSdk)}
+                  </TableCell>
+                  <TableCell>{row.required ? "Yes" : "No"}</TableCell>
+                  <TableCell className="whitespace-normal break-words text-muted-foreground">
+                    <FieldDescription fieldbase={row.fieldbase} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );

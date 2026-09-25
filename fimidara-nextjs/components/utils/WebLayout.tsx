@@ -26,7 +26,7 @@ export const WebLayout = (props: IWebLayoutProps) => {
   return (
     <div className="flex h-screen max-h-screen overflow-hidden">
       {isDocs && <DocsSideNav />}
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+      <div className="@container flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <WebHeader />
         <MaybeScroll className="min-h-0 flex-1">
           <div

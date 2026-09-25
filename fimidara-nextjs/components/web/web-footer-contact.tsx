@@ -50,7 +50,7 @@ export function WebFooterContact(props: {
         <Separator orientation="vertical" />
         <FooterContackLink
           href={props.contact.xURL}
-          icon={<XIcon className="w-4 h-4" />}
+          icon={<XIcon className="size-3" />}
         />
         <Separator orientation="vertical" />
         <FooterContackLink

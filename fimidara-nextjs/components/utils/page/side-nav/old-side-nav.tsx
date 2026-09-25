@@ -26,7 +26,7 @@ export function SideNav(props: ISideNavProps) {
       key={oldBehaviour.key}
       items={items as ISomeNavItem[]}
       style={{ minWidth: isOpen ? "300px" : undefined }}
-      className={"h-full py-2"}
+      className="py-2"
       selected={oldBehaviour.selected}
       onSelect={oldBehaviour.handleSelect}
       open={oldBehaviour.open}
@@ -40,13 +40,15 @@ export function SideNav(props: ISideNavProps) {
     }
 
     return (
-      <div className="grid h-full w-[300px] shrink-0 grid-rows-[auto_1fr] gap-0 border-r">
+      <div className="grid h-full min-h-0 w-[300px] shrink-0 grid-rows-[auto_minmax(0,1fr)] gap-0 overflow-hidden border-r">
         <AppTitle
           className={cn(
             "sticky top-0 z-50 flex items-center bg-background px-4 py-4 border-r"
           )}
         />
-        <MaybeScroll className="w-full max-w-full">{menuNode}</MaybeScroll>
+        <MaybeScroll className="min-h-0 h-full w-full max-w-full overflow-hidden">
+          {menuNode}
+        </MaybeScroll>
       </div>
     );
   } else {
@@ -55,12 +57,12 @@ export function SideNav(props: ISideNavProps) {
         open={isOpen}
         onClose={onClose}
         title={title}
-        className="px-0 grid grid-rows-[auto_1fr] gap-0"
+        className="px-0 grid grid-rows-[auto_minmax(0,1fr)] gap-0"
         titleClassName="px-4"
         side="left"
         contentClassName="overflow-hidden p-0"
       >
-        <MaybeScroll className="h-full">{menuNode}</MaybeScroll>
+        <MaybeScroll className="min-h-0 h-full">{menuNode}</MaybeScroll>
       </PageDrawer>
     );
   }

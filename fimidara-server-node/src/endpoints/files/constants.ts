@@ -3,7 +3,7 @@ import {BusboyConfig} from 'busboy';
 import {kIjxUtils} from '../../contexts/ijx/injectables.js';
 import {kEndpointConstants} from '../constants.js';
 
-const maxFileSizeInBytes = 1024 * 1024 ** 2; // 2Gb
+const maxFileSizeInBytes = 1024 * 1024 * 1024; // 1 GiB
 const multipartLimits: BusboyConfig['limits'] = {
   fields: 1,
   files: 1,

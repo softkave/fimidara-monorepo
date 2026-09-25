@@ -2,7 +2,21 @@ import bundleAnalyzer from "@next/bundle-analyzer";
 import mdxNext from "@next/mdx";
 import withPlugins from "next-compose-plugins";
 
-const withMDX = mdxNext();
+// Turbopack requires serializable MDX options (package name strings, not imports).
+const withMDX = mdxNext({
+  options: {
+    remarkPlugins: ["remark-gfm"],
+    rehypePlugins: [
+      [
+        "rehype-pretty-code",
+        {
+          theme: "github-light",
+          keepBackground: false,
+        },
+      ],
+    ],
+  },
+});
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",

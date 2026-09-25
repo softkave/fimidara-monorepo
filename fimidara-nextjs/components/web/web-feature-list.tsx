@@ -4,6 +4,7 @@ import {
   FileLock2Icon,
   FileStackIcon,
   FileUpIcon,
+  ImageIcon,
   LinkIcon,
   SquareActivityIcon,
   UsersIcon,
@@ -55,6 +56,11 @@ export const kFeatureListItems: IWebFeature[] = [
     title: "Presigned URLs",
     description: "Generate presigned URLs to share files with others.",
     icon: <LinkIcon />,
+  },
+  {
+    title: "Image Transformation",
+    description: "Transform images on the fly using a URL query string.",
+    icon: <ImageIcon />,
   },
 ];
 

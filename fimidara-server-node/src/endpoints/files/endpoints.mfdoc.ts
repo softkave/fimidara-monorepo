@@ -124,7 +124,6 @@ const position = mfdocConstruct.constructOrCombination<
   [typeof positionEnum, typeof positionNum]
 >({
   types: [positionEnum, positionNum],
-  description: 'Position or gravity to use when fit is cover or contain',
 });
 const background = mfdocConstruct.constructString({
   description: 'Hex background color to use when fit is contain',

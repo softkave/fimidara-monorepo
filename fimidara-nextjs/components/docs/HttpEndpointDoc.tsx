@@ -40,6 +40,11 @@ const HttpEndpointDoc: React.FC<HttpEndpointDocProps> = (props) => {
         <h5 className="inline-block m-0">
           <code className="text-base uppercase">{endpoint.method}</code>
         </h5>
+        {endpoint.description ? (
+          <p className="mt-4 text-muted-foreground">
+            {endpoint.description}
+          </p>
+        ) : null}
       </div>
       <div className="space-y-4">
         <h5>Path Parameters</h5>

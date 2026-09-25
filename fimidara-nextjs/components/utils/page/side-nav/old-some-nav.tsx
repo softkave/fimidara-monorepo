@@ -50,7 +50,7 @@ export function SomeNav(props: ISomeNavProps) {
                 someBehaviour.handleOpen(item);
               }
             }}
-            className="cursor-pointer text-muted-foreground"
+            className="cursor-pointer text-muted-foreground px-2"
           >
             {someBehaviour.checkIsOpen(item.key) ? (
               <ChevronDown className="h-4 w-4" />
@@ -100,7 +100,7 @@ export function SomeNav(props: ISomeNavProps) {
         {item.children?.length && someBehaviour.checkIsOpen(item.key) ? (
           <SomeNav
             items={item.children}
-            className="ml-6"
+            className="ml-10"
             key={item.key}
             onOpen={props.onOpen}
             onSelect={props.onSelect}
