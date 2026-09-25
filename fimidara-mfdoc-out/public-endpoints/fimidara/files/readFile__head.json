@@ -79,8 +79,7 @@
                             "description": "Position to use when fit is cover or contain",
                             "example": 5
                         }
-                    ],
-                    "description": "Position or gravity to use when fit is cover or contain"
+                    ]
                 }
             },
             "fit": {
@@ -348,8 +347,7 @@
                                             "description": "Position to use when fit is cover or contain",
                                             "example": 5
                                         }
-                                    ],
-                                    "description": "Position or gravity to use when fit is cover or contain"
+                                    ]
                                 }
                             },
                             "background": {

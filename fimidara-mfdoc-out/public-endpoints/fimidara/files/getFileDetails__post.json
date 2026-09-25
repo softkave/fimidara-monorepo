@@ -404,6 +404,15 @@
                                 "example": 1.7778
                             }
                         },
+                        "aspectRatioLabel": {
+                            "__id": "FieldObjectField",
+                            "required": false,
+                            "data": {
+                                "__id": "FieldString",
+                                "description": "Simplified aspect ratio label for display (e.g. \"16:9\"). Falls back to a short decimal when the pixel size does not reduce cleanly.",
+                                "example": "16:9"
+                            }
+                        },
                         "read": {
                             "__id": "FieldObjectField",
                             "required": true,

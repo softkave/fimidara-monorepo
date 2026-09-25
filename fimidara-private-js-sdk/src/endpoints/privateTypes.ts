@@ -75,11 +75,7 @@ export type WorkspaceBillStatus = 'ok' | 'gracePeriod' | 'billOverdue';
  * ```
  */
 export type UsageRecordCategory =
-  | 'total'
-  | 'storage'
-  | 'storageEver'
-  | 'bin'
-  | 'bout';
+  'total' | 'storage' | 'storageEver' | 'bin' | 'bout';
 /**
  * Usage threshold configuration for workspace billing and limits
  */
@@ -611,10 +607,7 @@ export type GetUserCollaborationRequestEndpointParams = {
  * ```
  */
 export type CollaborationRequestStatusType =
-  | 'accepted'
-  | 'declined'
-  | 'revoked'
-  | 'pending';
+  'accepted' | 'declined' | 'revoked' | 'pending';
 /**
  * A collaboration request as seen by the recipient user. Contains all the information needed to understand and respond to the collaboration invitation.
  */

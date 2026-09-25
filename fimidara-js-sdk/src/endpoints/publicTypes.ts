@@ -3615,10 +3615,10 @@ export type IssuePresignedPathEndpointParams = {
    */
   action?: FimidaraPermissionAction | Array<FimidaraPermissionAction>;
   /**
-   * How long the presigned path should remain valid, in seconds. Defaults to 3600 seconds (1 hour)
+   * How long the presigned path should remain valid, in milliseconds. Defaults to unlimited if not specified
    * @example
    * ```
-   * 3600
+   * 3600000
    * ```
    */
   duration?: number;
@@ -3852,7 +3852,7 @@ export type ImageResizeParams = {
    */
   fit?: ImageResizeFitEnum;
   /**
-   * Position or gravity to use when fit is cover or contain
+   * Gravity or strategy to use when fit is cover or contain
    * @example
    * ```
    * center
