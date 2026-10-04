@@ -1,5 +1,5 @@
 import {createHash} from 'crypto';
-import sharp from 'sharp';
+import sharp, {type Sharp} from 'sharp';
 import {Readable} from 'stream';
 import {File, ImageFormatEnum, ImageFormatEnumMap} from '../../../definitions/file.js';
 import {kFileConstants} from '../constants.js';
@@ -108,9 +108,9 @@ export type TransformedImageFileResult = {
 };
 
 function applyOutputFormat(
-  pipeline: sharp.Sharp,
+  pipeline: Sharp,
   format: ImageFormatEnum
-): sharp.Sharp {
+): Sharp {
   switch (format) {
     case ImageFormatEnumMap.avif:
       return pipeline.avif({quality: kFileConstants.defaultAvifQuality});
@@ -135,10 +135,10 @@ function buildSharpPipeline(
   input: Readable | Buffer,
   imageResize: ImageResizeParams | undefined,
   format: ImageFormatEnum
-): sharp.Sharp {
+): Sharp {
   // sequentialRead lets libvips stream decode→encode when possible.
   // sharp@0.32 accepts stream input only via pipe (not constructor + options).
-  let pipeline: sharp.Sharp;
+  let pipeline: Sharp;
   if (Buffer.isBuffer(input)) {
     pipeline = sharp(input, {failOn: 'error', sequentialRead: true});
   } else {

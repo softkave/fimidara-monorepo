@@ -1,4 +1,4 @@
-import sharp from 'sharp';
+import sharp, {type Metadata} from 'sharp';
 import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {
   File,
@@ -56,7 +56,7 @@ export function displaySizeFromMetadata(meta: {
 
 async function readImageMetadata(
   input: NodeJS.ReadableStream | Buffer
-): Promise<sharp.Metadata> {
+): Promise<Metadata> {
   if (Buffer.isBuffer(input)) {
     return sharp(input, {failOn: 'error', sequentialRead: true}).metadata();
   }
