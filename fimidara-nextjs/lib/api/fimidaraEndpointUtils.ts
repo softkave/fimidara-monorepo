@@ -1,7 +1,8 @@
 import { MfdocEndpointError as FimidaraEndpointError } from "fimidara";
+import { isMfdocEndpointError } from "../common/error";
 
 export function isFimidaraEndpointError(
   error: unknown
 ): error is FimidaraEndpointError {
-  return !!(error as FimidaraEndpointError | undefined)?.isMfdocEndpointError;
+  return isMfdocEndpointError(error);
 }

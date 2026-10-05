@@ -32,3 +32,44 @@ export class OwnServerError extends OwnError {
     this.statusCode = statusCode;
   }
 }
+
+export const kErrorNames = {
+  OwnError: "OwnError",
+  OwnServerError: "OwnServerError",
+  ZodError: "ZodError",
+  AssertionError: "AssertionError",
+  UnknownError: "UnknownError",
+} as const;
+
+export const kErrorNamesList = Object.values(kErrorNames);
+
+export const kDefaultUserFacingErrorMessage =
+  "An error occurred. Please try again later.";
+
+/** Duck-type check for mfdoc/fimidara SDK endpoint errors. */
+export function isMfdocEndpointError(
+  error: unknown
+): error is Error & { isMfdocEndpointError: true } {
+  return (
+    isObject(error) &&
+    (error as AnyObject).isMfdocEndpointError === true &&
+    typeof (error as Error).message === "string"
+  );
+}
+
+/**
+ * OwnError and MfdocEndpointError messages are safe to show in the UI.
+ * Other errors fall back to a generic message.
+ */
+export function getUserFacingErrorMessage(
+  error: unknown,
+  fallback = kDefaultUserFacingErrorMessage
+): string {
+  if (OwnError.isOwnError(error) && error.message) {
+    return error.message;
+  }
+  if (isMfdocEndpointError(error) && error.message) {
+    return error.message;
+  }
+  return fallback;
+}

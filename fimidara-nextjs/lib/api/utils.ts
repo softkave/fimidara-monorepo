@@ -1,20 +1,43 @@
 import { toast } from "@/hooks/use-toast.ts";
 import { isArray, isFunction, isString } from "lodash-es";
 import { useCallback, useMemo } from "react";
-import { AnyFn, OrArray, convertToArray } from "softkave-js-utils";
+import { AnyFn, AnyObject, OrArray, convertToArray } from "softkave-js-utils";
 import { Arguments, useSWRConfig } from "swr";
+import {
+  getUserFacingErrorMessage,
+  kDefaultUserFacingErrorMessage,
+  kErrorNamesList,
+  OwnError,
+} from "../common/error";
 import { fimidxConsoleLogger } from "../common/logger";
+
+async function readResponseJson(res: Response): Promise<unknown> {
+  try {
+    return await res.json();
+  } catch (error) {
+    fimidxConsoleLogger.error(error);
+    throw new OwnError(kDefaultUserFacingErrorMessage);
+  }
+}
 
 export async function handleResponseError(res: Response) {
   if (res.status !== 200) {
-    const json = await res.json();
+    const json = (await readResponseJson(res)) as AnyObject;
     // TODO: map server zod errors to fields, and other error fields
-    throw new Error(isString(json.message) ? json.message : "Unknown error");
+    let errorMessage = isString(json?.message) ? json.message : "Unknown error";
+    if (
+      !isString(json?.name) ||
+      !(kErrorNamesList as readonly string[]).includes(json.name)
+    ) {
+      errorMessage = kDefaultUserFacingErrorMessage;
+      fimidxConsoleLogger.error(json);
+    }
+    throw new OwnError(errorMessage);
   }
 }
 
 export async function handleResponseSuccess<T>(res: Response) {
-  const json = await res.json();
+  const json = await readResponseJson(res);
   return json as T;
 }
 
@@ -81,9 +104,7 @@ export function useMutationHandler<TFn extends AnyFn>(
         if (showToast) {
           toast({
             title: "Error occurred",
-            description: isString((error as Error | undefined)?.message)
-              ? (error as Error).message
-              : "An error occurred",
+            description: getUserFacingErrorMessage(error),
           });
         }
 

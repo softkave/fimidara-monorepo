@@ -1,6 +1,6 @@
 "use client"; // Error components must be Client Components
 
-import { OwnError } from "@/lib/common/error.ts";
+import { getUserFacingErrorMessage } from "@/lib/common/error.ts";
 import { fimidxConsoleLogger } from "@/lib/common/logger";
 import { useEffect } from "react";
 
@@ -16,9 +16,7 @@ export default function Error({
     fimidxConsoleLogger.error(error);
   }, [error]);
 
-  const errorMessage = OwnError.isOwnError(error)
-    ? error.message
-    : "An unknown error occurred";
+  const errorMessage = getUserFacingErrorMessage(error);
 
   // TODO: only display ExternalErrors
   return (
