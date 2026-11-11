@@ -20,10 +20,21 @@ export const POST = wrapRoute(async (request: NextRequest) => {
   });
 
   assert.ok(res.user.resourceId === params.userId, "Invalid credentials");
+
+  // Prefer the JWT's own expiry so a stale cookie cannot outlive the token and
+  // keep bouncing the user between `/login` and `/workspaces`.
+  const maxAgeSeconds = res.jwtTokenExpiresAt
+    ? Math.max(
+        0,
+        Math.floor((res.jwtTokenExpiresAt - Date.now()) / 1000)
+      )
+    : 60 * 60 * 24; // 1 day fallback
+
   (await cookies()).set(kUserConstants.httpOnlyJWTCookieName, params.jwtToken, {
     httpOnly: true,
     secure: true,
     sameSite: "strict",
-    maxAge: 60 * 60 * 24 * 30, // 30 days
+    path: "/",
+    maxAge: maxAgeSeconds,
   });
 });

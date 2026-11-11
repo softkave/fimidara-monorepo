@@ -4,5 +4,12 @@ import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
 export const POST = wrapRoute(async (request: NextRequest) => {
-  (await cookies()).delete(kUserConstants.httpOnlyJWTCookieName);
+  // Match set-cookie options so the browser actually clears the cookie.
+  (await cookies()).set(kUserConstants.httpOnlyJWTCookieName, "", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+    path: "/",
+    maxAge: 0,
+  });
 });

@@ -29,7 +29,7 @@ async function getUserDataInputFetchFn(): Promise<
       refresh: new RefreshUserToken({
         endpoints,
         user: data,
-      }),
+      }).start(),
     },
   };
 }

@@ -6,17 +6,50 @@ import { useCallback } from "react";
 import { isFimidaraEndpointError } from "../api/fimidaraEndpointUtils.ts";
 import { kAppAccountPaths } from "../definitions/paths/account.ts";
 import { kUserSessionStorageFns } from "../storage/UserSessionStorageFns.ts";
+import { isJwtExpired } from "../utils/jwt.ts";
+import { useUserSessionFetchStore } from "./fetchStores/session.ts";
 import { useRequestLogout } from "./session/useRequestLogout.ts";
 
 const kTimeout = 3_000; // 3 seconds
 const kMessageDuration = 10_000; // seconds
+
+let pendingLoginAgainTimeout: ReturnType<typeof setTimeout> | null = null;
+let pendingPasswordChangeTimeout: ReturnType<typeof setTimeout> | null = null;
+
+function hasFreshSession(): boolean {
+  const [state0] = useUserSessionFetchStore.getState().states;
+  const bearer = state0?.[1]?.data?.other?.refresh?.getBearerToken?.();
+  if (bearer && !isJwtExpired(bearer)) {
+    return true;
+  }
+
+  const stored = kUserSessionStorageFns.getData();
+  return Boolean(stored.jwtToken && !isJwtExpired(stored.jwtToken));
+}
+
+/** Cancel deferred logout/login-again timers (e.g. after a successful login). */
+export function cancelPendingSessionActions() {
+  if (pendingLoginAgainTimeout) {
+    clearTimeout(pendingLoginAgainTimeout);
+    pendingLoginAgainTimeout = null;
+  }
+  if (pendingPasswordChangeTimeout) {
+    clearTimeout(pendingPasswordChangeTimeout);
+    pendingPasswordChangeTimeout = null;
+  }
+}
 
 export function useHandleRequiresPasswordChange() {
   const { toast } = useToast();
   const { requestLogout } = useRequestLogout();
 
   const handleRequiresPasswordChange = useCallback(() => {
-    setTimeout(() => {
+    if (pendingPasswordChangeTimeout) {
+      clearTimeout(pendingPasswordChangeTimeout);
+    }
+
+    pendingPasswordChangeTimeout = setTimeout(() => {
+      pendingPasswordChangeTimeout = null;
       toast({
         title: "Logged Out",
         description:
@@ -40,7 +73,18 @@ export function useHandleLoginAgain() {
   const pathname = usePathname();
 
   const handleLoginAgain = useCallback(() => {
-    setTimeout(() => {
+    if (pendingLoginAgainTimeout) {
+      clearTimeout(pendingLoginAgainTimeout);
+    }
+
+    pendingLoginAgainTimeout = setTimeout(() => {
+      pendingLoginAgainTimeout = null;
+
+      // A successful login may have landed while this timer was waiting.
+      if (hasFreshSession()) {
+        return;
+      }
+
       toast({
         title: "Logged Out",
         description:

@@ -11,6 +11,7 @@ import { systemConstants } from "../definitions/system";
 import { IOAuthUser } from "../definitions/user.ts";
 import { useUserSessionFetchStore } from "../hooks/fetchStores/session.ts";
 import { kUserSessionStorageFns } from "../storage/UserSessionStorageFns.ts";
+import { isJwtExpired } from "../utils/jwt.ts";
 
 async function getTokensFromOAuth() {
   const auth = await getSession();
@@ -34,13 +35,34 @@ async function getTokensFromOAuth() {
 
 function getUserTokenFromStore() {
   const state = first(useUserSessionFetchStore.getState().states);
-  if (state) {
-    return state[1].data?.other?.refresh;
+  const refresh = state?.[1].data?.other?.refresh;
+  if (!refresh) {
+    return undefined;
   }
+
+  const bearer = refresh.getBearerToken?.() ?? undefined;
+  if (bearer && isJwtExpired(bearer)) {
+    return undefined;
+  }
+
+  // Prefer the refreshable token object so the SDK can rotate JWTs in-flight.
+  return refresh;
 }
 
 function getUserTokenFromStorage() {
-  return kUserSessionStorageFns.getData()?.jwtToken ?? undefined;
+  const data = kUserSessionStorageFns.getData();
+  if (!data.jwtToken) {
+    return undefined;
+  }
+
+  // Expired JWTs cannot call the API (express-jwt rejects them), and they
+  // block the OAuth fallback below if returned. Drop them so auth can recover.
+  if (isJwtExpired(data.jwtToken)) {
+    kUserSessionStorageFns.clearData();
+    return undefined;
+  }
+
+  return data.jwtToken;
 }
 
 export async function getUserToken() {
@@ -54,13 +76,26 @@ export async function getUserToken() {
 
 function getClientTokenFromStore() {
   const state = first(useUserSessionFetchStore.getState().states);
-  if (state) {
-    return state[1].data?.other?.refresh;
+  const refresh = state?.[1].data?.other?.refresh;
+  if (!refresh) {
+    return undefined;
   }
+
+  const bearer = refresh.getBearerToken?.() ?? undefined;
+  if (bearer && isJwtExpired(bearer)) {
+    return undefined;
+  }
+
+  return refresh;
 }
 
 function getClientTokenFromStorage() {
-  return kUserSessionStorageFns.getData()?.clientJwtToken ?? undefined;
+  const data = kUserSessionStorageFns.getData();
+  if (!data.clientJwtToken || !data.jwtToken || isJwtExpired(data.jwtToken)) {
+    return undefined;
+  }
+
+  return data.clientJwtToken;
 }
 
 export async function getClientToken() {
@@ -97,7 +132,7 @@ export function getPrivateFimidaraEndpoints(
 }
 
 export async function getPublicFimidaraEndpointsUsingUserToken(
-  props: { userToken?: string; throwIfNoToken?: boolean } = {}
+  props: { userToken?: FimidaraJsConfigAuthToken; throwIfNoToken?: boolean } = {}
 ) {
   const { userToken = await getUserToken(), throwIfNoToken = true } = props;
   if (throwIfNoToken && !userToken) {
@@ -108,7 +143,7 @@ export async function getPublicFimidaraEndpointsUsingUserToken(
 }
 
 export async function getPrivateFimidaraEndpointsUsingUserToken(
-  props: { userToken?: string; throwIfNoToken?: boolean } = {}
+  props: { userToken?: FimidaraJsConfigAuthToken; throwIfNoToken?: boolean } = {}
 ) {
   const { userToken = await getUserToken(), throwIfNoToken = true } = props;
   if (throwIfNoToken && !userToken) {

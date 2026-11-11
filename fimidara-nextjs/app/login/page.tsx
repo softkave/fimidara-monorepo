@@ -18,9 +18,9 @@ import { cn } from "@/components/utils.ts";
 import styles from "@/components/utils/form/form.module.css";
 import { FormAlert } from "@/components/utils/FormAlert.tsx";
 import { kUserConstants } from "@/lib/definitions/user.ts";
+import { updateLocalLoginResult } from "@/lib/hooks/mutationHooks/updateLocalLoginResult.ts";
 import { useUserLoginMutationHook } from "@/lib/hooks/mutationHooks/useUserLoginMutationHook.ts";
 import { useFormHelpers } from "@/lib/hooks/useFormHelpers.ts";
-import { kUserSessionStorageFns } from "@/lib/storage/UserSessionStorageFns";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { isBoolean, omit } from "lodash-es";
 import { useRouter } from "next/navigation";
@@ -44,11 +44,7 @@ const formSchema = z.object({
 export default function Login(props: ILoginProps) {
   const router = useRouter();
   const returnTo = useLoggedInReturnTo();
-  const loginHook = useUserLoginMutationHook({
-    onSuccess(data, params) {
-      router.push(returnTo);
-    },
-  });
+  const loginHook = useUserLoginMutationHook();
 
   const onSubmit = async (body: z.infer<typeof formSchema>) => {
     const result = await loginHook.runAsync({
@@ -56,14 +52,13 @@ export default function Login(props: ILoginProps) {
       password: body.password,
     });
 
-    if (body.remember) {
-      kUserSessionStorageFns.setData({
-        jwtToken: result.jwtToken,
-        clientJwtToken: result.clientJwtToken,
-        refreshToken: result.refreshToken,
-        jwtTokenExpiresAt: result.jwtTokenExpiresAt,
-      });
-    }
+    // Hook updates in-memory session with persistJwtToken:false; re-apply with
+    // remember so localStorage + httpOnly cookie stay aligned with the JWT.
+    updateLocalLoginResult({
+      result,
+      persistJwtToken: Boolean(body.remember),
+    });
+    router.push(returnTo);
   };
 
   const form = useForm<z.infer<typeof formSchema>>({

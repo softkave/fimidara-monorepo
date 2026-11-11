@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { kUserConstants } from "@/lib/definitions/user.ts";
+import { isJwtExpired } from "@/lib/utils/jwt.ts";
 import { cookies } from "next/headers";
 
 export async function useServerUserLoggedIn() {
@@ -7,7 +8,9 @@ export async function useServerUserLoggedIn() {
     kUserConstants.httpOnlyJWTCookieName
   )?.value;
 
-  if (jwtToken) {
+  // Cookie maxAge outlives the JWT; treat expired tokens as logged out so
+  // `/login` and `/` do not bounce a stale session into `/workspaces`.
+  if (jwtToken && !isJwtExpired(jwtToken)) {
     return true;
   }
 

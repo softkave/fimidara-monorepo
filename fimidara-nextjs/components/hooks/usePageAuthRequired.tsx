@@ -43,6 +43,9 @@ export const usePageAuthRequired = (options: WithPageAuthRequiredOptions) => {
   const isRedirecting =
     searchParams.get(kDefaultRedirectingQueryKey) === "true";
   const setRef = useRef(set);
+  const logoutRef = useRef(logout);
+  logoutRef.current = logout;
+
   useEffect(() => {
     if (isLogoutRequested && !isRedirecting) {
       const toastControl = toast({ title: "Logging out..." });
@@ -50,7 +53,7 @@ export const usePageAuthRequired = (options: WithPageAuthRequiredOptions) => {
         .catch(fimidxConsoleLogger.error.bind(fimidxConsoleLogger))
         .finally(() => toastControl.dismiss())
         .then(() => {
-          logout();
+          logoutRef.current();
           setRef.current({
             isLogoutRequested: false,
             routeToOnLogout: undefined,
@@ -62,7 +65,7 @@ export const usePageAuthRequired = (options: WithPageAuthRequiredOptions) => {
           });
         });
     }
-  }, [isLogoutRequested, logout, routeToOnLogout, pathname, isRedirecting]);
+  }, [isLogoutRequested, routeToOnLogout, pathname, isRedirecting]);
 
   useEffect(() => {
     // Only transition to login if logged in state is newly decided to be false,
@@ -76,12 +79,17 @@ export const usePageAuthRequired = (options: WithPageAuthRequiredOptions) => {
       const loginPath = kAppAccountPaths.loginWithReturnPath(returnToPath);
       if (!pathname.includes(kAppAccountPaths.login)) {
         const toastControl = toast({ title: "Logging out..." });
+        // Clear local session, httpOnly cookie, AND next-auth. Leaving next-auth
+        // intact makes the server keep treating the user as logged in and bounce
+        // `/login` → `/workspaces` → `/login`.
         callRmCookieEndpoint()
           .catch(fimidxConsoleLogger.error.bind(fimidxConsoleLogger))
           .finally(() => toastControl.dismiss())
-          .then(() => {
+          .then(async () => {
+            logoutRef.current();
             const finalLoginPath =
               kAppAccountPaths.appendRedirectingQueryKey(loginPath);
+            await signOut({ redirect: false });
             router.push(finalLoginPath);
           });
       }

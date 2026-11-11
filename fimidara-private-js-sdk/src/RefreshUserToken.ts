@@ -5,6 +5,13 @@ import {kDefaultRefreshTokenTimeoutLatency} from './constants.js';
 import type {FimidaraEndpoints} from './endpoints/privateEndpoints.js';
 import type {LoginResult} from './endpoints/privateTypes.js';
 
+function getRefreshDelayMs(
+  jwtTokenExpiresAt: number,
+  timeoutLatency: number
+): number {
+  return Math.max(0, jwtTokenExpiresAt - Date.now() - timeoutLatency);
+}
+
 export class RefreshUserToken
   extends RefreshableResource<LoginResult>
   implements IRefreshAuthToken
@@ -15,10 +22,11 @@ export class RefreshUserToken
     timeoutLatency?: number;
     onError?: (error: unknown, current: LoginResult) => void;
   }) {
+    const timeoutLatency =
+      props.timeoutLatency ?? kDefaultRefreshTokenTimeoutLatency;
+
     super({
-      timeout:
-        props.user.jwtTokenExpiresAt -
-        (props.timeoutLatency ?? kDefaultRefreshTokenTimeoutLatency),
+      timeout: getRefreshDelayMs(props.user.jwtTokenExpiresAt, timeoutLatency),
       resource: props.user,
       refreshFn: async current => {
         const response = await props.endpoints.users.refreshToken(
@@ -30,8 +38,7 @@ export class RefreshUserToken
       },
       onRefresh: resource => {
         this.setRefreshTimeout(
-          resource.jwtTokenExpiresAt -
-            (props.timeoutLatency ?? kDefaultRefreshTokenTimeoutLatency),
+          getRefreshDelayMs(resource.jwtTokenExpiresAt, timeoutLatency),
         ).start();
       },
       onError: (error, current) => {

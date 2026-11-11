@@ -9,6 +9,7 @@ import {
   useUserSessionFetchStore,
 } from "../fetchStores/session.ts";
 import { useUsersStore } from "../resourceListStores.ts";
+import { cancelPendingSessionActions } from "../useHandleServerRecommendedActions.tsx";
 
 export function makeUpdateLocalLoginResultFn(params: {
   persistJwtToken: boolean;
@@ -47,7 +48,7 @@ async function updateUserSessionFetchStore(params: {
             authToken: result.jwtToken,
           }),
           user: result,
-        }),
+        }).start(),
       },
     },
   };
@@ -65,8 +66,12 @@ export function updateLocalLoginResult(params: {
   const { user, clientJwtToken, jwtToken, jwtTokenExpiresAt, refreshToken } =
     result;
 
+  // A deferred loginAgain timeout from a prior failed session must not wipe
+  // this fresh login a few seconds later.
+  cancelPendingSessionActions();
+
   const shouldPersistJwtToken =
-    kUserSessionStorageFns.getData().jwtToken || persistJwtToken;
+    Boolean(kUserSessionStorageFns.getData().jwtToken) || persistJwtToken;
 
   if (shouldPersistJwtToken) {
     kUserSessionStorageFns.setData({

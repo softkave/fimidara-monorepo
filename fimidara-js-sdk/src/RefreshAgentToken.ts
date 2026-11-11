@@ -30,11 +30,15 @@ export class RefreshAgentToken
     timeoutLatency?: number;
     onError?: (error: unknown, current: RefreshAgentTokenValue) => void;
   }) {
+    const timeoutLatency =
+      props.timeoutLatency ?? kDefaultRefreshTokenTimeoutLatency;
+    const getRefreshDelayMs = (jwtTokenExpiresAt?: number) =>
+      jwtTokenExpiresAt
+        ? Math.max(0, jwtTokenExpiresAt - Date.now() - timeoutLatency)
+        : 0;
+
     super({
-      timeout: props.token.jwtTokenExpiresAt
-        ? props.token.jwtTokenExpiresAt -
-          (props.timeoutLatency ?? kDefaultRefreshTokenTimeoutLatency)
-        : 0,
+      timeout: getRefreshDelayMs(props.token.jwtTokenExpiresAt),
       resource: props.token,
       refreshFn: async current => {
         assert.ok(current.refreshToken, 'No refresh token provided');
@@ -48,10 +52,7 @@ export class RefreshAgentToken
       },
       onRefresh: resource => {
         this.setRefreshTimeout(
-          props.token.jwtTokenExpiresAt
-            ? props.token.jwtTokenExpiresAt -
-                (props.timeoutLatency ?? kDefaultRefreshTokenTimeoutLatency)
-            : 0
+          getRefreshDelayMs(resource.jwtTokenExpiresAt)
         ).start();
       },
       onError: (error, current) => {
