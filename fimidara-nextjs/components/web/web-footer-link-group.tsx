@@ -66,6 +66,8 @@ export function WebFooterLinkGroup(props: {
           <li key={link.href} className="list-none">
             <Link
               href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-muted-foreground hover:text-primary transition-colors duration-300 text-sm flex items-center gap-2"
             >
               <span>{link.label}</span>

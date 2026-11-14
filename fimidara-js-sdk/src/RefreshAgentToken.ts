@@ -15,6 +15,10 @@ export type RefreshAgentTokenValue = Pick<
   'jwtTokenExpiresAt' | 'jwtToken' | 'refreshToken'
 >;
 
+/** setTimeout/setInterval store delays as 32-bit signed ints; larger values wrap
+ * and fire immediately — which with a 30-day JWT becomes an infinite refresh loop. */
+const kMaxTimerDelayMs = 2_147_483_647;
+
 /**
  * Manages automatic refresh of agent authentication tokens.
  * Extends RefreshableResource to handle token lifecycle and implements IRefreshAuthToken interface.
@@ -24,6 +28,8 @@ export class RefreshAgentToken
   extends RefreshableResource<RefreshAgentTokenValue>
   implements IRefreshAuthToken
 {
+  #isRefreshing = false;
+
   constructor(props: {
     token: RefreshAgentTokenValue;
     endpoints: FimidaraEndpoints;
@@ -32,10 +38,18 @@ export class RefreshAgentToken
   }) {
     const timeoutLatency =
       props.timeoutLatency ?? kDefaultRefreshTokenTimeoutLatency;
-    const getRefreshDelayMs = (jwtTokenExpiresAt?: number) =>
-      jwtTokenExpiresAt
-        ? Math.max(0, jwtTokenExpiresAt - Date.now() - timeoutLatency)
-        : 0;
+    const getRefreshDelayMs = (jwtTokenExpiresAt?: number) => {
+      if (!jwtTokenExpiresAt || !Number.isFinite(jwtTokenExpiresAt)) {
+        return 0;
+      }
+
+      const delay = jwtTokenExpiresAt - Date.now() - timeoutLatency;
+      if (!Number.isFinite(delay) || delay <= 0) {
+        return 0;
+      }
+
+      return Math.min(delay, kMaxTimerDelayMs);
+    };
 
     super({
       timeout: getRefreshDelayMs(props.token.jwtTokenExpiresAt),
@@ -43,12 +57,19 @@ export class RefreshAgentToken
       refreshFn: async current => {
         assert.ok(current.refreshToken, 'No refresh token provided');
 
-        const response = await props.endpoints.agentTokens.refreshToken(
-          {refreshToken: current.refreshToken},
-          {authToken: current.jwtToken}
-        );
+        if (this.#isRefreshing) {
+          return current;
+        }
 
-        return response;
+        this.#isRefreshing = true;
+        try {
+          return await props.endpoints.agentTokens.refreshToken(
+            {refreshToken: current.refreshToken},
+            {authToken: current.jwtToken}
+          );
+        } finally {
+          this.#isRefreshing = false;
+        }
       },
       onRefresh: resource => {
         this.setRefreshTimeout(
